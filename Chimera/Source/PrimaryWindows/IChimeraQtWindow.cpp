@@ -118,7 +118,10 @@ void IChimeraQtWindow::initializeMenu (){
 	connect (saveMasterConfig, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_MASTERCONFIG_SAVEMASTERCONFIGURATION, this); });
 	mc_p_m->addAction (saveMasterConfig);
 
-	mc_p_m->addAction ("Re-Load Master Configuration_X");
+	auto* reloadMasterConfig = new QAction ("Re-Load Master Configuration", this);
+	connect (reloadMasterConfig, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_MASTERCONFIGURATION_RELOAD_MASTER_CONFIG, this); });
+	mc_p_m->addAction (reloadMasterConfig);
+
 	auto conf_p_m = profileM->addMenu ("Con&figuration");
 
 	auto* saveConfig = new QAction ("&Save Configuration", this);

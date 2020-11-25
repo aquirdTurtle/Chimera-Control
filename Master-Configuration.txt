@@ -1,4 +1,4 @@
-Version 2.11
+Version 2.12
 diagmotrf
 0
 repumprf
@@ -233,34 +233,34 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__sv 0.07682153462698832
-diagmot__sv 0.2503092617784863
+sidemot__sv 0.07506279847378261
+diagmot__sv 0.2480277102431827
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__sv 0.09178535126432365
-sidemot_imaging__sv 0.1976275618951943
+sidemot_intrappgc__sv 0.09003663960195325
+sidemot_imaging__sv 0.194214135673613
 motimagingdetuning -0.32
 d1loadingfreq 112
 intraplgmcoolingfreq 103
-sidemot_d1__sv 0.1620899749159183
-diagmot_imaging__sv 0.09904898070018758
-diag_d1_load__sv -0.730890760901981
-repump_load__sv 0.1165046802285882
-repump_imaging__sv 0.1166229423444976
-sigma_repump__sv 0.06932561887208519
+sidemot_d1__sv 0.170639055374452
+diagmot_imaging__sv 0.09836596546237347
+diag_d1_load__sv -0.4848533652353728
+repump_load__sv 0.1229438455507709
+repump_imaging__sv 0.1230216428826609
+sigma_repump__sv 0.0703299784674814
 sigma_op__sv 0.199655
-pushout_probe__sv 0.3284031392742
+pushout_probe__sv 0.3111544490798444
 top_raman__sv 0.0758206
 top_raman_carrier__sv 0.09435238883238745
-eo_raman__sv 0.1091328275059889
+eo_raman__sv 0.1006271039448151
 ax_raman_spec__sv 0.02318754216101684
 top_raman_sideband_spec__sv 0.07815115159767412
 top_sbc_sideband_spec__sv 0.2113730589131441
-sbc_sigma_op__sv 0.05452219460508894
+sbc_sigma_op__sv 0.05382895352460036
 axramanoffset 108900
 intraplgmrepumpfreq 0.066
 intraplgmrepumppower 0
-depthmeasurementprobe__sv 0.05063030332735165
+depthmeasurementprobe__sv 0.04767571254038918
 pzttop_x 105
 pzttop_y 50
 pztax_x 60.39
@@ -270,7 +270,7 @@ pzteo_x 60
 ax_sbc_raman__sv 0.03992079736199364
 top_sbc_sideband__sv 0.08939619568964205
 sbc_cooling_mod 140
-radial_carrier_freq 6.830939464171448
+radial_carrier_freq 6.830943883103467
 axtekpower -3
 eotekpower -3
 ax_raman_sbc2__sv 0.0727281220058308
@@ -308,7 +308,7 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Calibration Name: */ sidemot
 /*Analog Input Chanel: */ 6
 /*Analog Output Control Chanel: */ 22
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 
+/*Control Values: */ ( 0 0.2 0.01 )
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ a 5 b 8 
@@ -318,6 +318,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */0
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.0611 -0.2629 -0.0008 -0.0017 0.0009 -0.0002 0. -0. 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ diagmot
 /*Analog Input Chanel: */ 7
@@ -332,6 +337,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */0
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.3634 -0.0261 -0.0636 -0.2628 0.0956 -0.0256 0.0037 -0.0002 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ repump
 /*Analog Input Chanel: */ 7
@@ -346,6 +356,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */0
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 1.0221 -0.0255 -0.0185 -2.3507 6.6378 -12.8886 12.8633 -4.6616 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ probe
 /*Analog Input Chanel: */ 5
@@ -360,6 +375,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */0
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.2771 -0.0676 0.0023 -0.0256 -0.2096 0.8779 -1.0517 0.4277 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ sigma_op
 /*Analog Input Chanel: */ 5
@@ -374,6 +394,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */0
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.275 0.0579 -0.0621 -0.2017 0.0852 -0.027 0.0045 -0.0003 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ sigma_repump
 /*Analog Input Chanel: */ 5
@@ -388,6 +413,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */0
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 6.5081 0.0154 -0.7074 -21.4892 208.5102 -1984.8667 10730.4682 -23189.6176 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ top_raman
 /*Analog Input Chanel: */ 2
@@ -402,6 +432,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */1
 /*Which Agilent: */TopBottom
 /*Which Agilent Channel: */1
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.1236 -0.0106 0. -0.0156 0.0103 -0.0032 0.0005 -0. 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ axail_raman
 /*Analog Input Chanel: */ 3
@@ -416,6 +451,11 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */1
 /*Which Agilent: */Axial
 /*Which Agilent Channel: */2
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.0801 -0.0037 -0.0001 -0.0032 0.0012 -0.0001 0. 0. 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
 
 /*Calibration Name: */ bot_raman
 /*Analog Input Chanel: */ 0
@@ -430,5 +470,10 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Use Agilent: */1
 /*Which Agilent: */Axial
 /*Which Agilent Channel: */1
-231 299 3 229 243 3
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.1262 -0.0271 0.0009 -0.0374 0.0286 -0.0111 0.002 -0.0001 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
+1 5 1 1 5 1
 0 0

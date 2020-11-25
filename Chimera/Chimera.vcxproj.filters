@@ -307,6 +307,9 @@
     <ClCompile Include="Source\Agilent\whichAg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AnalogInput\CalibrationThreadWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -860,6 +863,9 @@
     </QtMoc>
     <QtMoc Include="Source\ExcessDialogs\AoSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\AnalogInput\CalibrationThreadWorker.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

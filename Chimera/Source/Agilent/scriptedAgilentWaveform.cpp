@@ -5,15 +5,13 @@
 #include "Scripts/ScriptStream.h"
 #include <ExperimentThread/ExpThreadWorker.h>
 
-ScriptedAgilentWaveform::ScriptedAgilentWaveform()
-{
+ScriptedAgilentWaveform::ScriptedAgilentWaveform(){
 	segmentNum = 0;
 	totalSequence = "";
 };
 
 
-void ScriptedAgilentWaveform::resetNumberOfTriggers( )
-{
+void ScriptedAgilentWaveform::resetNumberOfTriggers( ){
 	numberOfTriggers = 0;
 }
 
@@ -143,8 +141,7 @@ std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum,
 	tempSendString = "SOURce" + str( chan ) + ":DATA:ARB segment" + str( segNum + totalSegNum * varNum ) + ",";
 	// need to handle last one separately so that I can /not/ put a comma after it.
 	unsigned numData = waveformSegments[segNum].returnDataSize( ) - 1;
-	for (unsigned sendDataInc = 0; sendDataInc < numData; sendDataInc++)
-	{
+	for (unsigned sendDataInc = 0; sendDataInc < numData; sendDataInc++){
 		tempSendString += str( waveformSegments[segNum].returnDataVal( sendDataInc ) );
 		tempSendString += ", ";
 	}
@@ -175,12 +172,10 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	// <play control2>, <marker mode2>, <marker point2>, and so on.
 	tempSequenceString = "SOURce" + str( channel) + ":DATA:SEQ #";
 	tempSegmentInfoString = "sequence" + str( sequenceNum ) + ",";
-	if (totalSegNum == 0)
-	{
+	if (totalSegNum == 0){
 		thrower ("No segments in agilent waveform???\r\n");
 	}
-	for (int segNumInc = 0; segNumInc < totalSegNum; segNumInc++)
-	{
+	for (int segNumInc = 0; segNumInc < totalSegNum; segNumInc++){
 		tempSegmentInfoString += "segment" + str ( segNumInc + totalSegNum * sequenceNum ) + ",";
 		tempSegmentInfoString += str ( waveformSegments[ segNumInc ].getFinalSettings ( ).repeatNum ) + ",";
 		tempSegmentInfoString += SegmentEnd::toStr ( waveformSegments[ segNumInc ].getFinalSettings ( ).continuationType ) + ",";
@@ -266,7 +261,7 @@ unsigned long ScriptedAgilentWaveform::getNumTrigs( ){
  * that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the
  * data string.
  */
-void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<double> calibCoeff){
+void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, calResult calibration){
 	// for each part of the waveform returnDataSize
 	for (unsigned segmentInc = 0; segmentInc < waveformSegments.size(); segmentInc++){
 		// for each data point in that part
@@ -276,7 +271,7 @@ void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<d
 			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
 			// setPoint = a * power + b
 			//double newValue = -a * log(y * b);
-			double setPointinVolts = AgilentCore::convertPowerToSetPoint(power, useCal, calibCoeff );
+			double setPointinVolts = AgilentCore::convertPowerToSetPoint(power, useCal, calibration);
 			waveformSegments[segmentInc].assignDataVal( dataConvertInc, setPointinVolts);
 		}
 	}

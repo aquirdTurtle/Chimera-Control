@@ -9,7 +9,7 @@ class IChimeraSystem : public QObject {
 	Q_OBJECT;
 	public:
 		IChimeraSystem(IChimeraQtWindow* parent_in);
-		IChimeraQtWindow* parent;
+		IChimeraQtWindow* parentWin;
 
 	public Q_SLOTS:
 

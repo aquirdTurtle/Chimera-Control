@@ -396,26 +396,27 @@ namespace commonFunctions
 			// the rest of these are all one-liners. 			
 			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveConfiguration (win); break; }
 			case ID_PLOTTING_STOPPLOTTER: { andorWin->stopPlotter( ); break; }
-			case ID_FILE_MY_INTENSITY_NEW: { scriptWin->newIntensityScript(); break; }
-			case ID_FILE_MY_INTENSITY_OPEN: { scriptWin->openIntensityScript(win); break; }
-			case ID_FILE_MY_INTENSITY_SAVE: { scriptWin->saveIntensityScript(); break; }
-			case ID_FILE_MY_INTENSITY_SAVEAS: { scriptWin->saveIntensityScriptAs(win); break; }
-			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE: { mainWin->handlePauseToggle (); break; }
+			case ID_FILE_MY_INTENSITY_NEW:		{ scriptWin->newIntensityScript(); break; }
+			case ID_FILE_MY_INTENSITY_OPEN:		{ scriptWin->openIntensityScript(win); break; }
+			case ID_FILE_MY_INTENSITY_SAVE:		{ scriptWin->saveIntensityScript(); break; }
+			case ID_FILE_MY_INTENSITY_SAVEAS:	{ scriptWin->saveIntensityScriptAs(win); break; }
+			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE:	{ mainWin->handlePauseToggle (); break; }
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration (); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration (); break; }
-			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs (win); break; }
-			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfiguration (win); break; }
-			case ID_MASTERSCRIPT_NEW: { scriptWin->newMasterScript (); break; }
-			case ID_MASTERSCRIPT_SAVE: { scriptWin->saveMasterScript (); break; }
-			case ID_MASTERSCRIPT_SAVEAS: { scriptWin->saveMasterScriptAs (win); break; }
-			case ID_MASTERSCRIPT_OPENSCRIPT: { scriptWin->openMasterScript (win); break; }
-			case ID_MASTERSCRIPT_NEWFUNCTION: { scriptWin->newMasterFunction ();	break; }
-			case ID_MASTERSCRIPT_SAVEFUNCTION: { scriptWin->saveMasterFunction (); break; }
-			case ID_FILE_MY_NIAWG_NEW: { scriptWin->newNiawgScript (); break; }
-			case ID_FILE_MY_NIAWG_OPEN: { scriptWin->openNiawgScript (win); break; }
-			case ID_FILE_MY_NIAWG_SAVE: { scriptWin->saveNiawgScript (); break; }
-			case ID_FILE_MY_NIAWG_SAVEAS: { scriptWin->saveNiawgScriptAs (win); break; }
+			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:		{ mainWin->profile.saveConfigurationAs (win); break; }
+			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:	{ mainWin->profile.saveConfiguration (win); break; }
+			case ID_MASTERSCRIPT_NEW:			{ scriptWin->newMasterScript (); break; }
+			case ID_MASTERSCRIPT_SAVE:			{ scriptWin->saveMasterScript (); break; }
+			case ID_MASTERSCRIPT_SAVEAS:		{ scriptWin->saveMasterScriptAs (win); break; }
+			case ID_MASTERSCRIPT_OPENSCRIPT:	{ scriptWin->openMasterScript (win); break; }
+			case ID_MASTERSCRIPT_NEWFUNCTION:	{ scriptWin->newMasterFunction ();	break; }
+			case ID_MASTERSCRIPT_SAVEFUNCTION:	{ scriptWin->saveMasterFunction (); break; }
+			case ID_FILE_MY_NIAWG_NEW:		{ scriptWin->newNiawgScript (); break; }
+			case ID_FILE_MY_NIAWG_OPEN:		{ scriptWin->openNiawgScript (win); break; }
+			case ID_FILE_MY_NIAWG_SAVE:		{ scriptWin->saveNiawgScript (); break; }
+			case ID_FILE_MY_NIAWG_SAVEAS:	{ scriptWin->saveNiawgScriptAs (win); break; }
 			case ID_MASTERCONFIG_SAVEMASTERCONFIGURATION: { mainWin->masterConfig.save (mainWin, auxWin, andorWin); break; }
+			case ID_MASTERCONFIGURATION_RELOAD_MASTER_CONFIG: { mainWin->masterConfig.load (mainWin, auxWin, andorWin); break; }
 			/*
 			case ID_TOP_BOTTOM_NEW_SCRIPT: { auxWin->newAgilentScript( whichAg::TopBottom); break; }
 			case ID_TOP_BOTTOM_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::TopBottom, win); break; }
@@ -450,7 +451,7 @@ namespace commonFunctions
 			case ID_DATATYPE_RAW_COUNTS: { andorWin->setDataType( RAW_COUNTS ); break; }
 			case ID_RUNMENU_ABORTBASLER: { basWin->handleDisarmPress ( ); break; }
 			
-			case ID_MASTERCONFIGURATION_RELOAD_MASTER_CONFIG: { mainWin->masterConfig.load(mainWin, auxWin, andorWin); break; }
+			
 			case ID_MASTER_VIEWORCHANGEINDIVIDUALDACSETTINGS: { auxWin->ViewOrChangeDACNames(); break; }
 			case ID_MASTER_VIEWORCHANGETTLNAMES: { auxWin->ViewOrChangeTTLNames(); break; }
 			case ID_HELP_HARDWARESTATUS: { mainWin->showHardwareStatus ( ); break; }

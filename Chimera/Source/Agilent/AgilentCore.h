@@ -6,6 +6,7 @@
 #include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>
+#include <AnalogInput/calInfo.h>
 
 class DoCore;
 
@@ -17,9 +18,9 @@ class AgilentCore : public IDeviceCore {
 
 		AgilentCore (const agilentSettings& settings);
 		~AgilentCore ();
+		void programBurstMode (int channel, bool burstOption);
 		void initialize ();
 		void setAgilent (unsigned variation, std::vector<parameterType>& params, deviceOutputInfo runSettings);
-		//void setAgilent (deviceOutputInfo runSettings);
 		void prepAgilentSettings (unsigned channel);
 		std::string getDelim () { return configDelim; }
 		const std::string configDelim;
@@ -29,7 +30,7 @@ class AgilentCore : public IDeviceCore {
 		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void convertInputToFinalSettings (unsigned chan, deviceOutputInfo& info,
 										  std::vector<parameterType>& variables = std::vector<parameterType> ());
-		static double convertPowerToSetPoint (double power, bool conversionOption, std::vector<double> calibCoeff);
+		static double convertPowerToSetPoint (double power, bool conversionOption, calResult calibraiton);
 		void setScriptOutput (unsigned varNum, scriptedArbInfo scriptInfo, unsigned channel);
 		void setDC (int channel, dcInfo info, unsigned variation);
 		void setExistingWaveform (int channel, preloadedArbInfo info);
@@ -50,6 +51,8 @@ class AgilentCore : public IDeviceCore {
 		void checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker);
 		void normalFinish () {};
 		void errorFinish () {};
+		void setCalibration (calResult newCal, unsigned chan);
+		void setRunSettings (deviceOutputInfo newSettings);
 	private:
 		const int AGILENT_DEFAULT_POWER = 10;
 
@@ -63,13 +66,17 @@ class AgilentCore : public IDeviceCore {
 		VisaFlume visaFlume;
 		bool isConnected;
 		std::string deviceInfo;
+
+		std::array<calResult, 2> calibrations;
+
 		// includes burst commands, trigger commands, etc. This is a place for any commands which don't have a 
 		// GUI control option. You could also use this to put commands that should be the same for all configurations.
 		const std::vector<std::string> setupCommands;
+
 		/* a list of polynomial coefficients for the calibration.
 		auto& cc = calibrationCoefficients
 		Volt = cc[0] + c[1]*sp + c[2]*sp^2 + ...
 		*/
-		const std::vector<double> calibrationCoefficients;
+		//const std::vector<double> calibrationCoefficients;
 		const std::string agilentName;
 };

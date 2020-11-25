@@ -1,8 +1,10 @@
 #pragma once
 // created by Mark O. Brown
 #pragma once
+
 #include <AnalogInput/calInfo.h>
 #include "AnalogInput/AiSystem.h"
+#include <AnalogInput/CalibrationThreadWorker.h>
 #include "AnalogOutput/AoSystem.h"
 #include "DigitalOutput/DoSystem.h"
 #include "ParameterSystem/ParameterSystem.h"
@@ -17,46 +19,49 @@
 #include <QPushButton>
 
 
-
 class CalibrationManager : public IChimeraSystem {
-public:
-	// THIS CLASS IS NOT COPYABLE.
-	CalibrationManager& operator=(const CalibrationManager&) = delete;
-	CalibrationManager (const CalibrationManager&) = delete;
-	CalibrationManager (IChimeraQtWindow* parent);
+	public:
+		// THIS CLASS IS NOT COPYABLE.
+		CalibrationManager& operator=(const CalibrationManager&) = delete;
+		CalibrationManager (const CalibrationManager&) = delete;
+		CalibrationManager (IChimeraQtWindow* parent);
 
-	void handleContextMenu (const QPoint& pos);
-	static std::string calTtlConfigToString (std::vector<std::pair<DoRows::which, unsigned> > ttlConfig);
-	static std::string calDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig);
-	void initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
-		std::vector<std::reference_wrapper<AgilentCore>> agilentsIn, NewPythonHandler* python_in);
-	//void setChangeVal (unsigned which, double change);
-	void runAll ();
-	void calibrate (calInfo& cal, unsigned which);
-	bool wantsExpAutoCal ();
-	void handleSaveMasterConfig (std::stringstream& configStream);
-	void handleOpenMasterConfig (ConfigStream& configStream);
-	//void setControlDisplay (unsigned which, double value);
-	std::vector<calInfo> getCalibrationInfo ();
-	std::string dblVecToString (std::vector<double> ctrls);
-	void refreshListview ();
-private:
-	QLabel* calsHeader;
-	CQPushButton* calibrateAllButton;
-	CQCheckBox* expAutoCalButton;
-	QTableWidget* calibrationTable;
-	QPushButton* cancelCalButton;
-	PlotCtrl calibrationViewer;
-	void updateCalibrationView (calInfo& cal);
-	void handleSaveMasterConfigIndvCal (std::stringstream& configStream, calInfo& servo);
-	calInfo handleOpenMasterConfigIndvCal (ConfigStream& configStream);
-	std::vector<calInfo> calibrations;
-	void addCalToListview (calInfo& cal);
-	AiSystem* ai;
-	AoSystem* ao;
-	DoSystem* ttls;
-	std::vector<std::reference_wrapper<AgilentCore>> agilents;
-	NewPythonHandler* pythonHandler;
+		void handleContextMenu (const QPoint& pos);
+		static std::string calTtlConfigToString (std::vector<std::pair<DoRows::which, unsigned> > ttlConfig);
+		static std::string calDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig);
+		void initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
+			std::vector<std::reference_wrapper<AgilentCore>> agilentsIn, NewPythonHandler* python_in);
+		void runAllThreaded ();
+		void calibrateThreaded (calSettings& cal, unsigned which);
+		bool wantsExpAutoCal ();
+		void handleSaveMasterConfig (std::stringstream& configStream);
+		void handleOpenMasterConfig (ConfigStream& configStream);
+		//void setControlDisplay (unsigned which, double value);
+		std::vector<calSettings> getCalibrationInfo ();
+		std::string dblVecToString (std::vector<double> ctrls);
+		void standardStartThread (std::vector<std::reference_wrapper<calSettings>> calibrations);
+		void refreshListview ();
+		static std::vector<double> calPtTextToVals (QString qtxt);
+		static double calibrationFunction (double val, calResult calibration);
+	private:
+		QLabel* calsHeader;
+		CQPushButton* calibrateAllButton;
+		CQCheckBox* expAutoCalButton;
+		QTableWidget* calibrationTable;
+		QPushButton* cancelCalButton;
+		PlotCtrl calibrationViewer;
+		void updateCalibrationView (calSettings& cal);
+		void handleSaveMasterConfigIndvCal (std::stringstream& configStream, calSettings& servo);
+		calSettings handleOpenMasterConfigIndvCal (ConfigStream& configStream);
+		std::vector<calSettings> calibrations;
+		void addCalToListview (calSettings& cal);
+		CalibrationThreadWorker* threadWorker;
+		QThread* thread;
+		AiSystem* ai;
+		AoSystem* ao;
+		DoSystem* ttls;
+		std::vector<std::reference_wrapper<AgilentCore>> agilents;
+		NewPythonHandler* pythonHandler;
 };
 
 

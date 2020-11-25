@@ -12,61 +12,6 @@
 CalibrationManager::CalibrationManager (IChimeraQtWindow* parent) : IChimeraSystem (parent), 
 calibrationViewer(1,plotStyle::GeneralErrorPlot,std::vector<int>(),"Calibration View",false,false) {}
 
-void CalibrationManager::handleContextMenu (const QPoint& pos) {
-	auto* newcal = new QAction ("New Item", calibrationTable);
-	calibrationTable->connect (newcal, &QAction::triggered, [this]() {calibrations.push_back (calInfo ()); refreshListview (); });
-	QTableWidgetItem* item = calibrationTable->itemAt (pos);
-	QMenu menu;
-	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
-	menu.addAction (newcal);
-	if (!item) { 
-		menu.exec (calibrationTable->mapToGlobal (pos));
-		return;
-	}
-	if (!calibrations[item->row ()].useAg) {
-		auto* useag = new QAction ("Use Agilent", calibrationTable);
-		calibrationTable->connect (useag, &QAction::triggered,
-			[this, item]() {
-				calibrations[item->row ()].useAg = true;
-				refreshListview (); 
-			});
-		menu.addAction (useag);
-	}
-	else {
-		auto* useao = new QAction ("Use AO System", calibrationTable);
-		calibrationTable->connect (useao, &QAction::triggered,
-			[this, item]() {calibrations[item->row ()].useAg = false; refreshListview (); });
-		menu.addAction (useao);
-	}
-	if (calibrations[item->row ()].active) {
-		auto* deactivate = new QAction ("Deactivate", calibrationTable);
-		calibrationTable->connect (deactivate, &QAction::triggered,
-			[this, item]() {calibrations[item->row ()].active = false; refreshListview (); });
-		menu.addAction (deactivate);
-	}
-	else {
-		auto* activate = new QAction ("Activate", calibrationTable);
-		calibrationTable->connect (activate, &QAction::triggered,
-			[this, item]() {calibrations[item->row ()].active = true; refreshListview (); });
-		menu.addAction (activate);
-	}
-	auto* deleteAction = new QAction ("Delete This Item", calibrationTable);
-	calibrationTable->connect (deleteAction, &QAction::triggered,
-		[this, item]() {calibrations.erase (calibrations.begin () + item->row ()); refreshListview (); });
-	auto* calibrateThis = new QAction ("Calibrate This", calibrationTable);
-	calibrationTable->connect (calibrateThis, &QAction::triggered, [this, item]() {
-		try {
-			calibrate (calibrations[item->row ()], item->row ());
-			refreshListview ();
-		}
-		catch (ChimeraError & err) {
-			errBox (err.trace ());
-		}; });
-	menu.addAction (deleteAction);
-	menu.addAction (newcal);
-	menu.addAction (calibrateThis);
-	menu.exec (calibrationTable->mapToGlobal (pos));
-}
 
 void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai_in, AoSystem* ao_in,
 									 DoSystem* ttls_in, std::vector<std::reference_wrapper<AgilentCore>> agilents_in,
@@ -83,7 +28,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 	calibrateAllButton->setToolTip ("Force the recalibration.");
 	parent->connect (calibrateAllButton, &QPushButton::released, [this, parent]() {
 		if (!parent->mainWin->expIsRunning ()) {
-			runAll ();
+			runAllThreaded ();
 		}});
 
 	expAutoCalButton = new CQCheckBox ("Exp. Auto-Cal?", parent);
@@ -97,7 +42,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 	calibrationTable = new QTableWidget (parent);
 	QStringList labels;
 	labels << " Name " << " Ctrl Pts (V) " << " Res (V) " << " Ai " << " Ao " << "Agilent" << "Ag. Channel" 
-		<< " DO-Config " << " AO-Config " << " Avgs " << "Calibration";
+		<< " DO-Config " << " AO-Config " << " Avgs " << "Cal. Vals" << "Include Sqrt" << "Polynomial Order";
 	calibrationTable->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (calibrationTable, &QTableWidget::customContextMenuRequested,
 		[this](const QPoint& pos) {handleContextMenu (pos); });
@@ -116,6 +61,12 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 			auto* item = new QTableWidgetItem (calibrationTable->item (clRow, clCol)->text () == "No" ? "Yes" : "No");
 			item->setFlags (item->flags () & ~Qt::ItemIsEditable);
 			calibrationTable->setItem (clRow, clCol, item);
+		}
+		else if (clCol == 11) {
+			calibrations[clRow].includeSqrt = !calibrations[clRow].includeSqrt;
+			auto* item = new QTableWidgetItem (calibrations[clRow].includeSqrt ? "Yes" : "No");
+			item->setFlags (item->flags () & ~Qt::ItemIsEditable);
+			calibrationTable->setItem (clRow, clCol, item);
 		}});
 	calibrationTable->connect (calibrationTable, &QTableWidget::currentCellChanged,
 		[this](int row, int col) {if (unsigned(row) < calibrations.size() && calibrations[row].calibrated) {
@@ -130,39 +81,10 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 			auto qtxt = calibrationTable->item (row, col)->text ();
 			switch (col) {
 				case 0:
-					cal.calibrationName = str (qtxt);
+					cal.result.calibrationName = str (qtxt);
 					break;
 				case 1: {
-					if (qtxt == "") {
-						break;
-					}
-					std::stringstream tmpStream (cstr (qtxt));
-					std::string ctrlTxt;
-					cal.controlPoints.clear ();
-					tmpStream >> ctrlTxt;
-					if (ctrlTxt == "(") {
-						double leftBound, rightBound, inc;
-						tmpStream >> leftBound >> rightBound >> inc;
-						if (!tmpStream) {
-							errBox ("Error In trying to set the calibration control values! Make sure text is all doubles.");
-							break;
-						}
-						auto val = leftBound;
-						while (val <= rightBound) {
-							cal.controlPoints.push_back (val);
-							val += inc;
-						}
-					}
-					else {
-						do {
-							try {
-								cal.controlPoints.push_back (boost::lexical_cast<double>(ctrlTxt));
-							}
-							catch (boost::bad_lexical_cast&) {
-								errBox ("Error In trying to set the calibration control values! Make sure text is all doubles.");
-							}
-						} while (tmpStream >> ctrlTxt);
-					}
+					cal.ctrlPtString = qtxt;
 					break;
 				}
 				case 3:
@@ -171,9 +93,8 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 				case 4:
 					try {
 						cal.aoControlChannel = boost::lexical_cast<unsigned>(str (qtxt));
-						//cal.useAg = false;
 					}
-					catch (boost::bad_lexical_cast & err) {
+					catch (boost::bad_lexical_cast &) {
 						errBox ("Error Trying to set analog output channel!");
 					}
 					break;
@@ -183,9 +104,8 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 					}
 					try {
 						cal.whichAg = AgilentEnum::fromStr (str (qtxt));
-						//cal.useAg = true;
 					}
-					catch (ChimeraError & err) {
+					catch (ChimeraError &) {
 						emit error ("Error In trying to read the ao info string!");
 					}
 					break;
@@ -197,7 +117,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 					try {
 						cal.agChannel = boost::lexical_cast<unsigned> (str (qtxt));
 					}
-					catch (ChimeraError & err) {
+					catch (ChimeraError &) {
 						emit error ("Error trying to set agilent channel!");
 					}
 					break;
@@ -240,6 +160,15 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 					}
 					break;
 				}
+				case 12: {
+					try {
+						cal.polynomialOrder = boost::lexical_cast<unsigned>(str(qtxt));
+					}
+					catch (ChimeraError &) {
+						errBox ("Error In trying to set the fit polynomial order!");
+					}
+					break;
+				}
 			}
 		}
 	);
@@ -251,7 +180,63 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 	pythonHandler = python_in;
 }
 
-std::vector<calInfo> CalibrationManager::getCalibrationInfo (){
+void CalibrationManager::handleContextMenu (const QPoint& pos) {
+	auto* newcal = new QAction ("New Item", calibrationTable);
+	calibrationTable->connect (newcal, &QAction::triggered, [this]() {calibrations.push_back (calSettings ()); refreshListview (); });
+	QTableWidgetItem* item = calibrationTable->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	menu.addAction (newcal);
+	if (!item) {
+		menu.exec (calibrationTable->mapToGlobal (pos));
+		return;
+	}
+	if (!calibrations[item->row ()].useAg) {
+		auto* useag = new QAction ("Use Agilent", calibrationTable);
+		calibrationTable->connect (useag, &QAction::triggered,
+			[this, item]() {
+				calibrations[item->row ()].useAg = true;
+				refreshListview ();
+			});
+		menu.addAction (useag);
+	}
+	else {
+		auto* useao = new QAction ("Use AO System", calibrationTable);
+		calibrationTable->connect (useao, &QAction::triggered,
+			[this, item]() {calibrations[item->row ()].useAg = false; refreshListview (); });
+		menu.addAction (useao);
+	}
+	if (calibrations[item->row ()].active) {
+		auto* deactivate = new QAction ("Deactivate", calibrationTable);
+		calibrationTable->connect (deactivate, &QAction::triggered,
+			[this, item]() {calibrations[item->row ()].active = false; refreshListview (); });
+		menu.addAction (deactivate);
+	}
+	else {
+		auto* activate = new QAction ("Activate", calibrationTable);
+		calibrationTable->connect (activate, &QAction::triggered,
+			[this, item]() {calibrations[item->row ()].active = true; refreshListview (); });
+		menu.addAction (activate);
+	}
+	auto* deleteAction = new QAction ("Delete This Item", calibrationTable);
+	calibrationTable->connect (deleteAction, &QAction::triggered,
+		[this, item]() {calibrations.erase (calibrations.begin () + item->row ()); refreshListview (); });
+	auto* calibrateThis = new QAction ("Calibrate This", calibrationTable);
+	calibrationTable->connect (calibrateThis, &QAction::triggered, [this, item]() {
+		try {
+			calibrateThreaded (calibrations[item->row ()], item->row ());
+			refreshListview ();
+		}
+		catch (ChimeraError & err) {
+			errBox (err.trace ());
+		}; });
+	menu.addAction (deleteAction);
+	menu.addAction (newcal);
+	menu.addAction (calibrateThis);
+	menu.exec (calibrationTable->mapToGlobal (pos));
+}
+
+std::vector<calSettings> CalibrationManager::getCalibrationInfo (){
 	return calibrations;
 }
 
@@ -264,11 +249,11 @@ void CalibrationManager::handleSaveMasterConfig (std::stringstream& configStream
 	}
 }
 
-void CalibrationManager::handleSaveMasterConfigIndvCal(std::stringstream& configStream, calInfo& cal) {
-	configStream << "\n/*Calibration Name: */ " << cal.calibrationName
+void CalibrationManager::handleSaveMasterConfigIndvCal(std::stringstream& configStream, calSettings& cal) {
+	configStream << "\n/*Calibration Name: */ " << cal.result.calibrationName
 		<< "\n/*Analog Input Chanel: */ " << cal.aiInChan
 		<< "\n/*Analog Output Control Chanel: */ " << cal.aoControlChannel
-		<< "\n/*Control Values: */ " << dblVecToString (cal.controlPoints)
+		<< "\n/*Control Values: */ " << str(cal.ctrlPtString)
 		<< "\n/*Calibration Active: */ " << cal.active
 		<< "\n/*TTL Config Size: */ " << cal.ttlConfig.size () 
 		<< "\n/*ttl config: */ " << calTtlConfigToString (cal.ttlConfig)
@@ -278,46 +263,60 @@ void CalibrationManager::handleSaveMasterConfigIndvCal(std::stringstream& config
 	}
 	configStream << "\n/*Data Point Average Number: */ " << cal.avgNum
 		<< "\n/*Use Agilent: */" << cal.useAg
-		<< "\n/*Which Agilent: */" << AgilentEnum::toStr(cal.whichAg)
-		<< "\n/*Which Agilent Channel: */" << cal.agChannel << "\n";
+		<< "\n/*Which Agilent: */" << AgilentEnum::toStr (cal.whichAg)
+		<< "\n/*Which Agilent Channel: */" << cal.agChannel
+		<< "\n/*Include Sqrt on Next Cal: */" << cal.includeSqrt
+		<< "\n/*Number of Calibration Coefficients: */ " << cal.result.calibrationCoefficients.size ()
+		<< "\n/*Calibration Coefficients: */ " << dblVecToString (cal.result.calibrationCoefficients)
+		<< "\n/*Calibration Includes Sqrt: */ " << cal.result.includesSqrt
+		<< "\n/*Polynomial Order: */ " << cal.polynomialOrder << "\n";
 }
 
-calInfo CalibrationManager::handleOpenMasterConfigIndvCal (ConfigStream& configStream) {
-	calInfo tmpInfo;
-	configStream >> tmpInfo.calibrationName;
-	configStream >> tmpInfo.aiInChan >> tmpInfo.aoControlChannel;
-	std::string ctrlValsTxt = configStream.getline ();
-	std::stringstream tmpStream (cstr (ctrlValsTxt));
-	std::string ctrlTxt;
-	while (tmpStream >> ctrlTxt) {
-		try {
-			tmpInfo.controlPoints.push_back (boost::lexical_cast<double>(ctrlTxt));
+calSettings CalibrationManager::handleOpenMasterConfigIndvCal (ConfigStream& configStream) {
+	calSettings tmpInfo;
+	try {
+		configStream >> tmpInfo.result.calibrationName;
+		configStream >> tmpInfo.aiInChan >> tmpInfo.aoControlChannel;
+		tmpInfo.ctrlPtString = qstr (configStream.getline ());
+		configStream >> tmpInfo.active;
+		unsigned numSettings;
+		configStream >> numSettings;
+		tmpInfo.ttlConfig.resize (numSettings);
+		for (auto& ttl : tmpInfo.ttlConfig) {
+			std::string rowStr;
+			configStream >> rowStr >> ttl.second;
+			ttl.first = DoRows::fromStr (rowStr);
 		}
-		catch (boost::bad_lexical_cast&) {
-			errBox ("Error In trying to set the calibration control values! Make sure text is all doubles.");
+		configStream >> numSettings;
+		tmpInfo.aoConfig.resize (numSettings);
+		for (auto& ao : tmpInfo.aoConfig) {
+			unsigned dacID;
+			configStream >> dacID >> ao.second;
+			ao.first = dacID;
+		}
+		configStream >> tmpInfo.avgNum;
+		if (configStream.ver > Version ("2.10")) {
+			std::string whichAgString;
+			configStream >> tmpInfo.useAg >> whichAgString >> tmpInfo.agChannel;
+			tmpInfo.whichAg = AgilentEnum::fromStr (whichAgString);
+		}
+		if (configStream.ver > Version ("2.11")) {
+			unsigned numCoef;
+			configStream >> tmpInfo.includeSqrt >> numCoef;
+			if (numCoef > 50) {
+				// catch weird bad values...
+				thrower ("Suspicious Number of coefficients! Number was " + str (numCoef));
+			}
+			tmpInfo.result.calibrationCoefficients.resize (numCoef);
+			for (auto& coef : tmpInfo.result.calibrationCoefficients) {
+				configStream >> coef;
+			}
+			configStream >> tmpInfo.result.includesSqrt;
+			configStream >> tmpInfo.polynomialOrder;
 		}
 	}
-	configStream >> tmpInfo.active;
-	unsigned numSettings;
-	configStream >> numSettings;
-	tmpInfo.ttlConfig.resize (numSettings);
-	for (auto& ttl : tmpInfo.ttlConfig) {
-		std::string rowStr;
-		configStream >> rowStr >> ttl.second;
-		ttl.first = DoRows::fromStr (rowStr);
-	}
-	configStream >> numSettings;
-	tmpInfo.aoConfig.resize (numSettings);
-	for (auto& ao : tmpInfo.aoConfig) {
-		unsigned dacID;
-		configStream >> dacID >> ao.second;
-		ao.first = dacID;
-	}
-	configStream >> tmpInfo.avgNum;
-	if (configStream.ver > Version ("2.10")) {
-		std::string whichAgString;
-		configStream >> tmpInfo.useAg >> whichAgString >> tmpInfo.agChannel;
-		tmpInfo.whichAg = AgilentEnum::fromStr (whichAgString);
+	catch (ChimeraError&) {
+		throwNested ("Failed to load Calibration named " + tmpInfo.result.calibrationName + "!");
 	}
 	return tmpInfo;
 }
@@ -336,6 +335,12 @@ void CalibrationManager::handleOpenMasterConfig (ConfigStream& configStream) {
 	for (auto calNum : range (numcalibrationsInFile)) {
 		calibrations.push_back (handleOpenMasterConfigIndvCal (configStream));
 	}
+	for (auto& cal : calibrations) {
+		if (cal.useAg) {
+			auto& ag = agilents[(int)cal.whichAg].get ();
+			ag.setCalibration (cal.result, cal.agChannel);
+		}
+	}
 	refreshListview ();
 }
 
@@ -347,25 +352,20 @@ void CalibrationManager::refreshListview () {
 	//calibrationTable->resizeColumnsToContents ();
 }
 
-void CalibrationManager::addCalToListview (calInfo& cal) {
+void CalibrationManager::addCalToListview (calSettings& cal) {
 	int row = calibrationTable->rowCount ();
 	int precision = 5;
 	QColor textColor;
-	if (cal.calibrated) {
-		textColor = QColor (255, 255, 255);
-	}
-	else {
-		textColor = QColor (255, 0, 0);
-	}
+	textColor = cal.calibrated ? QColor (255, 255, 255) : QColor (255, 0, 0);
 	auto setItemExtra = [row, this, cal, textColor](int item) {
 		calibrationTable->item (row, item)->setFlags (!cal.active ? calibrationTable->item (row, item)->flags () & ~Qt::ItemIsEnabled
 			: calibrationTable->item (row, item)->flags () | Qt::ItemIsEnabled);
 		calibrationTable->item (row, item)->setForeground (textColor);
 	};
 	calibrationTable->insertRow (row);
-	calibrationTable->setItem (row, 0, new QTableWidgetItem (cal.calibrationName.c_str ()));
+	calibrationTable->setItem (row, 0, new QTableWidgetItem (cal.result.calibrationName.c_str ()));
 	setItemExtra (0);
-	calibrationTable->setItem (row, 1, new QTableWidgetItem (qstr(dblVecToString (cal.controlPoints))));
+	calibrationTable->setItem (row, 1, new QTableWidgetItem (cal.ctrlPtString));
 	setItemExtra (1);
 	calibrationTable->setItem (row, 2, new QTableWidgetItem (qstr (dblVecToString (cal.resultValues), precision)));
 	calibrationTable->item (row, 2)->setFlags (calibrationTable->item (row, 2)->flags () ^ Qt::ItemIsEnabled);
@@ -395,9 +395,14 @@ void CalibrationManager::addCalToListview (calInfo& cal) {
 	setItemExtra (8);
 	calibrationTable->setItem (row, 9, new QTableWidgetItem (qstr (cal.avgNum, precision)));
 	setItemExtra (9);
-	calibrationTable->setItem (row, 10, new QTableWidgetItem (qstr(dblVecToString(cal.calibrationCoefficients))));
+	calibrationTable->setItem (row, 10, new QTableWidgetItem (qstr(dblVecToString(cal.result.calibrationCoefficients))));
 	setItemExtra (10);
 	calibrationTable->item (row, 10)->setFlags (calibrationTable->item (row, 10)->flags () ^ Qt::ItemIsEnabled);
+	calibrationTable->item (row, 10)->setToolTip (qstr (dblVecToString (cal.result.calibrationCoefficients)));
+	calibrationTable->setItem (row, 11, new QTableWidgetItem (cal.includeSqrt ? "True" : "False"));
+	setItemExtra (11);
+	calibrationTable->setItem (row, 12, new QTableWidgetItem (qstr(cal.polynomialOrder)));
+	setItemExtra (12);
 }
 
 std::string CalibrationManager::calDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig) {
@@ -429,100 +434,159 @@ bool CalibrationManager::wantsExpAutoCal () {
 	return expAutoCalButton->isChecked ();
 }
 
-void CalibrationManager::runAll () {
+void CalibrationManager::runAllThreaded () {
 	emit notification ("Running All Calibrations.\n");
-	unsigned count = 0;
-	// made this asynchronous to facilitate updating gui while 
+	std::vector<std::reference_wrapper<calSettings>> calInput;
 	for (auto& cal : calibrations) {
-		if (cancelCalButton->isDown ()) {
-			break;
-		}
-		std::vector<QBrush> origColors;
-		for (auto col : range (calibrationTable->columnCount ())) {
-			origColors.push_back (calibrationTable->item (count, col)->background ());
-			calibrationTable->item (count, col)->setBackground (QColor (0, 0, 50));
-		}
-		try {
-			CalibrationManager::calibrate (cal, count);
-		}
-		catch (ChimeraError & e) {
-			emit error (qstr (e.trace ()));
-			// but continue to try the other ones. 
-		}
-		for (auto col : range (calibrationTable->columnCount ())) {
-			calibrationTable->item (count, col)->setBackground (origColors[col]);
-		}
-		count++;
-		qApp->processEvents ();
+		calInput.push_back (cal);
 	}
-	refreshListview ();
-	ttls->zeroBoard ();
-	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
+	standardStartThread (calInput);
 }
 
-void CalibrationManager::calibrate (calInfo& cal, unsigned which) {
-	if (!cal.active) {
-		return;
-	}
-	emit notification (qstr ("Running Calibration " + cal.calibrationName + ".\n"), 1);
-	cal.currentlyCalibrating = true;
-	ttls->zeroBoard ();
-	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
-	for (auto dac : cal.aoConfig) {
-		ao->setSingleDac (dac.first, dac.second, ttls->getCore (), { 0, ttls->getCurrentStatus () });
-	}
-	for (auto ttl : cal.ttlConfig) {
-		auto& outputs = ttls->getDigitalOutputs ();
-		outputs (ttl.second, ttl.first).check->setChecked (true);
-		outputs (ttl.second, ttl.first).set (1);
-		ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, ttls->getCurrentStatus ());
-	}
-	Sleep (200); // give some time for the lasers to settle..
-	cal.resultValues.clear ();
-	unsigned aiNum = cal.aiInChan;
-	unsigned aoNum = cal.aoControlChannel;
+void CalibrationManager::standardStartThread (std::vector<std::reference_wrapper<calSettings>> calsToRun) {
+	CalibrationThreadInput input;
+	input.calibrations = calsToRun;
+	input.agilents = agilents;
+	input.ttls = ttls;
+	input.ai = ai;
+	input.ao = ao;
+	input.calibrationViewer = &calibrationViewer;
+	input.parentWin = parentWin;
+	input.pythonHandler = pythonHandler;
 
-	for (auto calPoint : cal.controlPoints) {
-		if (cal.useAg) {
-			auto& ag = agilents[int(cal.whichAg)].get();
-			dcInfo tempInfo;
-			tempInfo.dcLevel = str(calPoint);
-			tempInfo.dcLevel.internalEvaluate (std::vector<parameterType> (), 1);
-			ag.setDC (cal.agChannel, tempInfo, 0);
-		}
-		else {
-			ao->setSingleDac (aoNum, calPoint, ttls->getCore (), { 0, ttls->getCurrentStatus () });
-		}
-		Sleep (20);
-		cal.resultValues.push_back (ai->getSingleChannelValue (aiNum, cal.avgNum));
-	}
-	cal.currentlyCalibrating = false;
-	std::ofstream file ("C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationValuesFile.txt");
-	if (!file.is_open ()) {
-		errBox ("Failed to Write Calibration Results!");
-	}
-	for (auto num : range (cal.resultValues.size())) {
-		file << cal.controlPoints[num] << " " << cal.resultValues[num] << "\n";
-	}
-	file.close ();
-	cal.calibrationCoefficients = pythonHandler->runCalibrationFits (this->parent);
+	threadWorker = new CalibrationThreadWorker (input);
+	thread = new QThread;
 
-	calibrationTable->repaint ();
-	cal.calibrated = true;
-	updateCalibrationView (cal);
+	threadWorker->moveToThread (thread);
+	connect (threadWorker, &CalibrationThreadWorker::notification, this, &IChimeraSystem::notification);
+	connect (threadWorker, &CalibrationThreadWorker::warn, this, &IChimeraSystem::error);
+	connect (threadWorker, &CalibrationThreadWorker::calibrationChanged, this, [this]() { refreshListview (); });
+	connect (threadWorker, &CalibrationThreadWorker::startingNewCalibration, this, [this](calSettings cal) {
+			calibrationViewer.removeData ();
+			calibrationViewer.initializeCalData (cal);
+
+		});
+	connect (threadWorker, &CalibrationThreadWorker::newCalibrationDataPoint, this, [this](QPointF pt) {
+			auto chartData = calibrationViewer.getCalData ();
+			*chartData << pt;
+		});
+	connect (threadWorker, &CalibrationThreadWorker::finishedCalibration, this, [this](calSettings cal) {
+			updateCalibrationView (cal);
+		});
+
+	connect (thread, &QThread::started, threadWorker, &CalibrationThreadWorker::runAll);
+	connect (thread, &QThread::finished, thread, &QObject::deleteLater);
+	connect (thread, &QThread::finished, threadWorker, &QObject::deleteLater);
+	thread->start ();
 }
 
-void CalibrationManager::updateCalibrationView (calInfo& cal) {
+//void CalibrationManager::runAll () {
+//	unsigned count = 0;
+//	// made this asynchronous to facilitate updating gui while 
+//	for (auto& cal : calibrations) {
+//		if (cancelCalButton->isDown ()) {
+//			break;
+//		}
+//		std::vector<QBrush> origColors;
+//		for (auto col : range (calibrationTable->columnCount ())) {
+//			if (calibrationTable->item (count, col) != nullptr) {
+//				origColors.push_back (calibrationTable->item (count, col)->background ());
+//				calibrationTable->item (count, col)->setBackground (QColor (0, 0, 50));
+//			}
+//		}
+//		try {
+//			CalibrationManager::calibrate (cal, count);
+//		}
+//		catch (ChimeraError & e) {
+//			emit error (qstr (e.trace ()));
+//			// but continue to try the other ones. 
+//		}
+//		for (auto col : range (calibrationTable->columnCount ())) {
+//			calibrationTable->item (count, col)->setBackground (origColors[col]);
+//		}
+//		count++;
+//		qApp->processEvents ();
+//	}
+//	refreshListview ();
+//	ttls->zeroBoard ();
+//	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
+//}
+
+void CalibrationManager::calibrateThreaded (calSettings& cal, unsigned which) {
+	std::vector<std::reference_wrapper<calSettings>> calInput;
+	calInput.push_back (cal);
+	standardStartThread (calInput);
+	//if (!cal.active) {
+	//	return;
+	//}
+	//emit notification (qstr ("Running Calibration " + cal.result.calibrationName + ".\n"), 1);
+	//cal.currentlyCalibrating = true;
+	//ttls->zeroBoard ();
+	//ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
+	//for (auto dac : cal.aoConfig) {
+	//	ao->setSingleDac (dac.first, dac.second, ttls->getCore (), { 0, ttls->getCurrentStatus () });
+	//}
+	//for (auto ttl : cal.ttlConfig) {
+	//	auto& outputs = ttls->getDigitalOutputs ();
+	//	outputs (ttl.second, ttl.first).check->setChecked (true);
+	//	outputs (ttl.second, ttl.first).set (1);
+	//	ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, ttls->getCurrentStatus ());
+	//}
+	//Sleep (200); // give some time for the lasers to settle..
+	//cal.resultValues.clear ();
+	//unsigned aiNum = cal.aiInChan;
+	//unsigned aoNum = cal.aoControlChannel;
+	//calibrationViewer.removeData ();
+	//calibrationViewer.initializeCalData ();
+	//auto calData = calibrationViewer.getCalData ();
+	//for (auto calPoint : calPtTextToVals (cal.ctrlPtString)) {
+	//	if (cal.useAg) {
+	//		auto& ag = agilents[int(cal.whichAg)].get();
+	//		dcInfo tempInfo;
+	//		tempInfo.dcLevel = str(calPoint);
+	//		tempInfo.dcLevel.internalEvaluate (std::vector<parameterType> (), 1);
+	//		ag.setDC (cal.agChannel, tempInfo, 0);
+	//	}
+	//	else {
+	//		ao->setSingleDac (aoNum, calPoint, ttls->getCore (), { 0, ttls->getCurrentStatus () });
+	//	}
+	//	cal.resultValues.push_back (ai->getSingleChannelValue (aiNum, cal.avgNum));
+	//	*calData << QPointF (calPoint, cal.resultValues.back ());
+	//	qApp->processEvents ();
+	//	Sleep (20);
+	//}
+	//cal.currentlyCalibrating = false;
+	//std::ofstream file ("C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationValuesFile.txt");
+	//if (!file.is_open ()) {
+	//	errBox ("Failed to Write Calibration Results!");
+	//}
+	//for (auto num : range (cal.resultValues.size())) {
+	//	file << calPtTextToVals (cal.ctrlPtString)[num] << " " << cal.resultValues[num] << "\n";
+	//}
+	//file.close ();
+	//cal.result.calibrationCoefficients = pythonHandler->runCalibrationFits (cal, parentWin);
+	//cal.result.includesSqrt = cal.includeSqrt;
+	//calibrationTable->repaint ();
+	//cal.calibrated = true;
+	//if (cal.useAg) {
+	//	auto& ag = agilents[int (cal.whichAg)].get ();
+	//	ag.setCalibration (cal.result, cal.agChannel);
+	//}
+	//updateCalibrationView (cal);
+}
+
+void CalibrationManager::updateCalibrationView (calSettings& cal) {
 	std::vector<plotDataVec> plotData;
 	plotData.resize (2);
-	if (cal.resultValues.size () != cal.controlPoints.size ()) {
+	auto ctrlVec = calPtTextToVals (cal.ctrlPtString);
+	if (cal.resultValues.size () != ctrlVec.size ()) {
 		return;
 	}
 	auto maxy = -DBL_MAX;
 	auto miny = DBL_MAX;
-	for (auto num : range (cal.controlPoints.size ())) {
+	for (auto num : range (calPtTextToVals (cal.ctrlPtString).size ())) {
 		dataPoint dp;
-		dp.x = cal.controlPoints[num];
+		dp.x = ctrlVec[num];
 		dp.y = cal.resultValues[num];
 		plotData[0].push_back (dp);
 		miny = (dp.y < miny ? dp.y : miny);
@@ -533,20 +597,73 @@ void CalibrationManager::updateCalibrationView (calInfo& cal) {
 	// a control and get a result. 
 	int numfitpts = 30;
 	plotData[1].resize (numfitpts);
-	auto inc = ( maxy - miny ) / (numfitpts-1);
-	plotData[1][0].y = miny;
-	for (auto ynum : range (plotData[1].size ()-1)) {
-		plotData[1][ynum + 1].y = plotData[1][ynum].y + inc;
-	}
-	for (auto& dp : plotData[1]) {
-		dp.x = 0;
-		for (auto coefnum : range(cal.calibrationCoefficients.size())) {
-			dp.x += cal.calibrationCoefficients[coefnum] * std::pow (dp.y, coefnum);
-		}
+	double runningVal=miny;
+	cal.result.minval = miny;
+	cal.result.maxval = maxy;
+	for (auto pnum : range (plotData[1].size ())) {
+		plotData[1][pnum].y = runningVal;
+		plotData[1][pnum].x = calibrationFunction (plotData[1][pnum].y, cal.result);
+		runningVal += (maxy - miny) / (numfitpts - 1);
 	}
 	calibrationViewer.resetChart ();
-	calibrationViewer.setTitle ("Calibration View: " + cal.calibrationName);
+	calibrationViewer.setTitle ("Calibration View: " + cal.result.calibrationName);
 	calibrationViewer.setData (plotData);
+}
+
+double CalibrationManager::calibrationFunction (double val, calResult calibration) {
+	if (val < calibration.minval-1e-6 || val > calibration.maxval+1e-6) {
+		thrower ("Tried to use calibration outside of calibration range! Not Allowed!");
+	}
+	double ctrl = 0;
+	auto& cc = calibration.calibrationCoefficients;
+	if (calibration.includesSqrt) {
+		ctrl += cc[0] * std::pow (val + cc[1], 0.5);
+		if (cc.size () > 2) {
+			for (auto coefnum : range (cc.size () - 2)) {
+				ctrl += cc[coefnum + 2] * std::pow (val, coefnum);
+			}
+		}
+	}
+	else {
+		for (auto coefnum : range (cc.size ())) {
+			ctrl += cc[coefnum] * std::pow (val, coefnum);
+		}
+	}
+	return ctrl;
+}
+
+std::vector<double> CalibrationManager::calPtTextToVals (QString qtxt) {
+	std::vector<double> vals;
+	if (qtxt == "") {
+		return vals;
+	}
+	std::stringstream tmpStream (cstr (qtxt));
+	std::string ctrlTxt;
+	tmpStream >> ctrlTxt;
+	if (ctrlTxt == "(") {
+		double leftBound, rightBound, inc;
+		tmpStream >> leftBound >> rightBound >> inc;
+		if (!tmpStream) {
+			errBox ("Error In trying to set the calibration control values! Make sure text is all doubles.");
+			return vals;
+		}
+		auto val = leftBound;
+		while (val <= rightBound) {
+			vals.push_back (val);
+			val += inc;
+		}
+	}
+	else {
+		do {
+			try {
+				vals.push_back (boost::lexical_cast<double>(ctrlTxt));
+			}
+			catch (boost::bad_lexical_cast&) {
+				errBox ("Error In trying to set the calibration control values! Make sure text is all doubles.");
+			}
+		} while (tmpStream >> ctrlTxt);
+	}
+	return vals;
 }
 
 

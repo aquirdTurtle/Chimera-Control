@@ -681,21 +681,38 @@ bool ExpThreadWorker::handleDoCommands (std::string word, ScriptStream& stream, 
 }
 
 /* returns true if handles word, false otherwise. */
-bool ExpThreadWorker::handleAoCommands (std::string word, ScriptStream& stream,
-	std::vector<parameterType>& vars, AoSystem& aoSys, DoCore& ttls,
-	std::string scope, timeType& operationTime)
-{
-	if (word == "dac:") {
+bool ExpThreadWorker::handleAoCommands (std::string word, ScriptStream& stream,	std::vector<parameterType>& params, AoSystem& aoSys, DoCore& ttls,
+	std::string scope, timeType& operationTime) {
+	if (word == "cao:") {
+		// calibrated analog out. Right now, the code doesn't having a variable calibration setting, as this would
+		// require the calibration to... do something funny. 
 		AoCommandForm command;
-		std::string name;
-		stream >> name >> command.finalVal;
-		command.finalVal.assertValid (vars, scope);
+		std::string dacName, calibrationName, calibratedVal;
+		stream >> calibrationName >> dacName >> calibratedVal;
+
+		command.finalVal.assertValid (params, scope);
 		command.time = operationTime;
 		command.commandName = "dac:";
 		command.numSteps.expressionStr = command.initVal.expressionStr = "__NONE__";
 		command.rampTime.expressionStr = command.rampInc.expressionStr = "__NONE__";
 		try {
-			aoSys.handleDacScriptCommand (command, name, vars, ttls);
+			aoSys.handleDacScriptCommand (command, dacName, params, ttls);
+		}
+		catch (ChimeraError&) {
+			throwNested ("Error handling \"cao:\" command.");
+		}
+	}
+	if (word == "dac:") {
+		AoCommandForm command;
+		std::string name;
+		stream >> name >> command.finalVal;
+		command.finalVal.assertValid (params, scope);
+		command.time = operationTime;
+		command.commandName = "dac:";
+		command.numSteps.expressionStr = command.initVal.expressionStr = "__NONE__";
+		command.rampTime.expressionStr = command.rampInc.expressionStr = "__NONE__";
+		try {
+			aoSys.handleDacScriptCommand (command, name, params, ttls);
 		}
 		catch (ChimeraError&) {
 			throwNested ("Error handling \"dac:\" command.");
@@ -705,17 +722,17 @@ bool ExpThreadWorker::handleAoCommands (std::string word, ScriptStream& stream,
 		AoCommandForm command;
 		std::string name;
 		stream >> name >> command.initVal >> command.finalVal >> command.rampTime >> command.numSteps;
-		command.initVal.assertValid (vars, scope);
-		command.finalVal.assertValid (vars, scope);
-		command.rampTime.assertValid (vars, scope);
-		command.numSteps.assertValid (vars, scope);
+		command.initVal.assertValid (params, scope);
+		command.finalVal.assertValid (params, scope);
+		command.rampTime.assertValid (params, scope);
+		command.numSteps.assertValid (params, scope);
 		command.time = operationTime;
 		command.commandName = "daclinspace:";
 		// not used here.
 		command.rampInc.expressionStr = "__NONE__";
 		//
 		try {
-			aoSys.handleDacScriptCommand (command, name, vars, ttls);
+			aoSys.handleDacScriptCommand (command, name, params, ttls);
 		}
 		catch (ChimeraError&) {
 			throwNested ("Error handling \"dacLinSpace:\" command.");
@@ -726,16 +743,16 @@ bool ExpThreadWorker::handleAoCommands (std::string word, ScriptStream& stream,
 		AoCommandForm command;
 		std::string name;
 		stream >> name >> command.initVal >> command.finalVal >> command.rampTime >> command.rampInc;
-		command.initVal.assertValid (vars, scope);
-		command.finalVal.assertValid (vars, scope);
-		command.rampTime.assertValid (vars, scope);
-		command.rampInc.assertValid (vars, scope);
+		command.initVal.assertValid (params, scope);
+		command.finalVal.assertValid (params, scope);
+		command.rampTime.assertValid (params, scope);
+		command.rampInc.assertValid (params, scope);
 		command.time = operationTime;
 		command.commandName = "dacarange:";
 		// not used here.
 		command.numSteps.expressionStr = "__NONE__";
 		try {
-			aoSys.handleDacScriptCommand (command, name, vars, ttls);
+			aoSys.handleDacScriptCommand (command, name, params, ttls);
 		}
 		catch (ChimeraError&) {
 			throwNested ("Error handling \"dacArange:\" command.");
