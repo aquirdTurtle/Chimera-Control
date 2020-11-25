@@ -49,6 +49,9 @@ class PlotCtrl : public QObject {
 		PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds,
 				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );
+		void initializeCalData (calSettings cal);
+		void removeData ();
+		QtCharts::QScatterSeries* getCalData ();
 		void init( QPoint& topLeftLoc, LONG width, LONG height, IChimeraQtWindow* parent );
 		dataPoint getMainAnalysisResult ( );
 		void resetChart ();

@@ -21,7 +21,8 @@ class MasterConfiguration{
 		// version 2.8: Added servo avg num setting
 		// version 2.9: Added Units Combo and experiment auto servo options to servo manager
 		// version 2.10: added CalibrationManager
-		// versino 2.11: added agilent options to calibration manager.
-		const Version version = Version("2.11");
+		// version 2.11: added agilent options to calibration manager.
+		// version 2.12: added more fitting options and the calibrations to the calibration manager
+		const Version version = Version("2.12");
 };
 

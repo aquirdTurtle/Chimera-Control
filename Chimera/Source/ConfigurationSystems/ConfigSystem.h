@@ -104,7 +104,8 @@ class ConfigSystem : public IChimeraSystem {
 		// Version 5.6: Added Andor Control option
 		// Version 5.7: Added Basler Control Option
 		// Version 5.8: Added shift speeds to andor system
-		const Version version = Version( "5.8" );
+		// Version 5.9: Added burst mode control to andor system.
+		const Version version = Version( "5.9" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;

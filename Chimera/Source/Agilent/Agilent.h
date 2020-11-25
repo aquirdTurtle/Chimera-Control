@@ -71,6 +71,7 @@ class Agilent : public IChimeraSystem {
 		CQRadioButton* channel2Button;
 		CQCheckBox* syncedButton;
 		CQCheckBox* calibratedButton;
+		CQCheckBox* burstButton;
 		CQComboBox* settingCombo;
 		QLabel* optionsFormat;
 		CQPushButton* programNow;

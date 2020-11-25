@@ -40,10 +40,11 @@ double NewPythonHandler::runCarrierAnalysis (std::string date, long runNumber, a
 	return resval;
 }
 
-std::vector<double> NewPythonHandler::runCalibrationFits (QWidget* parent) {
+std::vector<double> NewPythonHandler::runCalibrationFits (calSettings cal, QWidget* parent) {
 	QString command ("python");
 	auto params = QStringList ();
-	params << "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationAnalysis.py";
+	params << "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationAnalysis.py" << qstr(cal.includeSqrt) 
+		<< qstr(cal.polynomialOrder);
 
 	QProcess* process = new QProcess (parent);
 	process->start (command, params);

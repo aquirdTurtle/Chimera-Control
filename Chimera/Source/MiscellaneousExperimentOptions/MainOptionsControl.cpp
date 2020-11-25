@@ -27,7 +27,7 @@ void MainOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 
 	delayAutoCal = new QCheckBox ("Delay Auto-Calibration", parent);
 	delayAutoCal->setGeometry (px, py, 480, 20);
-	delayAutoCal->setChecked (false);
+	delayAutoCal->setChecked (true);
 	py += 20;
 
 	atomThresholdForSkipText = new QLabel ("Atom Threshold for Load Skip:", parent);

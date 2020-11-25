@@ -33,7 +33,9 @@ dac: eopulselev eo_raman__sv
 var pulsetime 0.12
 on: topRamanrf
 on: eoramanrf
+pulseon: topPulseTrig 0.01
 call send_uw_to_raman_eom() 
+pulseon: topPulseTrig 0.01
 t += pulsetime
 off: topRamanRf
 off: eoramanRF

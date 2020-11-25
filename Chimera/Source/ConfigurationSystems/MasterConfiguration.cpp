@@ -51,20 +51,25 @@ void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin,
 }
 
 void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin){
-	// make sure that file exists	
-	FILE *file;
-	fopen_s( &file, cstr(configurationFileAddress), "r" );
-	if ( !file ){
-		errBox("WARNING: Master Configuration File Not Found! Cannot load Master Configuration File. No Default names for TTLs, DACs, or default values.");
+	try {
+		// make sure that file exists	
+		FILE* file;
+		fopen_s (&file, cstr (configurationFileAddress), "r");
+		if (!file) {
+			errBox ("WARNING: Master Configuration File Not Found! Cannot load Master Configuration File. No Default names for TTLs, DACs, or default values.");
+		}
+		else {
+			fclose (file);
+		}
+		ConfigStream configFile (configurationFileAddress, true);
+		ConfigSystem::getVersionFromFile (configFile);
+		auxWin->handleMasterConfigOpen (configFile);
+		mainWin->handleMasterConfigOpen (configFile);
+		camWin->handleMasterConfigOpen (configFile);
+		mainWin->scriptWin->updateDoAoNames ();
 	}
-	else{
-		fclose( file );
+	catch (ChimeraError & err) {
+		mainWin->reportErr (err.qtrace ());
 	}
-	ConfigStream configFile (configurationFileAddress, true);
-	ConfigSystem::getVersionFromFile (configFile);
-	auxWin->handleMasterConfigOpen(configFile);
-	mainWin->handleMasterConfigOpen (configFile);
-	camWin->handleMasterConfigOpen(configFile);
-	mainWin->scriptWin->updateDoAoNames ();
 }
 

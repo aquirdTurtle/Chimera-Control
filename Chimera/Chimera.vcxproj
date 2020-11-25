@@ -332,6 +332,7 @@
     <ClInclude Include="Source\Agilent\whichAg.h" />
     <ClInclude Include="Source\AnalogInput\AiUnits.h" />
     <ClInclude Include="Source\AnalogInput\CalibrationManager.h" />
+    <QtMoc Include="Source\AnalogInput\CalibrationThreadWorker.h" />
     <ClInclude Include="Source\AnalogInput\calInfo.h" />
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <QtMoc Include="Source\Andor\AndorCameraThreadWorker.h">
@@ -657,6 +658,7 @@
     <ClCompile Include="Source\AnalogInput\AiSystem.cpp" />
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\AnalogInput\CalibrationManager.cpp" />
+    <ClCompile Include="Source\AnalogInput\CalibrationThreadWorker.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraThreadWorker.cpp" />
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\Basler\ImageEventHandler.cpp" />

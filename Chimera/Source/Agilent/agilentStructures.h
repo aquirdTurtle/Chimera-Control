@@ -68,6 +68,7 @@ struct preloadedArbInfo : public generalAgilentOutputInfo{
 	// The only reason at this time to make this an expression instead of a normal string is to make sure it gets 
 	// outputted to the config file correctly in case it's empty. 
 	Expression address = "";
+	bool burstMode = false;
 };
 
 

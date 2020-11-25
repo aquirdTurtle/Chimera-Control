@@ -17,14 +17,15 @@
 Agilent::Agilent( const agilentSettings& settings, IChimeraQtWindow* parent ) : IChimeraSystem(parent), core(settings),
 initSettings(settings), agilentScript(parent){}
 
-
 void Agilent::programAgilentNow (std::vector<parameterType> constants){
 	readGuiSettings ();
 	std::string warnings_;
 	if (currentGuiInfo.channel[0].scriptedArb.fileAddress.expressionStr != ""){
+		currentGuiInfo.channel[0].scriptedArb.wave = ScriptedAgilentWaveform ();
 		core.analyzeAgilentScript (currentGuiInfo.channel[0].scriptedArb, constants, warnings_);
 	}
 	if (currentGuiInfo.channel[1].scriptedArb.fileAddress.expressionStr != ""){
+		currentGuiInfo.channel[1].scriptedArb.wave = ScriptedAgilentWaveform ();
 		core.analyzeAgilentScript (currentGuiInfo.channel[1].scriptedArb, constants, warnings_);
 	}
 	core.convertInputToFinalSettings (0, currentGuiInfo, constants);
@@ -83,11 +84,15 @@ void Agilent::initialize( QPoint& loc, std::string headerText, unsigned editHeig
 	channelButtonsGroup->addButton (channel2Button);
 
 	syncedButton = new CQCheckBox ("Synced?", win);
-	syncedButton->setGeometry (px, py+=20, wi / 3, 20);
+	syncedButton->setGeometry (px, py+=20, wi / 4, 20);
 
 	calibratedButton = new CQCheckBox ("Use Cal?", win);
-	calibratedButton->setGeometry (px + wi / 3, py, wi / 3, 20);
+	calibratedButton->setGeometry (px + wi / 4, py, wi / 4, 20);
 	calibratedButton->setChecked( true );
+
+	burstButton = new CQCheckBox ("Burst?", win);
+	burstButton->setGeometry (px + wi / 2, py, wi / 4, 20);
+	burstButton->setChecked (false);
 
 	programNow = new CQPushButton ("Program", win);
 	programNow->setGeometry (px + 2 * wi / 3, py, wi / 3, 20);
@@ -169,38 +174,39 @@ void Agilent::readGuiSettings(int chan ){
 		thrower ( "Bad argument for agilent channel in Agilent::handleInput(...)!" );
 	}
 	// convert to zero-indexed
-	chan -= 1;
+	auto chani = chan - 1;
 	currentGuiInfo.synced = syncedButton->isChecked( );
 	std::string textStr( agilentScript.getScriptText() );
 	ConfigStream stream;
 	stream << textStr;
 	stream.seekg( 0 );
-	switch (currentGuiInfo.channel[chan].option){
+	switch (currentGuiInfo.channel[chani].option){
 		case AgilentChannelMode::which::No_Control:
 		case AgilentChannelMode::which::Output_Off:
 			break;
 		case AgilentChannelMode::which::DC:
-			stream >> currentGuiInfo.channel[chan].dc.dcLevel;
-			currentGuiInfo.channel[chan].dc.useCal = calibratedButton->isChecked ( );
+			stream >> currentGuiInfo.channel[chani].dc.dcLevel;
+			currentGuiInfo.channel[chani].dc.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Sine:
-			stream >> currentGuiInfo.channel[chan].sine.frequency;
-			stream >> currentGuiInfo.channel[chan].sine.amplitude;
-			currentGuiInfo.channel[chan].sine.useCal = calibratedButton->isChecked ( );
+			stream >> currentGuiInfo.channel[chani].sine.frequency;
+			stream >> currentGuiInfo.channel[chani].sine.amplitude;
+			currentGuiInfo.channel[chani].sine.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Square:
-			stream >> currentGuiInfo.channel[chan].square.frequency;
-			stream >> currentGuiInfo.channel[chan].square.amplitude;
-			stream >> currentGuiInfo.channel[chan].square.offset;
-			currentGuiInfo.channel[chan].square.useCal = calibratedButton->isChecked ( );
+			stream >> currentGuiInfo.channel[chani].square.frequency;
+			stream >> currentGuiInfo.channel[chani].square.amplitude;
+			stream >> currentGuiInfo.channel[chani].square.offset;
+			currentGuiInfo.channel[chani].square.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Preloaded:
-			stream >> currentGuiInfo.channel[chan].preloadedArb.address;
-			currentGuiInfo.channel[chan].preloadedArb.useCal = calibratedButton->isChecked ( );
+			stream >> currentGuiInfo.channel[chani].preloadedArb.address;
+			currentGuiInfo.channel[chani].preloadedArb.useCal = calibratedButton->isChecked ( );
+			currentGuiInfo.channel[chani].preloadedArb.burstMode = burstButton->isChecked ();
 			break;
 		case AgilentChannelMode::which::Script:
-			currentGuiInfo.channel[chan].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
-			currentGuiInfo.channel[chan].scriptedArb.useCal = calibratedButton->isChecked ( );
+			currentGuiInfo.channel[chani].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
+			currentGuiInfo.channel[chani].scriptedArb.useCal = calibratedButton->isChecked ( );
 			break;
 		default:
 			thrower ( "unknown agilent option" );
@@ -279,6 +285,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 			agilentScript.reset ( );
 			agilentScript.setScriptText(currentGuiInfo.channel[chan].preloadedArb.address.expressionStr);
 			calibratedButton->setChecked( currentGuiInfo.channel[chan].preloadedArb.useCal );
+			burstButton->setChecked (currentGuiInfo.channel[chan].preloadedArb.burstMode);
 			agilentScript.setEnabled ( true, false );
 			settingCombo->setCurrentIndex (5);
 			break;
@@ -381,6 +388,7 @@ void Agilent::handleSavingConfig(ConfigStream& saveFile, std::string configPath,
 		saveFile << "\n/*Square Calibrated:*/\t\t\t" << channel.square.useCal;
 		saveFile << "\n/*Preloaded Arb Address:*/\t\t" << channel.preloadedArb.address;
 		saveFile << "\n/*Preloaded Arb Calibrated:*/\t" << channel.preloadedArb.useCal;
+		saveFile << "\n/*Preloaded Arb Burst:*/\t" << channel.preloadedArb.burstMode;
 		saveFile << "\n/*Scripted Arb Address:*/\t\t" << channel.scriptedArb.fileAddress;
 		saveFile << "\n/*Scripted Arb Calibrated:*/\t" << channel.scriptedArb.useCal;
 	}

@@ -23,6 +23,7 @@ int main (int argc, char** argv) {
 	qRegisterMetaType<PixListQueue> ();
 	qRegisterMetaType<profileSettings> ();
 	qRegisterMetaType<analysisSettings> ();
+	qRegisterMetaType<calSettings> ();
 
 	QtMainWindow* mainWinQt = new QtMainWindow ();
 	mainWinQt->show ();

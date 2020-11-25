@@ -4,6 +4,7 @@
 #include "Scripts/ScriptStream.h"
 #include <ExperimentThread/ExpThreadWorker.h>
 #include <ConfigurationSystems/ConfigSystem.h>
+#include <AnalogInput/CalibrationManager.h>
 
 AgilentCore::AgilentCore (const agilentSettings& settings) : 
 	visaFlume (settings.safemode, settings.address),
@@ -13,9 +14,16 @@ AgilentCore::AgilentCore (const agilentSettings& settings) :
 	triggerNumber (settings.triggerNumber),
 	memoryLoc (settings.memoryLocation),
 	configDelim (settings.configurationFileDelimiter),
-	calibrationCoefficients (settings.calibrationCoeff),
 	agilentName (settings.deviceName),
 	setupCommands (settings.setupCommands){
+	calibrations[0].includesSqrt = false;
+	calibrations[0].calibrationCoefficients = settings.calibrationCoeff;
+	// could probably set these properly but in general wasn't doing this when was doing manual calibrations.
+	calibrations[0].maxval = 1e6;
+	calibrations[0].minval = -1e6;
+	calibrations[1].includesSqrt = false;
+	calibrations[1].calibrationCoefficients = settings.calibrationCoeff;
+
 	try{
 		visaFlume.open ();
 	}
@@ -203,7 +211,7 @@ void AgilentCore::setDC (int channel, dcInfo info, unsigned var){
 		thrower ("Bad value for channel inside setDC! Channel shoulde be 1 or 2.");
 	}
 	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, "
-		+ str (convertPowerToSetPoint (info.dcLevel.getValue(var), info.useCal, calibrationCoefficients)) + " V");
+		+ str (convertPowerToSetPoint (info.dcLevel.getValue(var), info.useCal, calibrations[channel-1])) + " V");
 }
 
 
@@ -219,12 +227,23 @@ void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info){
 	visaFlume.write (sStr + ":FUNC ARB");
 	// tell it what arb it's outputting.
 	visaFlume.write (sStr + ":FUNC:ARB \"" + memoryLoc + ":\\" + info.address.expressionStr + "\"");
-	// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
-	visaFlume.write (sStr + ":BURST::MODE TRIGGERED");
-	visaFlume.write (sStr + ":BURST::NCYCLES 1");
-	visaFlume.write (sStr + ":BURST::PHASE 0");
-	visaFlume.write (sStr + ":BURST::STATE ON");
+	programBurstMode (channel, info.burstMode);
 	visaFlume.write ("OUTPUT" + str (channel) + " ON");
+}
+
+
+void AgilentCore::programBurstMode (int channel, bool burstOption) {
+	auto sStr = "SOURCE" + str (channel);
+	if (burstOption) {
+		// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
+		visaFlume.write (sStr + ":BURST::MODE TRIGGERED");
+		visaFlume.write (sStr + ":BURST::NCYCLES 1");
+		visaFlume.write (sStr + ":BURST::PHASE 0");
+		visaFlume.write (sStr + ":BURST::STATE ON");
+	}
+	else {
+		visaFlume.write (sStr + ":BURST::STATE OFF");
+	}
 }
 
 
@@ -234,8 +253,8 @@ void AgilentCore::setSquare (int channel, squareInfo info, unsigned var){
 		thrower ("Bad Value for Channel in setSquare! Channel shoulde be 1 or 2.");
 	}
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SQUARE " + str (info.frequency.getValue(var)) + " KHZ, "
-		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrationCoefficients)) + " VPP, "
-		+ str (convertPowerToSetPoint (info.offset.getValue(var), info.useCal, calibrationCoefficients)) + " V");
+		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrations[channel - 1])) + " VPP, "
+		+ str (convertPowerToSetPoint (info.offset.getValue(var), info.useCal, calibrations[channel - 1])) + " V");
 }
 
 
@@ -244,7 +263,7 @@ void AgilentCore::setSine (int channel, sineInfo info, unsigned var){
 		thrower ("Bad value for channel in setSine! Channel shoulde be 1 or 2.");
 	}
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SINUSOID " + str (info.frequency.getValue(var)) + " KHZ, "
-		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrationCoefficients)) + " VPP");
+		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrations[channel - 1])) + " VPP");
 }
 
 
@@ -292,30 +311,25 @@ void AgilentCore::convertInputToFinalSettings (unsigned chan, deviceOutputInfo& 
  */
 void AgilentCore::setDefault (int channel){
 	// turn it to the default voltage...
-	std::string setPointString = str (convertPowerToSetPoint (AGILENT_DEFAULT_POWER, true, calibrationCoefficients));
+	std::string setPointString = str (convertPowerToSetPoint (AGILENT_DEFAULT_POWER, true, calibrations[channel-1]));
 	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, " + setPointString + " V");
 }
 /**
  * expects the inputted power to be in -MILI-WATTS!
  * returns set point in VOLTS
  */
-double AgilentCore::convertPowerToSetPoint ( double powerInMilliWatts, bool conversionOption, 
-											 std::vector<double> calibCoeff){
+double AgilentCore::convertPowerToSetPoint ( double requestedSetting, bool conversionOption, 
+											 calResult calibration){
+	// requested setting is the voltage or power settting coming from the calibration, depending on how the agilent
+	// was calibrated (power typically for tweezer powers, voltage on PD otherwise). 
 	if (conversionOption){
-		double setPointInVolts = 0;
-		if (calibCoeff.size () == 0){
-			thrower ("Wanted agilent calibration but no calibration given to conversion function!");
-		}
 		// build the polynomial calibration.
-		unsigned polyPower = 0;
-		for (auto coeff : calibCoeff){
-			setPointInVolts += coeff * std::pow (powerInMilliWatts, polyPower++);
-		}
+		double setPointInVolts = CalibrationManager::calibrationFunction (requestedSetting, calibration);
 		return setPointInVolts;
 	}
 	else{
 		// no conversion
-		return powerInMilliWatts;
+		return requestedSetting;
 	}
 }
 
@@ -356,7 +370,7 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 		}
 		// order matters.
 		// loop through again and calc/normalize/writebtn values.
-		scriptInfo.wave.convertPowersToVoltages (scriptInfo.useCal, calibrationCoefficients);
+		scriptInfo.wave.convertPowersToVoltages (scriptInfo.useCal, calibrations[channel-1]);
 		scriptInfo.wave.calcMinMax ();
 		scriptInfo.wave.minsAndMaxes.resize (variation + 1);
 		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt ();
@@ -426,10 +440,13 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
 			file >> channel.preloadedArb.useCal;
 			file.get ();
 		}
+		if (file.ver >= Version ("5.9")) {
+			file >> channel.preloadedArb.burstMode;
+			file.get ();
+		}
 		readFunc (file, channel.scriptedArb.fileAddress.expressionStr);
 		if (file.ver > Version ("2.3")){
 			file >> channel.scriptedArb.useCal;
-			file.get ();
 		}
 		chanInc++;
 	}
@@ -503,6 +520,11 @@ void AgilentCore::calculateVariations (std::vector<parameterType>& params, ExpTh
 	convertInputToFinalSettings (1, expRunSettings, params);
 }
 
+void AgilentCore::setRunSettings (deviceOutputInfo newSettings) {
+	// used by "program now".
+	expRunSettings = newSettings;
+}
+
 void AgilentCore::programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	setAgilent (variation, params, expRunSettings);
 }
@@ -526,4 +548,11 @@ void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadW
 			agMismatchVec[chan] = true;
 		}
 	}
+}
+
+void AgilentCore::setCalibration (calResult newCal, unsigned chan) {
+	if (chan != 1 && chan != 2) {
+		thrower ("ERROR: Agilent channel must be 1 or 2!");
+	}
+	calibrations[chan - 1] = newCal;
 }

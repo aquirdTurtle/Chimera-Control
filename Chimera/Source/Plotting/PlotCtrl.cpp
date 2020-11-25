@@ -5,6 +5,7 @@
 #include <qgraphicslayout.h>
 #include <qdebug.h>
 #include <qmenu.h>
+#include <AnalogInput/CalibrationManager.h>
 
 PlotCtrl::PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds_in,
 					std::string titleIn, bool narrowOpt, bool plotHistOption ) :
@@ -32,8 +33,54 @@ dataPoint PlotCtrl::getMainAnalysisResult ( ){
 	return dataPoint();
 }
 
-void PlotCtrl::setData (std::vector<plotDataVec> newData){
+QtCharts::QScatterSeries* PlotCtrl::getCalData () {
+	return calibrationData;
+}
+
+void PlotCtrl::removeData () {
 	view->chart ()->removeAllSeries ();
+}
+
+void PlotCtrl::initializeCalData (calSettings cal) {
+	view->chart ()->removeAllSeries ();
+	calibrationData = new QtCharts::QScatterSeries (view->chart ());
+	calibrationData->setBorderColor (Qt::black);
+	calibrationData->setMarkerSize (8.0);
+	calibrationData->setColor (QColor (255, 255, 255));
+	calibrationData->setName ("Calibration Data");
+	view->chart ()->addSeries (calibrationData);
+	double xmin=DBL_MAX, xmax=-DBL_MAX, ymin=DBL_MAX, ymax=-DBL_MAX;
+	// set the range based on the previous calibration
+	for (auto xpt : CalibrationManager::calPtTextToVals (cal.ctrlPtString)) {
+		xmin = xpt < xmin ? xpt : xmin;
+		xmax = xpt > xmax ? xpt : xmax;
+	}
+	for (auto ypt : cal.resultValues) {
+		ymin = ypt < ymin ? ypt : ymin;
+		ymax = ypt > ymax ? ypt : ymax;
+	}
+	resetChart ();
+	if (!view->chart ()->axes (Qt::Horizontal)[0]) {
+		return;
+	}
+	if (xmax == xmin) {
+		view->chart ()->axes (Qt::Horizontal)[0]->setRange (xmin - 1, xmin + 1);
+	}
+	else {
+		view->chart ()->axes (Qt::Horizontal)[0]->setRange (xmin - (xmax - xmin) / 20, xmax + (xmax - xmin) / 20);
+	}
+	if (ymax == ymin) {
+		view->chart ()->axes (Qt::Vertical)[0]->setRange (ymin - 1, ymin + 1);
+	}
+	else {
+		view->chart ()->axes (Qt::Vertical)[0]->setRange (ymin - (ymax - ymin) / 20, ymax + (ymax - ymin) / 20);
+	}
+}
+
+
+
+void PlotCtrl::setData (std::vector<plotDataVec> newData){
+	removeData ();
 	double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
 	if (style == plotStyle::GeneralErrorPlot) {
 		// need to rename...
@@ -43,10 +90,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		}
 		// first data set is scatter
 		auto& newLineData = newData[0];
-		calibrationData = new QtCharts::QScatterSeries (view->chart ());
-		calibrationData->setBorderColor (Qt::black);
-		calibrationData->setMarkerSize (8.0);
-		calibrationData->setColor (QColor (255, 255, 255));
+		initializeCalData (calSettings());
 		for (auto count : range (newLineData.size ())) {
 			xmin = newLineData[count].x < xmin ? newLineData[count].x : xmin;
 			xmax = newLineData[count].x > xmax ? newLineData[count].x : xmax;
@@ -55,7 +99,6 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			*calibrationData << QPointF (newLineData[count].x, newLineData[count].y);
 		}
 		view->chart ()->addSeries (calibrationData);
-		//view->chart ()->legend ()->setVisible (true);
 		// second line
 		auto& newLineData2 = newData[1];
 		fitData = new QtCharts::QLineSeries (view->chart ());
@@ -63,7 +106,6 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		QPen pen = fitData->pen ();
 		pen.setWidth (2);
 		pen.setColor ("red");
-		//pen.setBrush (QColor (color[0], color[1], color[2], 50)); // or just pen.setColor("red");
 		fitData->setPen (pen);
 		for (auto count : range (newLineData2.size ())) {
 			xmin = newLineData2[count].x < xmin ? newLineData2[count].x : xmin;
@@ -72,6 +114,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			ymax = newLineData2[count].y > ymax ? newLineData2[count].y : ymax;
 			*fitData << QPointF (newLineData2[count].x, newLineData2[count].y);
 		}
+		fitData->setName ("Fit");
 		view->chart ()->addSeries (fitData);
 	}
 	else if (style == plotStyle::BinomialDataPlot) {
@@ -213,9 +256,10 @@ void PlotCtrl::setStyle (plotStyle newStyle){
 }
 
 void PlotCtrl::resetChart () {
-	view->chart ()->legend ()->hide ();
+	if (style != plotStyle::GeneralErrorPlot) {
+		view->chart ()->legend ()->hide ();
+	}
 	view->chart ()->createDefaultAxes ();
-	view->chart ()->setTitle (title.c_str ());
 	view->chart ()->layout ()->setContentsMargins (0, 0, 0, 0);
 	view->chart ()->setBackgroundRoundness (0);
 	view->chart ()->setBackgroundBrush (QBrush (QColor (20, 20, 20)));
@@ -226,6 +270,8 @@ void PlotCtrl::resetChart () {
 		view->chart ()->axes (Qt::Horizontal)[0]->setGridLinePen (pen);
 		view->chart ()->axes (Qt::Vertical)[0]->setGridLinePen (pen);
 	}
+	view->chart ()->setTitleBrush (QBrush (Qt::white));
+	view->chart ()->setTitle (title.c_str ());
 }
 
 void PlotCtrl::init( QPoint& pos, LONG width, LONG height, IChimeraQtWindow* parent ){ 
