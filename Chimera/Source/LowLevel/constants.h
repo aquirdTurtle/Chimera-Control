@@ -92,7 +92,7 @@
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1", true, false };
 	const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2", true, false };
-	const piezoSetupInfo PIEZO_3_INFO = { PiezoType::NONE, "COM8", "PIEZO_CONTROLLER_3", true, false };
+	const piezoSetupInfo PIEZO_3_INFO = { PiezoType::A, "COM11", "PIEZO_CONTROLLER_3", true, false };
 	const piezoSetupInfo IMG_PIEZO_INFO = { PiezoType::B, "COM8", "IMAGING_PIEZO", false, true };
 
 	const std::string DM_PROFILES_LOCATION = str(CODE_ROOT) + "\\DM-Library";

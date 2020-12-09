@@ -174,4 +174,7 @@ struct parameterType{
 	}
 };
 
+Q_DECLARE_METATYPE (parameterType)
+Q_DECLARE_METATYPE (std::vector<parameterType>)
+
 typedef std::unordered_map<std::string, std::vector<parameterType>> funcVarMap;

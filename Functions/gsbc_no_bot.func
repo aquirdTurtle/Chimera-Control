@@ -1,0 +1,46 @@
+% Master-Script See the "?" for info on commands.
+def gsbc_no_bot():
+  % expecting totalramanrf (b3) to be on a while ago in order
+  % to let the servo settle
+  off: probeRf
+  off: repumpRf
+  dac: probePower 0
+
+  var repumpf -0.8
+  var opfreq -0.5
+  daclinspace: motFreq defaultMotFreq opFreq 1 10  
+  dac: repumpfreq repumpf
+  t += 5  
+  
+  dac: sigmaoppower { 0.41 sigma_op } % sbc_sigma_op__sv
+  dac: sigmarepumpPower { 0.1 sigma_repump } % !!!
+  % sigma_repump__sv
+  dac: sigmaRepumpFreq 0
+  dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
+  t += 1
+  off: uw_mod_switch 
+  % original times reported in sbc paper were 72.5us 
+  % and 48us for top/bottom. 
+  pulseon: topPulseTrig 0.01
+  pulseon: axialmicropulsetrig 0.01
+  repeat: 100
+    call axialRamanPulse(0.085)
+    call opPulse(0.015)
+    call topRamanPulse(0.08)
+    call opPulse(0.015)
+  end	
+  var afterSbcOpTime 0.02
+  call opPulse(afterSbcOpTime) 
+  dac: sigmaoppower 0
+  dac: sigmarepumpPower 0
+  %dac: sigmarepumpPower sbc_sigma_repump
+  dac: topPulseLev 0
+  dac: axPulseLev 0
+  dac: dac17 0
+  dac: eoPulseLev 0
+  % its important that you wait long enough after the 
+  % rstrig for the rsg
+  % to actually change its output, which I find takes 
+  % about 0.15 s 
+  % MOB Sep 11th 2019 
+  t += 0.16

@@ -140,8 +140,10 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		return 0;
 	}
 	else if ( pulse.type == "gaussian" ){
-		// in this case, the width is the sigma of the gaussian.
-		//double center = pulseLength / 2.0;
+		// in this case, the width is the sigma of the gaussian. Note that this definition the width = tau from
+		// adam's thesis because this will give the intensity of one of the beams, and the rabi rate~ sqrt(I1*I2) for
+		// the two beams.
+
 		double x = pulseLength * iteration / size;
 		double result = pulse.amplitude * exp( -(center - x) * (center - x) / (pulse.width * pulse.width) );
 		return result;

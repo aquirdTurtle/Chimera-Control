@@ -427,7 +427,8 @@ std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( unsigned var ){
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker){
+void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker, 
+									std::vector<calResult> calibrations ){
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
 	unsigned variations = params.size( ) == 0 ? 1 : params.front( ).keyValues.size( );
@@ -460,7 +461,7 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 			else{
 				double varTime = 0;
 				for ( auto variableTimeString : formList.time.first ){
-					varTime += variableTimeString.evaluate( params, variationInc );
+					varTime += variableTimeString.evaluate( params, variationInc, calibrations);
 				}
 				tempEvent.time = varTime + formList.time.second;
 			}
@@ -470,7 +471,7 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 			/// deal with command
 			if ( formList.commandName == "dac:" ){
 				/// single point.
-				tempEvent.value = formList.finalVal.evaluate( params, variationInc );
+				tempEvent.value = formList.finalVal.evaluate( params, variationInc, calibrations);
 				if ( variationInc == 0 ){
 					sTimer.tick ( "val-evaluated" );
 				}
@@ -481,15 +482,15 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 			}
 			else if ( formList.commandName == "dacarange:" ){
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = formList.rampTime.evaluate( params, variationInc );
+				double rampTime = formList.rampTime.evaluate( params, variationInc, calibrations);
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, rampInc;
-				initValue = formList.initVal.evaluate( params, variationInc );
+				initValue = formList.initVal.evaluate( params, variationInc, calibrations);
 				// deal with final value;
-				finalValue = formList.finalVal.evaluate( params, variationInc );
+				finalValue = formList.finalVal.evaluate( params, variationInc, calibrations);
 				// deal with ramp inc
-				rampInc = formList.rampInc.evaluate( params, variationInc );
+				rampInc = formList.rampInc.evaluate( params, variationInc, calibrations);
 				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )	{
 					resolutionWarningPosted = true;
 					emit threadworker->warn (cstr("Warning: ramp increment of " + str (rampInc) + " in dac command number "
@@ -541,13 +542,13 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 			}
 			else if ( formList.commandName == "daclinspace:" ){
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = formList.rampTime.evaluate( params, variationInc );
+				double rampTime = formList.rampTime.evaluate( params, variationInc, calibrations);
 				/// many points to be made.
 				double initValue, finalValue;
 				unsigned numSteps;
-				initValue = formList.initVal.evaluate( params, variationInc );
-				finalValue = formList.finalVal.evaluate(params, variationInc );
-				numSteps = formList.numSteps.evaluate(params, variationInc );
+				initValue = formList.initVal.evaluate( params, variationInc, calibrations);
+				finalValue = formList.finalVal.evaluate(params, variationInc, calibrations);
+				numSteps = formList.numSteps.evaluate(params, variationInc, calibrations);
 				double rampInc = (finalValue - initValue) / numSteps;
 				// this warning isn't actually very useful. very rare that actually run into issues with overtaxing ao 
 				// or do systems like this and these circumstances often happen when something is ramped.

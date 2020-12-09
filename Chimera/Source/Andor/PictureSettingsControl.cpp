@@ -26,8 +26,10 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 			parent->reportErr (err.qtrace());
 		}
 	};
+	transfModeLabel = new QLabel ("Qt Image Transformation Mode:", parent);
+	transfModeLabel->setGeometry (px, py, 240, 20);
 	transformationModeCombo = new CQComboBox (parent);
-	transformationModeCombo->setGeometry (px, py, 480, 20);
+	transformationModeCombo->setGeometry (px+240, py, 240, 20);
 	transformationModeCombo->addItems ({ "Fast", "Smooth" });
 	parent->connect (transformationModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
 		parent->andorWin, &QtAndorWindow::handleTransformationModeChange);

@@ -1,4 +1,4 @@
-Version 2.12
+Version 2.13
 diagmotrf
 0
 repumprf
@@ -223,7 +223,7 @@ axpulselev
 0 - 1
 0
 _
-53
+34
 loadmottime 125
 andorimagetime 15
 imagingpower 0.3
@@ -233,52 +233,33 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__sv 0.07506279847378261
-diagmot__sv 0.2480277102431827
-default795freq 0
-d1__servo_value 0.3
-sidemot_intrappgc__sv 0.09003663960195325
-sidemot_imaging__sv 0.194214135673613
 motimagingdetuning -0.32
 d1loadingfreq 112
-intraplgmcoolingfreq 103
-sidemot_d1__sv 0.170639055374452
-diagmot_imaging__sv 0.09836596546237347
-diag_d1_load__sv -0.4848533652353728
-repump_load__sv 0.1229438455507709
-repump_imaging__sv 0.1230216428826609
-sigma_repump__sv 0.0703299784674814
-sigma_op__sv 0.199655
-pushout_probe__sv 0.3111544490798444
-top_raman__sv 0.0758206
-top_raman_carrier__sv 0.09435238883238745
-eo_raman__sv 0.1006271039448151
-ax_raman_spec__sv 0.02318754216101684
-top_raman_sideband_spec__sv 0.07815115159767412
-top_sbc_sideband_spec__sv 0.2113730589131441
-sbc_sigma_op__sv 0.05382895352460036
-axramanoffset 108900
-intraplgmrepumpfreq 0.066
-intraplgmrepumppower 0
-depthmeasurementprobe__sv 0.04767571254038918
+intraplgmcoolingfreq 100
+axramanoffset 90000
+intraplgmrepumpfreq 0.02
+intraplgmrepumppower -10
 pzttop_x 105
 pzttop_y 50
 pztax_x 60.39
 pztax_y 98.70999999999999
 pzteo_y 30
 pzteo_x 60
-ax_sbc_raman__sv 0.03992079736199364
-top_sbc_sideband__sv 0.08939619568964205
-sbc_cooling_mod 140
-radial_carrier_freq 6.830943883103467
+sbc_cooling_mod 125
+radial_carrier_freq 6.830945574492771
 axtekpower -3
 eotekpower -3
-ax_raman_sbc2__sv 0.0727281220058308
-top_raman_sbc2__sv 0.2174677798101335
-bot_raman_sbc__sv 0.088999594
 lgm_cooling_time 150
+tbsbcpulselen 0.08
+axsbcpulselen 0.08500000000000001
+opsbcpulselen 0.015
+topsbcamp 2.22
+axsbcamp 0.7
+botsbcamp 0.45
+pztbot_x 52
+pztbot_y 57
 0
-1
+0
 pdVolts
 20
 Sidemot 6 22 1 1.88 2 a 5 b 8 0 0.01 0.02 0 100
@@ -302,13 +283,13 @@ depthmeasurementprobe 5 19 1 0.11 2 d 12 d 13 0 0.01 0.01 0 100
 top_sbc_sideband 2 16 0 1.11 2 a 10 b 3 0 0.02 0.02 0 100
 ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 
-/*CALIBRATION_MANAGER*/
+CALIBRATION_MANAGER
 /*Auto Cal Checked: */ 0
-/*Calibration Number: */ 9
+/*Calibration Number: */ 12
 /*Calibration Name: */ sidemot
 /*Analog Input Chanel: */ 6
 /*Analog Output Control Chanel: */ 22
-/*Control Values: */ ( 0 0.2 0.01 )
+/*Control Values: */ ( 0 0.22 0.01 )
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ a 5 b 8 
@@ -320,14 +301,17 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.0611 -0.2629 -0.0008 -0.0017 0.0009 -0.0002 0. -0. 
+/*Calibration Coefficients: */ 0.0602 -0.2539 -0.0026 0.0024 -0.0009 0.0002 -0. 0. 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */22
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 
+/*Number of Result Vals: */22
+/*Result Vals: */0.2551 0.2939 0.3858 0.526 0.7216 0.9711 1.2737 1.6114 2.0082 2.4534 2.95 3.4756 4.0517 4.6677 5.3224 6.0264 6.7438 7.5106 8.3047 9.124 9.9533 10.6422 
 /*Calibration Name: */ diagmot
 /*Analog Input Chanel: */ 7
 /*Analog Output Control Chanel: */ 9
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Control Values: */ ( 0 0.3 0.01
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ a 0 c 8 
@@ -339,10 +323,13 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.3634 -0.0261 -0.0636 -0.2628 0.0956 -0.0256 0.0037 -0.0002 
+/*Calibration Coefficients: */ 0.3297 -0.0404 -0.0451 -0.2425 0.0991 -0.0294 0.0046 -0.0003 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */30
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Number of Result Vals: */30
+/*Result Vals: */0.1231 0.1008 0.1004 0.1219 0.1647 0.2286 0.3131 0.4138 0.5356 0.6752 0.833 1.0025 1.1908 1.3939 1.6065 1.8303 2.0594 2.3024 2.5548 2.8082 3.0581 3.3162 3.5721 3.825 4.062 4.3025 4.5371 4.7673 4.9957 5.2151 
 /*Calibration Name: */ repump
 /*Analog Input Chanel: */ 7
 /*Analog Output Control Chanel: */ 11
@@ -358,14 +345,17 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 1.0221 -0.0255 -0.0185 -2.3507 6.6378 -12.8886 12.8633 -4.6616 
+/*Calibration Coefficients: */ 0.8032 -0.0303 0.0011 -1.784 5.126 -9.7372 9.3828 -3.208 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */30
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Number of Result Vals: */30
+/*Result Vals: */0.0411 0.0382 0.0384 0.0424 0.0492 0.0599 0.073 0.089 0.1082 0.1303 0.1543 0.18 0.2084 0.2381 0.2703 0.3021 0.3343 0.3676 0.4011 0.4345 0.4665 0.4979 0.5293 0.5585 0.5853 0.611 0.6343 0.655 0.6741 0.6896 
 /*Calibration Name: */ probe
 /*Analog Input Chanel: */ 5
 /*Analog Output Control Chanel: */ 19
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Control Values: */ ( 0 0.42 0.01
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ d 12 d 13 
@@ -377,10 +367,13 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.2771 -0.0676 0.0023 -0.0256 -0.2096 0.8779 -1.0517 0.4277 
+/*Calibration Coefficients: */ 0.2199 -0.0871 -0.0011 0.0091 0.0149 0.0042 0.0003 0.0003 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */42
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 
+/*Number of Result Vals: */42
+/*Result Vals: */0.0871 0.0892 0.0953 0.1054 0.1195 0.1377 0.1598 0.1851 0.2153 0.2477 0.2838 0.3217 0.3645 0.4096 0.4569 0.5066 0.5571 0.6115 0.6667 0.7224 0.7777 0.8355 0.8948 0.9528 1.0091 1.0695 1.128 1.1864 1.2439 1.3014 1.3592 1.4153 1.4712 1.5262 1.5814 1.6325 1.6805 1.7285 1.7778 1.8235 1.8672 1.9124 
 /*Calibration Name: */ sigma_op
 /*Analog Input Chanel: */ 5
 /*Analog Output Control Chanel: */ 13
@@ -396,14 +389,17 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.275 0.0579 -0.0621 -0.2017 0.0852 -0.027 0.0045 -0.0003 
+/*Calibration Coefficients: */ 0.2196 0.0333 -0.0374 -0.1565 0.0717 -0.0233 0.004 -0.0002 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */22
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 
+/*Number of Result Vals: */22
+/*Result Vals: */0.0238 0.008 0.0335 0.0972 0.201 0.3414 0.5168 0.7175 0.9513 1.207 1.4813 1.76 2.0586 2.3601 2.6617 2.9575 3.2366 3.5124 3.7733 4.0134 4.2188 4.3983 
 /*Calibration Name: */ sigma_repump
 /*Analog Input Chanel: */ 5
 /*Analog Output Control Chanel: */ 15
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 
+/*Control Values: */ ( 0.04 0.37 0.01
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 1
 /*ttl config: */ a 3 
@@ -415,14 +411,17 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 6.5081 0.0154 -0.7074 -21.4892 208.5102 -1984.8667 10730.4682 -23189.6176 
+/*Calibration Coefficients: */ 0.4775 0.0087 0.0495 0.6784 2.0578 3.4239 -25.9286 -403.2114 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */33
+/*Control Vals: */0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 
+/*Number of Result Vals: */33
+/*Result Vals: */-0.0087 -0.008 -0.007 -0.0056 -0.0036 -0.0014 0.0012 0.004 0.0074 0.0111 0.0152 0.0195 0.0239 0.0288 0.0341 0.0396 0.045 0.0508 0.0569 0.0632 0.0694 0.0759 0.0824 0.089 0.0957 0.1022 0.1088 0.1154 0.1217 0.1279 0.1341 0.1401 0.1458 
 /*Calibration Name: */ top_raman
 /*Analog Input Chanel: */ 2
 /*Analog Output Control Chanel: */ 0
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 
+/*Control Values: */ ( 0 0.35 0.01
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ a 10 b 3 
@@ -434,11 +433,14 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.1236 -0.0106 0. -0.0156 0.0103 -0.0032 0.0005 -0. 
+/*Calibration Coefficients: */ 0.1164 -0.0123 -0. -0.0081 0.0027 -0.0001 -0. 0. 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
-/*Calibration Name: */ axail_raman
+/*Number of Control Vals: */35
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 
+/*Number of Result Vals: */35
+/*Result Vals: */0.0123 0.0188 0.0419 0.0817 0.1392 0.212 0.3025 0.409 0.5315 0.6723 0.826 0.9964 1.1823 1.3828 1.5937 1.8207 2.0609 2.3064 2.5666 2.8329 3.1076 3.3888 3.6683 3.9539 4.2417 4.5213 4.8039 5.0849 5.3535 5.6192 5.8767 6.124 6.3632 6.5903 6.7972 
+/*Calibration Name: */ axial_raman
 /*Analog Input Chanel: */ 3
 /*Analog Output Control Chanel: */ 0
 /*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
@@ -453,14 +455,17 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */2
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.0801 -0.0037 -0.0001 -0.0032 0.0012 -0.0001 0. 0. 
+/*Calibration Coefficients: */ 0.0813 -0.0039 -0.0001 -0.0034 0.001 -0.0001 -0. 0. 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-
+/*Number of Control Vals: */30
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Number of Result Vals: */30
+/*Result Vals: */0.0039 0.0182 0.0659 0.1462 0.2593 0.4055 0.5837 0.7938 1.0356 1.3074 1.609 1.9395 2.2956 2.676 3.0817 3.5077 3.9524 4.4145 4.8926 5.38 5.8747 6.3778 6.8848 7.3902 7.8977 8.397 8.8855 9.3371 9.7518 10.1518 
 /*Calibration Name: */ bot_raman
 /*Analog Input Chanel: */ 0
 /*Analog Output Control Chanel: */ 0
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Control Values: */ ( 0.002 0.2 0.004
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ a 2 b 3 
@@ -472,8 +477,77 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Which Agilent Channel: */1
 /*Include Sqrt on Next Cal: */1
 /*Number of Calibration Coefficients: */ 8
-/*Calibration Coefficients: */ 0.1262 -0.0271 0.0009 -0.0374 0.0286 -0.0111 0.002 -0.0001 
+/*Calibration Coefficients: */ 0.0242 -0.0304 0.0172 0.0259 -0.0052 0.0009 -0.0001 0. 
 /*Calibration Includes Sqrt: */ 1
 /*Polynomial Order: */ 6
-1 5 1 1 5 1
+/*Number of Control Vals: */50
+/*Control Vals: */0.002 0.006 0.01 0.014 0.018 0.022 0.026 0.03 0.034 0.038 0.042 0.046 0.05 0.054 0.058 0.062 0.066 0.07 0.074 0.078 0.082 0.086 0.09 0.094 0.098 0.102 0.106 0.11 0.114 0.118 0.122 0.126 0.13 0.134 0.138 0.142 0.146 0.15 0.154 0.158 0.162 0.166 0.17 0.174 0.178 0.182 0.186 0.19 0.194 0.198 
+/*Number of Result Vals: */50
+/*Result Vals: */0.0305 0.0333 0.0459 0.0764 0.1067 0.1441 0.1921 0.2586 0.3245 0.3956 0.4784 0.5699 0.6648 0.7675 0.8791 1.0117 1.1436 1.2758 1.4236 1.5809 1.7308 1.9059 2.0845 2.2682 2.4577 2.651 2.8595 3.0767 3.2954 3.5246 3.7518 3.9886 4.243 4.488 4.7593 5.0152 5.2793 5.5585 5.8392 6.1338 6.4165 6.713 7.0185 7.3288 7.6322 7.9456 8.2716 8.5883 8.9232 9.2451 
+/*Calibration Name: */ sidemot_d1
+/*Analog Input Chanel: */ 6
+/*Analog Output Control Chanel: */ 8
+/*Control Values: */ ( 0.03 0.3 0.01
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ b 10 c 10 
+/*Analog Output Config Size: */ 2
+/*Analog Output Config: */ 18 -1.5 10 0.3 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */0
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.4343 0.0037 -0.0102 -0.5021 0.5759 -0.4676 0.196 -0.0296 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
+/*Number of Control Vals: */27
+/*Control Vals: */0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Number of Result Vals: */27
+/*Result Vals: */0.0198 0.0124 0.0156 0.0283 0.0511 0.0833 0.1261 0.1779 0.2355 0.3047 0.3807 0.4626 0.5507 0.6396 0.735 0.8329 0.9327 1.0268 1.1243 1.2186 1.3097 1.3916 1.4728 1.545 1.6097 1.6677 1.7174 
+/*Calibration Name: */ eo_raman
+/*Analog Input Chanel: */ 1
+/*Analog Output Control Chanel: */ 7
+/*Control Values: */ ( 0 0.28 0.01
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ a 8 b 3 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */0
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.2357 0.0036 0.0032 0.0101 0.0381 0.0278 0.0112 0.0053 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
+/*Number of Control Vals: */28
+/*Control Vals: */0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 
+/*Number of Result Vals: */28
+/*Result Vals: */-0.0036 -0.0035 0.0005 0.0082 0.0201 0.0358 0.0549 0.0766 0.1023 0.1295 0.1592 0.1899 0.225 0.2604 0.2977 0.3369 0.3756 0.4177 0.4577 0.5028 0.5438 0.5834 0.6234 0.6637 0.7024 0.7419 0.7744 0.8056 
+/*Calibration Name: */ diagmot_d1
+/*Analog Input Chanel: */ 7
+/*Analog Output Control Chanel: */ 10
+/*Control Values: */ ( 0.03 0.3 0.01
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ b 10 c 10 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */0
+/*Include Sqrt on Next Cal: */1
+/*Number of Calibration Coefficients: */ 8
+/*Calibration Coefficients: */ 0.6664 0.0031 0.0086 -1.3545 7.1168 -25.7627 48.7496 -34.699 
+/*Calibration Includes Sqrt: */ 1
+/*Polynomial Order: */ 6
+/*Number of Control Vals: */27
+/*Control Vals: */0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Number of Result Vals: */27
+/*Result Vals: */-0.0002 -0.0013 -0.0006 0.0024 0.0082 0.0156 0.0259 0.0379 0.0513 0.0678 0.0857 0.1048 0.1254 0.147 0.1693 0.193 0.2172 0.2401 0.2649 0.2886 0.3123 0.334 0.3557 0.377 0.3962 0.415 0.4311 253 285 3 224 238 3
 0 0

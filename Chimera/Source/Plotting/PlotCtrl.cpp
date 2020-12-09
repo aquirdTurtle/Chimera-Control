@@ -51,11 +51,11 @@ void PlotCtrl::initializeCalData (calSettings cal) {
 	view->chart ()->addSeries (calibrationData);
 	double xmin=DBL_MAX, xmax=-DBL_MAX, ymin=DBL_MAX, ymax=-DBL_MAX;
 	// set the range based on the previous calibration
-	for (auto xpt : CalibrationManager::calPtTextToVals (cal.ctrlPtString)) {
+	for (auto xpt : cal.result.ctrlVals) {
 		xmin = xpt < xmin ? xpt : xmin;
 		xmax = xpt > xmax ? xpt : xmax;
 	}
-	for (auto ypt : cal.resultValues) {
+	for (auto ypt : cal.result.resVals) {
 		ymin = ypt < ymin ? ypt : ymin;
 		ymax = ypt > ymax ? ypt : ymax;
 	}

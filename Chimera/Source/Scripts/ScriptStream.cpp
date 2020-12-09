@@ -1,13 +1,34 @@
 // created by Mark O. Brown
 #include "stdafx.h"
+
 #include "Scripts/ScriptStream.h"
+#include <ParameterSystem/Expression.h>
+
 #include <algorithm>
+
 ScriptStream::ScriptStream (std::string buf) : std::stringstream (buf) {
 	initialContents = str ();
 }
-ScriptStream& ScriptStream::operator>>(Expression& expr){
-	return operator>>(expr.expressionStr);
+
+ScriptStream& ScriptStream::operator>>(Expression& expr) {
+	eatComments ();
+	// if first character is '{', this is a calibrated expression of the form "{ expr calname }" 
+	if (peek () == '{') {
+		get ();
+		// I'm able to use this simple solution because the code doesn't support nested '{}' like you can parenthesis ().
+		ScriptStream substream (getline ('}'));
+		substream >> expr.expressionStr;
+		substream >> expr.calName;
+		return *this;
+	}
+	else {
+		return operator>>(expr.expressionStr);
+	}
 }
+
+//ScriptStream& ScriptStream::operator>>(Expression& expr){
+//	return operator>>(expr.expressionStr);
+//}
 
 ScriptStream & ScriptStream::operator>>( std::string& outputString ){
 	eatComments();
@@ -20,46 +41,34 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString ){
 	// make sure they are at the same place... // this is weird, don't know why I would need to do this. 
 	long long pos = tellg();
 	tempStream.seekg( pos );
-	// get the word.
 	std::string tempStr;
-	
-	bool isExpression = false;
 	outputString = "";
 	int unclosedParentheses = 0;
-	do
-	{
+	do {
 		tempStream >> tempStr;
 		auto peek_ = tempStream.peek ();
 		auto eof_ = tempStream.eof ();
-		if ( tempStr == "" )
-		{
+		if ( tempStr == "" ){
 			break;
 		}
 		std::vector<std::string> tempTerms = Expression::splitString( tempStr );
-		for ( auto& term : tempTerms )
-		{ 
-			if ( term == "(" )
-			{
+		for ( auto& term : tempTerms ){ 
+			if ( term == "(" ) {
 				unclosedParentheses++;
 			}
-			else if ( term == ")" )
-			{
-				if ( unclosedParentheses == 0 )
-				{
+			else if ( term == ")" ){
+				if ( unclosedParentheses == 0 )	{
 					thrower ( "ERROR: excessive right parenthesis in input! \")\" was seen when there were no \"(\" to "
 							 "close." );
 				}
 				unclosedParentheses--;
 			}
-			if (alwaysLowerCase)
-			{
+			if (alwaysLowerCase){
 				std::transform (term.begin (), term.end (), term.begin (), ::tolower);
 			}
 			// replace any keywords
-			for ( auto repl : replacements )
-			{
-				if ( term == repl.first )
-				{
+			for ( auto repl : replacements ){
+				if ( term == repl.first ){
 					// auto-replace before the user even needs to deal with this.
 					term = repl.second;
 				}

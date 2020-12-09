@@ -1,0 +1,28 @@
+list of final servo global values:
+sidemot__sv:                    0.076881531
+diagmot__sv:                    0.259347355
+sidemot_intrappgc__sv:          0.09235546
+sidemot_imaging__sv:            0.198792384
+sidemot_d1__sv:                 0.209440938
+diagmot_imaging__sv:            0.101724981
+diag_d1_load__sv:               -.161713037
+repump_load__sv:                0.122691184
+repump_imaging__sv:             0.122924164
+sigma_repump__sv:               0.069679535
+sigma_op__sv:                   0.199655
+pushout_probe__sv:              0.354322667
+top_raman__sv:                  0.0758206
+top_raman_carrier__sv:          0.094352389
+eo_raman__sv:                   0.116984502
+ax_raman_spec__sv:              0.023187542
+top_raman_sideband_spec__sv:    0.078151152
+top_sbc_sideband_spec__sv:      0.211373059
+sbc_sigma_op__sv:               0.054971395
+depthmeasurementprobe__sv:      0.05569101
+ax_sbc_raman__sv:               0.039920797
+top_sbc_sideband__sv:           0.089396196
+ax_raman_sbc2__sv:              0.072728122
+top_raman_sbc2__sv:             0.21746778
+bot_raman_sbc__sv:              0.088999594
+
+

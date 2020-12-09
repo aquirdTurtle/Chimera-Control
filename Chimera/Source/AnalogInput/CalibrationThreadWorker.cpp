@@ -25,13 +25,6 @@ void CalibrationThreadWorker::runAll () {
 	unsigned count = 0;
 	// made this asynchronous to facilitate updating gui while 
 	for (auto& cal : input.calibrations) {
-		std::vector<QBrush> origColors;
-		/*for (auto col : range (calibrationTable->columnCount ())) {
-			if (calibrationTable->item (count, col) != nullptr) {
-				origColors.push_back (calibrationTable->item (count, col)->background ());
-				calibrationTable->item (count, col)->setBackground (QColor (0, 0, 50));
-			}
-		}*/
 		try {
 			calibrate (cal, count);
 		}
@@ -40,13 +33,8 @@ void CalibrationThreadWorker::runAll () {
 			// but continue to try the other ones. 
 		}
 		Sleep (200);
-		//for (auto col : range (calibrationTable->columnCount ())) {
-		//	calibrationTable->item (count, col)->setBackground (origColors[col]);
-		//}
 		count++;
-		//qApp->processEvents ();
 	}
-	//refreshListview ();
 	input.ttls->zeroBoard ();
 	input.ao->zeroDacs (input.ttls->getCore (), { 0, input.ttls->getCurrentStatus () });
 }
@@ -55,8 +43,9 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 	if (!cal.active) {
 		return;
 	}
+	auto& result = cal.result;
 	emit startingNewCalibration (cal);
-	emit notification (qstr ("Running Calibration " + cal.result.calibrationName + ".\n"), 1);
+	emit notification (qstr ("Running Calibration " + result.calibrationName + ".\n"), 1);
 	cal.currentlyCalibrating = true;
 	input.ttls->zeroBoard ();
 	input.ao->zeroDacs (input.ttls->getCore (), { 0, input.ttls->getCurrentStatus () });
@@ -70,40 +59,53 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 		input.ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, input.ttls->getCurrentStatus ());
 	}
 	Sleep (200); // give some time for the lasers to settle..
-	cal.resultValues.clear ();
+	result.resVals.clear ();
 	unsigned aiNum = cal.aiInChan;
 	unsigned aoNum = cal.aoControlChannel;
-	for (auto calPoint : CalibrationManager::calPtTextToVals (cal.ctrlPtString)) {
-		if (cal.useAg) {
-			auto& ag = input.agilents[int (cal.whichAg)].get ();
-			dcInfo tempInfo;
-			tempInfo.dcLevel = str (calPoint);
-			tempInfo.dcLevel.internalEvaluate (std::vector<parameterType> (), 1);
-			ag.setDC (cal.agChannel, tempInfo, 0);
+	double miny = DBL_MAX, maxy = -DBL_MAX;
+	result.ctrlVals = CalibrationManager::calPtTextToVals (cal.ctrlPtString);
+	for (auto calPoint : result.ctrlVals) {
+		try {
+
+			if (cal.useAg) {
+				auto& ag = input.agilents[int (cal.whichAg)].get ();
+				dcInfo tempInfo;
+				tempInfo.dcLevel = str (calPoint);
+				tempInfo.dcLevel.internalEvaluate (std::vector<parameterType> (), 1);
+				ag.setDC (cal.agChannel, tempInfo, 0);
+			}
+			else {
+				input.ao->setSingleDac (aoNum, calPoint, input.ttls->getCore (), { 0, input.ttls->getCurrentStatus () });
+			}
 		}
-		else {
-			input.ao->setSingleDac (aoNum, calPoint, input.ttls->getCore (), { 0, input.ttls->getCurrentStatus () });
+		catch (ChimeraError & err) {
+			emit error (err.qtrace ());
 		}
-		cal.resultValues.push_back (input.ai->getSingleChannelValue (aiNum, cal.avgNum));
-		emit newCalibrationDataPoint (QPointF (calPoint, cal.resultValues.back ()));
+		result.resVals.push_back (input.ai->getSingleChannelValue (aiNum, cal.avgNum));
+		emit newCalibrationDataPoint (QPointF (calPoint, result.resVals.back ()));
+		miny = (result.resVals.back() < miny ? result.resVals.back () : miny);
+		maxy = (result.resVals.back () > maxy ? result.resVals.back () : maxy);
 		Sleep (20);
 	}
+	result.minval = miny;
+	result.maxval = maxy;
+
 	cal.currentlyCalibrating = false;
 	std::ofstream file ("C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationValuesFile.txt");
 	if (!file.is_open ()) {
 		errBox ("Failed to Write Calibration Results!");
 	}
-	for (auto num : range (cal.resultValues.size ())) {
-		file << CalibrationManager::calPtTextToVals (cal.ctrlPtString)[num] << " " << cal.resultValues[num] << "\n";
+	for (auto num : range (result.resVals.size ())) {
+		file << result.ctrlVals[num] << " " << result.resVals[num] << "\n";
 	}
 	file.close ();
-	cal.result.calibrationCoefficients = input.pythonHandler->runCalibrationFits (cal, input.parentWin);
-	cal.result.includesSqrt = cal.includeSqrt;
+	result.calibrationCoefficients = input.pythonHandler->runCalibrationFits (cal, input.parentWin);
+	result.includesSqrt = cal.includeSqrt;
 	//calibrationTable->repaint ();
 	cal.calibrated = true;
 	if (cal.useAg) {
 		auto& ag = input.agilents[int (cal.whichAg)].get ();
-		ag.setCalibration (cal.result, cal.agChannel);
+		ag.setCalibration (result, cal.agChannel);
 	}
 	emit calibrationChanged ();
 	emit finishedCalibration (cal);

@@ -2,6 +2,7 @@
 #include "LowLevel/constants.h"
 #include "agilentStructures.h"
 
+// NOT IN USE AT THE MOMENT (Nov 27th, 2020)
 const agilentSettings UWAVE_AGILENT_SETTINGS = {
 	// safemode option											
 	UWAVE_SAFEMODE,
@@ -43,10 +44,10 @@ DoRows::which::B, 4,
    "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" } };
 
 const agilentSettings AXIAL_AGILENT_SETTINGS = { AXIAL_AGILENT_SAFEMODE, AXIAL_AGILENT_USB_ADDRESS,
-1e6, "INT", "Axial",
+10e6, "INT", "Axial",
 DoRows::which::D, 3,
 "AXIAL_AGILENT_AWG",{ },
-{ "Trigger:Source immediate", "Trigger:Slope Positive", "output1:load INF", "output2:load INF",
+{ "Trigger1:Source external", "Trigger1:Slope Positive", "Trigger2:Source external", "Trigger2:Slope Positive", "output1:load INF", "output2:load INF",
   "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
 };
 

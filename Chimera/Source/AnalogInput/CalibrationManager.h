@@ -37,12 +37,11 @@ class CalibrationManager : public IChimeraSystem {
 		void handleSaveMasterConfig (std::stringstream& configStream);
 		void handleOpenMasterConfig (ConfigStream& configStream);
 		//void setControlDisplay (unsigned which, double value);
-		std::vector<calSettings> getCalibrationInfo ();
-		std::string dblVecToString (std::vector<double> ctrls);
+		std::vector<calResult> getCalibrationInfo ();
 		void standardStartThread (std::vector<std::reference_wrapper<calSettings>> calibrations);
 		void refreshListview ();
 		static std::vector<double> calPtTextToVals (QString qtxt);
-		static double calibrationFunction (double val, calResult calibration);
+		static double calibrationFunction (double val, calResult calibration, IChimeraSystem* parent = nullptr);
 	private:
 		QLabel* calsHeader;
 		CQPushButton* calibrateAllButton;

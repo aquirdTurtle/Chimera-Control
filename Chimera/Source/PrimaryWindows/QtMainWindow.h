@@ -39,7 +39,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		explicit QtMainWindow ();
 		~QtMainWindow () {};
 		bool expIsRunning ();
-		void autoServo ();
 		void initializeWidgets ();
 		void showHardwareStatus ();
 
@@ -87,8 +86,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		bool experimentIsPaused ();
 		void notifyConfigUpdate ();
 
-		void runServos ();
-		std::vector<servoInfo> getServoinfo ();
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
 		bool autoF5_AfterFinish = false;
@@ -97,6 +94,7 @@ class QtMainWindow : public IChimeraQtWindow{
 		QThread* getExpThread();
 		ExpThreadWorker* getExpThreadWorker();
 		void pauseExperiment ();
+		std::vector<calResult> getCalInfo ();
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
 		void handleNotification (QString txt, unsigned level=0);
@@ -121,7 +119,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
-		ServoManager servos;
 		CalibrationManager calManager;
 
 		ExpThreadWorker* expWorker;

@@ -1,45 +1,23 @@
-% pushout(), but with the repump on.
-
 def pushout():
-
   off: sideMotRf
-
   off: repumpRf
-
   % not pushing out F=1
-
   var pushoutfreq -0.5
-
   dac: motFreq pushoutFreq
-
   dac: RepumpPower 0
-
   on: a15
-
   t += 0.01
-
   off: a15
-
   var pushouttime 0.5
-
-  dac: probePower pushout_probe__sv
-
+  dac: probePower { 1 probe } % pushout_probe__sv
   t += (-8)
-
   on: probeshutter
-
   t += 8
-
   on: proberf
-
   t += pushouttime 
-
   off: proberf
-
   off: probeshutter
-
   dac: probepower 0
-
   t += 1
 
 

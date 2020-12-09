@@ -19,8 +19,8 @@ eoAxialTek (EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONIC
 agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTINGS,this},
 Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),
-	aoSys (this, ANALOG_OUT_SAFEMODE), configParameters (this, "CONFIG_PARAMETERS"),
-	globalParameters (this, "GLOBAL_PARAMETERS"), dds (this, DDS_SAFEMODE),
+	aoSys (this, ANALOG_OUT_SAFEMODE), configParamCtrl (this, "CONFIG_PARAMETERS"),
+	globalParamCtrl (this, "GLOBAL_PARAMETERS"), dds (this, DDS_SAFEMODE),
 	piezo1 (this, PIEZO_1_INFO), piezo2 (this, PIEZO_2_INFO), piezo3(this, PIEZO_3_INFO){	
 	statBox = new ColorBox ();
 	setWindowTitle ("Auxiliary Window");
@@ -58,16 +58,16 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		agilents[(int)AgilentEnum::name::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
 		agilents[(int)AgilentEnum::name::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
 		loc = QPoint{ 1440, 25 };
-		globalParameters.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global);
-		configParameters.initialize (loc, this, "CONFIGURATION PARAMETERS", ParameterSysType::config);
+		loc.rx() += 300;
+		piezo1.initialize (loc, this, 180, { "Top-x", "Top-y", "Axial-y" });
+		piezo2.initialize (loc, this, 180, { "EO-x", "EO-y", "Axial-x" });
+		piezo3.initialize (loc, this, 180, { "Bot-x", "Bot-y", "---" });
+		loc.rx () -= 300;
+		loc.ry() = 25;
+		globalParamCtrl.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global, 300, 500);
+		configParamCtrl.initialize (loc, this, "CONFIGURATION PARAMETERS", ParameterSysType::config);
+		configParamCtrl.setParameterControlActive (false);
 		dds.initialize (loc, this, "DDS SYSTEM");
-		piezo1.initialize (loc, this, 240, { "Top-x", "Top-y", "Axial-y" });
-		loc.rx() += 240;
-		loc.ry() -= 85;
-		piezo2.initialize (loc, this, 240, { "EO-x", "EO-y", "Axial-x" });
-		configParameters.setParameterControlActive (false);
-		loc.rx() -= 240;
-		piezo3.initialize (loc, this, 240, { "Bot-x", "Bot-y", "---" });
 		optimizer.initialize (loc, this);
 
 		loc = QPoint{ 960, 25 };
@@ -134,8 +134,8 @@ std::vector<parameterType> QtAuxiliaryWindow::getUsableConstants (){
 	// This generates a usable set of constants (mostly for "Program Now" commands") based on the current GUI settings.
 	// imporantly, when running the experiment proper, the saved config settings are what is used to determine 
 	// parameters, not the gui setttings.
-	std::vector<parameterType> configParams = configParameters.getAllConstants ();
-	std::vector<parameterType> globals = globalParameters.getAllParams ();
+	std::vector<parameterType> configParams = configParamCtrl.getAllConstants ();
+	std::vector<parameterType> globals = globalParamCtrl.getAllParams ();
 	std::vector<parameterType> params = ParameterSystem::combineParams (configParams, globals);
 	ScanRangeInfo constantRange;
 	constantRange.defaultInit ();
@@ -241,7 +241,7 @@ void QtAuxiliaryWindow::saveAgilentScriptAs (AgilentEnum::name name, IChimeraQtW
 }
 
 ParameterSystem& QtAuxiliaryWindow::getGlobals (){
-	return globalParameters;
+	return globalParamCtrl;
 }
 
 std::vector<std::reference_wrapper<PiezoCore> > QtAuxiliaryWindow::getPiezoControllers (){
@@ -258,7 +258,7 @@ std::pair<unsigned, unsigned> QtAuxiliaryWindow::getTtlBoardSize (){
 
 void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 	// order matters! Don't change the order here.
-	configParameters.handleSaveConfig (saveFile);
+	configParamCtrl.handleSaveConfig (saveFile);
 	ttlBoard.handleSaveConfig (saveFile);
 	aoSys.handleSaveConfig (saveFile);
 	for (auto& agilent : agilents){
@@ -277,7 +277,7 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 
 void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 	try{
-		ConfigSystem::standardOpenConfig (configFile, configParameters.configDelim, &configParameters, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, configParamCtrl.configDelim, &configParamCtrl, Version ("4.0"));
 		ConfigSystem::standardOpenConfig (configFile, "TTLS", &ttlBoard);
 		ConfigSystem::standardOpenConfig (configFile, "DACS", &aoSys);
 		aoSys.updateEdits ();
@@ -329,8 +329,8 @@ std::array<AoInfo, 24> QtAuxiliaryWindow::getDacInfo (){
 }
 
 std::vector<parameterType> QtAuxiliaryWindow::getAllParams (){
-	std::vector<parameterType> vars = configParameters.getAllParams ();
-	std::vector<parameterType> vars2 = globalParameters.getAllParams ();
+	std::vector<parameterType> vars = configParamCtrl.getAllParams ();
+	std::vector<parameterType> vars2 = globalParamCtrl.getAllParams ();
 	vars.insert (vars.end (), vars2.begin (), vars2.end ());
 	return vars;
 }
@@ -338,7 +338,7 @@ std::vector<parameterType> QtAuxiliaryWindow::getAllParams (){
 
 void QtAuxiliaryWindow::clearVariables (){
 	mainWin->updateConfigurationSavedStatus (false);
-	configParameters.clearParameters ();
+	configParamCtrl.clearParameters ();
 }
 
 void QtAuxiliaryWindow::passRoundToDac (){
@@ -349,12 +349,12 @@ void QtAuxiliaryWindow::passRoundToDac (){
 
 void QtAuxiliaryWindow::setVariablesActiveState (bool activeState){
 	mainWin->updateConfigurationSavedStatus (false);
-	configParameters.setParameterControlActive (activeState);
+	configParamCtrl.setParameterControlActive (activeState);
 }
 
 
 unsigned QtAuxiliaryWindow::getTotalVariationNumber (){
-	return configParameters.getTotalVariationNumber ();
+	return configParamCtrl.getTotalVariationNumber ();
 }
 
 
@@ -380,9 +380,9 @@ DoCore& QtAuxiliaryWindow::getTtlCore (){
 
 void QtAuxiliaryWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	try	{
-		input->globalParameters = globalParameters.getAllParams ();
+		input->globalParameters = globalParamCtrl.getAllParams ();
 		if (aiSys.wantsQueryBetweenVariations ()) {
-			input->numAiMeasurements = configParameters.getTotalVariationNumber ();
+			input->numAiMeasurements = configParamCtrl.getTotalVariationNumber ();
 		}
 	}
 	catch (ChimeraError&) {
@@ -435,10 +435,10 @@ void QtAuxiliaryWindow::handleMasterConfigSave (std::stringstream& configStream)
 	}
 
 	// Number of Variables
-	configStream << globalParameters.getCurrentNumberOfVariables () << "\n";
+	configStream << globalParamCtrl.getCurrentNumberOfVariables () << "\n";
 	/// Variables
-	for (unsigned varInc : range (globalParameters.getCurrentNumberOfVariables ())){
-		parameterType info = globalParameters.getVariableInfo (varInc);
+	for (unsigned varInc : range (globalParamCtrl.getCurrentNumberOfVariables ())){
+		parameterType info = globalParamCtrl.getVariableInfo (varInc);
 		configStream << info.name << " ";
 		configStream << info.constantValue << "\n";
 		// all globals are constants, no need to output anything else.
@@ -533,7 +533,7 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 			}
 		}
 		// Number of Variables
-		globalParameters.clearParameters ();
+		globalParamCtrl.clearParameters ();
 		for (int varInc = 0; varInc < varNum; varInc++){
 			parameterType tempVar;
 			tempVar.constant = true;
@@ -543,14 +543,18 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back ({ value, value });
-			globalParameters.addParameter (tempVar);
+			globalParamCtrl.addParameter (tempVar);
 		}
-		globalParameters.setTableviewColumnSize ();
+		globalParamCtrl.setTableviewColumnSize ();
 	}
 }
 
+void QtAuxiliaryWindow::updateExpActiveInfo (std::vector<parameterType> expParams) {
+	globalParamCtrl.setUsages (expParams);
+	configParamCtrl.setUsages (expParams);
+}
+
 void QtAuxiliaryWindow::SetDacs (){
-	// have the dac values change
 	reportStatus ("----------------------\r\nSetting Dacs... ");
 	try{
 		mainWin->updateConfigurationSavedStatus (false);

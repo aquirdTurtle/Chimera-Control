@@ -30,7 +30,7 @@ void Agilent::programAgilentNow (std::vector<parameterType> constants){
 	}
 	core.convertInputToFinalSettings (0, currentGuiInfo, constants);
 	core.convertInputToFinalSettings (1, currentGuiInfo, constants);
-	core.setAgilent (0, constants, currentGuiInfo);
+	core.setAgilent (0, constants, currentGuiInfo, nullptr);
 }
 
 std::string Agilent::getDeviceIdentity (){
