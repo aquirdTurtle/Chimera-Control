@@ -1,0 +1,28 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+off: axialRamanShutter
+on: tweezerRf %tweezers on 
+on: shutter795
+pulseon: dds_reset 0.1
+%dac: piezomirror piezoval
+t += 1
+call turnonmot()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
+% call pgcloading()
+call D1GreyLambdaLoading()
+t += 2
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+call pgcAtomFlashingImage()
+
+t += ( 20 + wait_time )
+
+call pgcAtomFlashingImage()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+  
+

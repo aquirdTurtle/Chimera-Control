@@ -44,16 +44,13 @@ struct ExperimentThreadInput{
 	AoSystem& aoSys;
 
 	DeviceList devices;
-
+	std::vector<calResult> calibrations;
 	std::vector<parameterType> globalParameters;
-	//debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 	unsigned sleepTime = 0;
-	ParameterSystem& globalControl;
-
 	DataLogger& logger;
 	unsigned numVariations = 1;
 	bool quiet = false;
-	expSystemRunList runList;
+	//expSystemRunList runList;
 	unsigned numAiMeasurements=0;
 	bool updatePlotterXVals = false;
 	std::atomic<bool>* skipNext = NULL;

@@ -8,8 +8,8 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
 	deviceType(device){
 
 	HighlightingRule rule;
-	addRules ({ "[\\+\\=\\(\\)\\*\\-\\/]" }, QColor (42, 161, 152), true, false);
-	   
+	// math symbols
+	addRules ({ "[\\+\\=\\{\\}\\(\\)\\*\\-\\/]" }, QColor (42, 161, 152), true, false);
     multiLineCommentFormat.setForeground (QColor(23, 84, 81));
 
 	QTextCharFormat numberFormat;

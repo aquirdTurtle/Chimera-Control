@@ -1,0 +1,58 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: totalRamanRf
+on: shutter795
+pulseon: dds_reset 0.1
+pulseon: windfreakTrig 0.05
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+call D1GreyLambdaLoading()
+pulseon: windfreakTrig 0.05 
+t += 20
+pulseon: tweezerIntensityTrig 0.1
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+off: sidemotShutter  
+off: diagmotShutter 
+off: repumpShutter
+
+t += 0.1
+on: axialRamanShutter 
+on: axialRamanShutter2 
+call intrapgreymolasses()
+pulseon: windfreakTrig 0.05 
+off: shutter795
+pulseon: tweezerIntensityTrig 0.1
+call send_uw_to_raman_eom()
+t += 1
+call pump2stretch()
+% call gsbc()
+% pulseon: windfreakTrig 0.05
+t += 1
+on: a15
+pulseon: topPulseTrig 0.01
+dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
+call topRamanPulse(tbsbcpulselen)
+off: a15
+dac: eoPulseLev 0
+off: axialRamanShutter  
+off: axialRamanShutter2  
+% t += 20
+t += 0.1 
+call pushout()
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+off: tweezerRf
+off: windfreakTrig
+t += 0.2

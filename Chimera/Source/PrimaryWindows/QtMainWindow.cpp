@@ -24,7 +24,7 @@ QtMainWindow::QtMainWindow () :
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
 	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
 	expScope(EXPERIMENT_SCOPE_ADDRESS, EXPERIMENT_SCOPE_SAFEMODE, 4, "Experiment Scope"),
-	servos(this), calManager(this){
+	calManager(this){
 	statBox = new ColorBox ();
 	startupTimes.push_back (chronoClock::now ());
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
@@ -93,7 +93,7 @@ QtMainWindow::QtMainWindow () :
 		initializationString += auxWin->getVisaDeviceStatus ();
 		initializationString += scriptWin->getSystemStatusString ();
 		initializationString += auxWin->getMicrowaveSystemStatus ();
-		infoBox (initializationString);
+		reportStatus (qstr(initializationString));
 	}
 	catch (ChimeraError & err) {
 		errBox (err.trace ());
@@ -139,9 +139,7 @@ void QtMainWindow::initializeWidgets (){
 	motScope.initialize (controlLocation, 480, 130, this, "MOT");
 	expScope.initialize (controlLocation, 480, 130, this, "Experiment");
 	calManager.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (), auxWin->getTtlSystem (),
-		auxWin->getAgilents(), andorWin->getPython()); 
-	servos.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (),
-						auxWin->getTtlSystem (), &auxWin->getGlobals ());
+						   auxWin->getAgilents(), andorWin->getPython()); 
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize (controlLocation, this);
 	mainOptsCtrl.initialize (controlLocation, this);
@@ -368,6 +366,7 @@ void QtMainWindow::startExperimentThread (ExperimentThreadInput* input){
 	connect (expWorker, &ExpThreadWorker::normalExperimentFinish, this, &QtMainWindow::onNormalFinish);
 	connect (expWorker, &ExpThreadWorker::calibrationFinish, this, &QtMainWindow::onAutoCalFin);
 	connect (expWorker, &ExpThreadWorker::errorExperimentFinish, this, &QtMainWindow::onFatalError);
+	connect (expWorker, &ExpThreadWorker::expParamsSet, this->auxWin, &QtAuxiliaryWindow::updateExpActiveInfo);
 
 	connect (expThread, &QThread::started, expWorker, &ExpThreadWorker::process);
 	connect (expThread, &QThread::finished, expThread, &QObject::deleteLater);
@@ -379,9 +378,9 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
+	input->calibrations = calManager.getCalibrationInfo ();
 	// the mot procedure doesn't need the NIAWG at all.
 	input->skipNext = NULL;
-	input->runList.andor = false;
 }
 
 bool QtMainWindow::masterIsRunning () { return experimentIsRunning; }
@@ -395,15 +394,18 @@ mainOptions QtMainWindow::getMainOptions () { return mainOptsCtrl.getOptions ();
 void QtMainWindow::setShortStatus (std::string text) { shortStatus.setText (text); }
 void QtMainWindow::changeShortStatusColor (std::string color) { shortStatus.setColor (color); }
 bool QtMainWindow::experimentIsPaused () { return expWorker->getIsPaused (); }
+std::vector<calResult> QtMainWindow::getCalInfo () {
+	return calManager.getCalibrationInfo ();
+}
 
 void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	input->sleepTime = debugger.getOptions ().sleepTime;
 	input->profile = profile.getProfileSettings ();
+	input->calibrations = calManager.getCalibrationInfo ();
 }
 
 void QtMainWindow::logParams (DataLogger* logger, ExperimentThreadInput* input){
 	logger->logMasterInput (input);
-	logger->logServoInfo (getServoinfo ());
 }
 
 void QtMainWindow::checkProfileSave (){
@@ -518,40 +520,11 @@ void QtMainWindow::handleFinishText (){
 	}
 }
 
-void QtMainWindow::autoServo (){
-	try	{
-		if (servos.wantsExpAutoServo ()){
-			updateConfigurationSavedStatus (false);
-			runServos ();
-		}
-	}
-	catch (ChimeraError& err){
-		reportErr ("Auto-Servo Failed.\n" + err.qtrace ());
-	}
-}
-
-void QtMainWindow::runServos (){
-	try{
-		updateConfigurationSavedStatus (false);
-		reportStatus ("Running Servos...\r\n");
-		servos.runAll ();
-	}
-	catch (ChimeraError& err){
-		reportErr ("Running Servos failed.\n" + err.qtrace ());
-	}
-}
-
-std::vector<servoInfo> QtMainWindow::getServoinfo (){
-	return servos.getServoInfo ();
-}
-
 void QtMainWindow::handleMasterConfigOpen (ConfigStream& configStream){
-	servos.handleOpenMasterConfig (configStream);
 	calManager.handleOpenMasterConfig (configStream);
 }
 
 void QtMainWindow::handleMasterConfigSave (std::stringstream& configStream){
-	servos.handleSaveMasterConfig (configStream);
 	calManager.handleSaveMasterConfig (configStream);
 }
 

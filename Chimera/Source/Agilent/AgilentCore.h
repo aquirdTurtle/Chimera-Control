@@ -20,7 +20,7 @@ class AgilentCore : public IDeviceCore {
 		~AgilentCore ();
 		void programBurstMode (int channel, bool burstOption);
 		void initialize ();
-		void setAgilent (unsigned variation, std::vector<parameterType>& params, deviceOutputInfo runSettings);
+		void setAgilent (unsigned variation, std::vector<parameterType>& params, deviceOutputInfo runSettings, ExpThreadWorker* expWorker);
 		void prepAgilentSettings (unsigned channel);
 		std::string getDelim () { return configDelim; }
 		const std::string configDelim;

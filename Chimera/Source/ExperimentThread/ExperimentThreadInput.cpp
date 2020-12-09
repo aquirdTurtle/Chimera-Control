@@ -9,8 +9,7 @@
 
 ExperimentThreadInput::ExperimentThreadInput ( IChimeraQtWindow* win ) :
 	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ),
-	globalControl(win->auxWin->getGlobals() ), logger(win->andorWin->getLogger() )
-{
+	logger(win->andorWin->getLogger() ){
 	devices = win->mainWin->getDevices ();
 };
 

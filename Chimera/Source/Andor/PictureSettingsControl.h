@@ -65,6 +65,7 @@ class PictureSettingsControl {
 		QLabel* colormapLabel;
 		QLabel* displayTypeLabel;
 		QLabel* softwareAccumulationLabel;
+		QLabel* transfModeLabel;
 		CQComboBox* transformationModeCombo;
 		// 
 		std::array<CQRadioButton*, 4> totalNumberChoice;

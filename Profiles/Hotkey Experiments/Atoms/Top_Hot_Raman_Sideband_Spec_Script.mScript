@@ -28,14 +28,12 @@ on: totalRamanRf
 t += 1
 call pump2stretch()
 t += 1
-dac: toppulselev top_raman_sideband_spec__sv
-dac: eopulselev eo_raman__sv
-var pulsetime 0.12
+dac: eopulselev { 0.255 eo_raman } % eo_raman__sv
+call send_uw_to_raman_eom() 
 on: topRamanrf
 on: eoramanrf
 pulseon: topPulseTrig 0.01
-call send_uw_to_raman_eom() 
-pulseon: topPulseTrig 0.01
+var pulsetime 0.08
 t += pulsetime
 off: topRamanRf
 off: eoramanRF

@@ -106,7 +106,7 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronixAfgControl topBottomTek, eoAxialTek;
 		MachineOptimizer optimizer;
-		ParameterSystem configParameters, globalParameters;
+		ParameterSystem configParamCtrl, globalParamCtrl;
 		DdsSystem dds;
 		PiezoController piezo1, piezo2, piezo3;
 
@@ -118,5 +118,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 	public Q_SLOTS:
 		void handleDoAoPlotData (const std::vector<std::vector<plotDataVec>>& doData,
 							     const std::vector<std::vector<plotDataVec>>& aoData);
+		void updateExpActiveInfo (std::vector<parameterType> expParams);
 };
 

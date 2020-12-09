@@ -34,13 +34,10 @@ t += 1
 call pump2stretch() 
 call sbc()
 pulseon: windfreakTrig 0.05
-%call radial_sbc()
-%rsg: (6.83103 + uw_spec_mod_khz/1000000) -9.5
 t += 1
 var specPulseTime 0.016 % 0.022
 on: a15
 dac: eoPulseLev eo_raman__sv
-% dac: topPulseLev top_raman_sideband_spec__servo_value
 dac: topPulseLev top_sbc_sideband__sv
 call topRamanPulse(specPulseTime)
 off: a15

@@ -88,14 +88,16 @@ void ParameterSystem::handleContextMenu (const QPoint& pos){
 	menu.exec (parametersView->mapToGlobal (pos));	
 }
 
-void ParameterSystem::initialize (QPoint& pos, IChimeraQtWindow* parent, std::string title, ParameterSysType type){
+void ParameterSystem::initialize (QPoint& pos, IChimeraQtWindow* parent, std::string title, ParameterSysType type, 
+								  unsigned width, unsigned height ){
+
 	auto& px = pos.rx (), & py = pos.ry ();
 	paramSysType = type;
 
 	parametersHeader = new QLabel (cstr (title), parent);
-	parametersHeader->setGeometry (px, py, 480, 25);
+	parametersHeader->setGeometry (px, py, width, 25);
 	parametersView = new QTableView (parent);
-	parametersView->setGeometry (px, py += 25, 480, 200);
+	parametersView->setGeometry (px, py += 25, width, height);
 	parametersView->setModel (&paramModel);
 	parametersView->show ();
 	
@@ -124,7 +126,7 @@ void ParameterSystem::initialize (QPoint& pos, IChimeraQtWindow* parent, std::st
 	}
 	parametersView->connect (&paramModel, &ParameterModel::paramsChanged, 
 							 parent->scriptWin, &QtScriptWindow::updateVarNames);
-	py += 200;
+	py += height;
 	setTableviewColumnSize ();
 }
 

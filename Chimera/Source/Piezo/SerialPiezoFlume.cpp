@@ -1,55 +1,101 @@
 ﻿#include "stdafx.h"
 #include "SerialPiezoFlume.h"
+#include <qdebug.h>
 #include <boost/lexical_cast.hpp>
 
-SerialPiezoFlume::SerialPiezoFlume ( bool sMode, std::string addr ) : safemode(sMode), flumeCore( sMode, addr )
-{
-
+SerialPiezoFlume::SerialPiezoFlume ( bool sMode, std::string addr ) : safemode(sMode), flumeCore( sMode, addr ){
 }
 
-std::string SerialPiezoFlume::getDeviceInfo ( )
-{
+std::string SerialPiezoFlume::getDeviceInfo ( ){
 	return flumeCore.query ( "i\r" );
 }
 
-void SerialPiezoFlume::open ( ) 
-{
+void SerialPiezoFlume::open ( ) {
 }
-void SerialPiezoFlume::close ()
-{
 
+void SerialPiezoFlume::close (){
 }
-void SerialPiezoFlume::setXAxisVoltage (double val)
-{
 
+void SerialPiezoFlume::setXAxisVoltage (double val){
+	auto echo = flumeCore.query("XV" + str (val) + "\r");
+	qDebug() << qstr(echo);
 }
-double SerialPiezoFlume::getXAxisVoltage ()
-{
-	auto res = flumeCore.query ("xr?\r");
+
+double SerialPiezoFlume::getXAxisVoltage (){
+	auto echo = flumeCore.query ("XR?\r");
+	auto ans = flumeCore.read ();
+	qDebug () << qstr(ans);
+	qDebug () << qstr (echo);
 	double dres = 0;
-	try
-	{
-		dres = boost::lexical_cast<double>(dres);
+	try{
+		if (ans.find ('[') == std::string::npos || ans.find (']') == std::string::npos) {
+			thrower ("ERROR! Answer from serial flume trying to read y-voltage not formatted as expected! Answer was: " + ans);
+		}
+		else { // annoying formatting issues
+			auto numStr = ans.substr (ans.find ('[')+1, ans.find (']') - ans.find ('[')-1);
+			numStr = numStr.substr (numStr.find_first_not_of (' '));
+			qDebug () << qstr(numStr);
+			dres = boost::lexical_cast<double>(numStr);
+		}
 	}
-	catch (boost::bad_lexical_cast)
-	{
-		throwNested ("ERROR: Failed to read x-axis voltage from serial piezo driver?");
+	catch (boost::bad_lexical_cast){
+		throwNested ("ERROR: Failed to read x-axis voltage from serial piezo driver? Text was " + ans);
 	}
 	return dres;
 }
-void SerialPiezoFlume::setYAxisVoltage (double val)
-{
-	flumeCore.write ("YV " + str (val));
+
+void SerialPiezoFlume::setYAxisVoltage (double val) {
+	auto echo = flumeCore.query ("YV" + str (val) + "\r");
+	qDebug () << qstr (echo);
 }
-double SerialPiezoFlume::getYAxisVoltage ()
-{
-	return 0;
+
+double SerialPiezoFlume::getYAxisVoltage () {
+	auto echo = flumeCore.query ("YR?\r");
+	auto ans = flumeCore.read ();
+	qDebug () << qstr (ans);
+	qDebug () << qstr (echo);
+	double dres = 0;
+	try {
+		if (ans.find ('[') == std::string::npos || ans.find (']') == std::string::npos) {
+			thrower ("ERROR! Answer from serial flume trying to read x-voltage not formatted as expected! Answer was: " + ans);
+		}
+		else {
+			auto numStr = ans.substr (ans.find ('[') + 1, ans.find (']') - ans.find ('[') - 1);
+			numStr = numStr.substr (numStr.find_first_not_of (' '));
+			qDebug () << qstr (numStr);
+			dres = boost::lexical_cast<double>(numStr);
+		}
+	}
+	catch (boost::bad_lexical_cast) {
+		throwNested ("ERROR: Failed to read Y-axis voltage from serial piezo driver? Text was " + ans);
+	}
+	return dres;
 }
-void SerialPiezoFlume::setZAxisVoltage (double val)
-{
-	flumeCore.write ("ZV" + str (val));
+
+void SerialPiezoFlume::setZAxisVoltage (double val){
+	auto echo = flumeCore.query ("ZV" + str (val) + "\r");
+	qDebug () << qstr (echo);
 }
-double SerialPiezoFlume::getZAxisVoltage ()
-{
-	return 0;
+
+double SerialPiezoFlume::getZAxisVoltage (){
+	auto echo = flumeCore.query ("ZR?\r");
+	auto ans = flumeCore.read ();
+	qDebug () << qstr (ans);
+	qDebug () << qstr (echo);
+	double dres = 0;
+	try {
+		if (ans.find ('[') == std::string::npos || ans.find (']') == std::string::npos) {
+			thrower ("ERROR! Answer from serial flume not formatted as expected! Answer was: " + ans);
+		}
+		else {
+			auto numStr = ans.substr (ans.find ('[') + 1, ans.find (']') - ans.find ('[') - 1);
+			numStr = numStr.substr (numStr.find_first_not_of (' '));
+			qDebug () << qstr (numStr);
+			dres = boost::lexical_cast<double>(numStr);
+		}
+	}
+	catch (boost::bad_lexical_cast) {
+		throwNested ("ERROR: Failed to read Z-axis voltage from serial piezo driver? Text was " + ans);
+	}
+	return dres;
 }

@@ -108,7 +108,7 @@ class ExpThreadWorker : public QObject {
         void normalExperimentFinish (QString, profileSettings);
 		void calibrationFinish (QString, profileSettings);
         void errorExperimentFinish (QString, profileSettings);
-
+		void expParamsSet (std::vector<parameterType> expParams);
         void mainProcessFinish (); 
 
     private:

@@ -98,11 +98,16 @@ std::string AgilentCore::getDeviceIdentity (){
 }
 
 
-void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, deviceOutputInfo runSettings){
+void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, deviceOutputInfo runSettings, 
+							  ExpThreadWorker* expWorker){
 	if (!connected ()){
 		return;
 	}
+	auto notify = expWorker != nullptr // if in expworker, emit notification, else no way to notify currently. 
+		? std::function{ [expWorker] (QString note, unsigned debugLevel) {emit expWorker->notification (note, debugLevel); } }
+		: std::function{ [expWorker] (QString note, unsigned debugLevel) { } };
 	try{
+		notify ("Writing Agilent output sync option: " + qstr (runSettings.synced), 2);
 		visaFlume.write ("OUTPut:SYNC " + str (runSettings.synced));
 	}
 	catch (ChimeraError&){
@@ -110,32 +115,39 @@ void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, 
 	}
 	for (auto chan : range (unsigned (2)))	{
 		auto& channel = runSettings.channel[chan];
+		auto stdNote = qstr ("Programming Agilent " + agilentName + " Channel " + str (chan) + " ");
 		try{
 			switch (channel.option){
 				case AgilentChannelMode::which::No_Control:
 					break;
 				case AgilentChannelMode::which::Output_Off:
+					notify (stdNote + "Output off.\n",1);
 					outputOff (chan + 1);
 					break;
 				case AgilentChannelMode::which::DC:
+					notify (stdNote + " DC Voltage.\n", 1);
 					setDC (chan + 1, channel.dc, var);
 					break;
 				case AgilentChannelMode::which::Sine:
+					notify (stdNote + " Sine Wave.\n", 1);
 					setSine (chan + 1, channel.sine, var);
 					break;
 				case AgilentChannelMode::which::Square:
+					notify (stdNote + " Square Wave.\n", 1);
 					setSquare (chan + 1, channel.square, var);
 					break;
 				case AgilentChannelMode::which::Preloaded:
+					notify (stdNote + " Preloaded Wave.\n", 1);
 					setExistingWaveform (chan + 1, channel.preloadedArb);
 					break;
 				case AgilentChannelMode::which::Script:
+					notify (stdNote + " Script \"" + qstr(channel.scriptedArb.fileAddress) + "\"\n", 1);
 					handleScriptVariation (var, channel.scriptedArb, chan + 1, params);
 					setScriptOutput (var, channel.scriptedArb, chan + 1);
 					break;
 				default:
-					thrower ("unrecognized channel " + str (chan) + " setting: "
-						+ AgilentChannelMode::toStr (channel.option));
+					thrower ("Unrecognized channel " + str (chan) + " setting?!?!?!: "
+							 + AgilentChannelMode::toStr (channel.option));
 			}
 		}
 		catch (ChimeraError & err){
@@ -210,8 +222,13 @@ void AgilentCore::setDC (int channel, dcInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel inside setDC! Channel shoulde be 1 or 2.");
 	}
-	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, "
-		+ str (convertPowerToSetPoint (info.dcLevel.getValue(var), info.useCal, calibrations[channel-1])) + " V");
+	try {
+		visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, "
+			+ str (convertPowerToSetPoint (info.dcLevel.getValue (var), info.useCal, calibrations[channel - 1])) + " V");
+	}
+	catch (ChimeraError&) {
+		throwNested ("Seen while programming DC for channel " + str (channel) + " (1-indexed).");
+	}
 }
 
 
@@ -252,9 +269,14 @@ void AgilentCore::setSquare (int channel, squareInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad Value for Channel in setSquare! Channel shoulde be 1 or 2.");
 	}
-	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SQUARE " + str (info.frequency.getValue(var)) + " KHZ, "
-		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrations[channel - 1])) + " VPP, "
-		+ str (convertPowerToSetPoint (info.offset.getValue(var), info.useCal, calibrations[channel - 1])) + " V");
+	try {
+		visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SQUARE " + str (info.frequency.getValue (var)) + " KHZ, "
+			+ str (convertPowerToSetPoint (info.amplitude.getValue (var), info.useCal, calibrations[channel - 1])) + " VPP, "
+			+ str (convertPowerToSetPoint (info.offset.getValue (var), info.useCal, calibrations[channel - 1])) + " V");
+	}
+	catch (ChimeraError&) {
+		throwNested ("Seen while programming Square Wave for channel " + str (channel) + " (1-indexed).");
+	}
 }
 
 
@@ -262,16 +284,21 @@ void AgilentCore::setSine (int channel, sineInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel in setSine! Channel shoulde be 1 or 2.");
 	}
+	try {
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SINUSOID " + str (info.frequency.getValue(var)) + " KHZ, "
 		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrations[channel - 1])) + " VPP");
+	}
+	catch (ChimeraError&) {
+		throwNested ("Seen while programming Sine Wave for channel " + str(channel) + " (1-indexed).");
+	}
+
 }
 
 
 void AgilentCore::convertInputToFinalSettings (unsigned chan, deviceOutputInfo& info, std::vector<parameterType>& params){
 	unsigned totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
 	channelInfo& channel = info.channel[chan];
-	try
-	{
+	try	{
 		switch (channel.option)
 		{
 		case AgilentChannelMode::which::No_Control:
@@ -290,12 +317,7 @@ void AgilentCore::convertInputToFinalSettings (unsigned chan, deviceOutputInfo& 
 			channel.square.offset.internalEvaluate (params, totalVariations);
 			break;
 		case AgilentChannelMode::which::Preloaded:
-			break;
 		case AgilentChannelMode::which::Script:
-			/*for (auto variation : range (totalVariations))
-			{
-				handleScriptVariation (variation, channel.scriptedArb, chan + 1, variables);
-			}*/ // this used to be here. now it's just a special case of the program
 			break;
 		default:
 			thrower ("Unrecognized Agilent Setting: " + AgilentChannelMode::toStr (channel.option));
@@ -310,9 +332,14 @@ void AgilentCore::convertInputToFinalSettings (unsigned chan, deviceOutputInfo& 
  * This function tells the agilent to put out the DC default waveform.
  */
 void AgilentCore::setDefault (int channel){
-	// turn it to the default voltage...
-	std::string setPointString = str (convertPowerToSetPoint (AGILENT_DEFAULT_POWER, true, calibrations[channel-1]));
-	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, " + setPointString + " V");
+	try {
+		// turn it to the default voltage...
+		std::string setPointString = str (convertPowerToSetPoint (AGILENT_DEFAULT_POWER, true, calibrations[channel - 1]));
+		visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, " + setPointString + " V");
+	}
+	catch (ChimeraError &) {
+		throwNested ("Seen while programming default voltage.");
+	}
 }
 /**
  * expects the inputted power to be in -MILI-WATTS!
@@ -525,8 +552,8 @@ void AgilentCore::setRunSettings (deviceOutputInfo newSettings) {
 	expRunSettings = newSettings;
 }
 
-void AgilentCore::programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
-	setAgilent (variation, params, expRunSettings);
+void AgilentCore::programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadWorker){
+	setAgilent (variation, params, expRunSettings, threadWorker);
 }
 
 void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker){

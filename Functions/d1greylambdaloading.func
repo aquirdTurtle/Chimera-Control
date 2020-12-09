@@ -8,7 +8,7 @@ def D1greyLambdaloading():
   off: diagMotRf
   off: sideMotRf
   off: repumpRf
-  dac: side795pow sidemot_d1__sv
+  dac: side795pow { 1.4 sidemot_d1 } % sidemot_d1__sv
   dac: diag795pow 0.3
   dac: diagMotPower 0
   dac: sideMotPower 0

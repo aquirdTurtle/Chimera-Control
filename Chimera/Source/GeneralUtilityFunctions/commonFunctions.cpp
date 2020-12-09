@@ -67,8 +67,8 @@ namespace commonFunctions
 					prepareMasterThread ( msgID, win, input, false, true, false, true, false );
 					commonFunctions::getPermissionToStart ( win, false, true, input );
 					input.masterInput->expType = ExperimentType::Normal;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), andorWin->getAlignmentVals (), 
-						"", false);
+					logStandard ( input, andorWin->getLogger ( ), andorWin->getAlignmentVals (), 
+								  "", false);
 					startExperimentThread ( mainWin, input );
 				}
 				catch ( ChimeraError& err ){
@@ -96,7 +96,6 @@ namespace commonFunctions
 						break;
 					}
 					andorWin->setTimerText ( "Starting..." );
-					mainWin->autoServo ();
 					// automatically save; this is important to handle changes like the auto servo and auto carrier
 					commonFunctions::handleCommonMessage (ID_FILE_SAVEALL, win);
 					prepareMasterThread( msgID, win, input, true, true, true, true, true );
@@ -105,7 +104,7 @@ namespace commonFunctions
 						commonFunctions::getPermissionToStart ( win, true, true, input );
 					}
 					mainWin->autoF5_AfterFinish = false;
-					logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo (), andorWin->getAlignmentVals ());
+					logStandard( input, andorWin->getLogger ( ), andorWin->getAlignmentVals ());
 					startExperimentThread( mainWin, input );
 				}
 				catch (ChimeraError& err){
@@ -193,65 +192,6 @@ namespace commonFunctions
 				}
 				break;
 			}
-			case ID_RUNMENU_RUNCAMERA:{
-				AllExperimentInput input;
-				try	{
-					andorWin->setTimerText ( "Starting..." );
-					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, win, input, false, false, true, false, true );
-					input.masterInput->expType = ExperimentType::Normal;
-					commonFunctions::getPermissionToStart ( win, false, false, input );
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), 
-								  andorWin->getAlignmentVals (), "", false);
-					commonFunctions::startExperimentThread ( mainWin, input );
-					mainWin->reportStatus ("Camera is Running.\r\n");
-				}
-				catch (ChimeraError& exception){
-					if (exception.whatBare() == "CANCEL"){
-						mainWin->reportStatus ("Camera is Not Running, User Canceled.\r\n");
-						break;
-					}
-					mainWin->reportErr ("EXITED WITH ERROR!\n " + exception.qtrace());
-					mainWin->reportStatus ("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
-					andorWin->setTimerText ("ERROR!");
-					andorWin->assertOff();
-				}
-				break;
-			}
-			case ID_RUNMENU_RUNNIAWG:{
-				AllExperimentInput input;
-				try	{
-					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNNIAWG, win, input, true, false, false, false, false );
-					input.masterInput->expType = ExperimentType::Normal;
-					commonFunctions::getPermissionToStart( win, true, false, input );
-					commonFunctions::logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo (), 
-												  andorWin->getAlignmentVals (), "", false );
-					commonFunctions::startExperimentThread( mainWin, input );
-				}
-				catch (ChimeraError& except){
-					mainWin->reportErr ("EXITED WITH ERROR!\n " + except.qtrace());
-					mainWin->reportStatus ("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
-				}
-				break;
-			}
-			case ID_RUNMENU_RUNMASTER:{
-				AllExperimentInput input;
-				try	{
-					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, win, input, false, true, false, false, false );
-					input.masterInput->expType = ExperimentType::Normal;
-					commonFunctions::getPermissionToStart( win, false, true, input );
-					commonFunctions::logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), 
-												   andorWin->getAlignmentVals (), "", false);
-					commonFunctions::startExperimentThread( mainWin, input );
-				}
-				catch (ChimeraError& err){
-					if (err.whatBare() == "Canceled!"){
-						break;
-					}
-					mainWin->reportErr ( "EXITED WITH ERROR!\n " + err.qtrace() );
-					mainWin->reportStatus ( "EXITED WITH ERROR!\r\n" );
-				}
-				break;
-			}
 			case ID_RUNMENU_ABORTMASTER:{
 				if ( mainWin->experimentIsPaused( ) ){
 					mainWin->reportErr ( "Experiment is paused. Please unpause before aborting.\r\n" );
@@ -288,21 +228,6 @@ namespace commonFunctions
 				}
 				break;
 			}
-			case ID_RUNMENU_RUNBASLER:{
-				// the basler is the only large part of the code which doesn't go through the main experiment thread.
-				// will probably change that at some point.
-				AllExperimentInput input;
-				errBox ("Run Basler (only) not functioning right now! needs code attention!");
-				/*
-				auto& logger = andorWin->getLogger ( );
-				logger.initializeDataFiles ( "", true );
-				logger.logAndorSettings ( input.AndorSettings, false );
-				logger.logMasterInput ( NULL );
-				logger.logMiscellaneousStart ( );
-				logger.logBaslerSettings ( input.baslerRunSettings, true );
-				break;*/
-				// TODO: fix this to work with expthread
-			}
 			case ID_RUNMENU_ABORTCAMERA:{
 				try	{
 					if ( andorWin->andor.isRunning ( ) ){
@@ -338,10 +263,8 @@ namespace commonFunctions
 			}
 			case ID_ACCELERATOR_F1:{
 				try {
-					mainWin->autoServo ();
 					AllExperimentInput input;
 					input.masterInput = new ExperimentThreadInput (win);
-					input.masterInput->runList.andor = false;
 					input.masterInput->updatePlotterXVals = false;
 					auxWin->fillMasterThreadInput (input.masterInput);
 					mainWin->fillMotInput (input.masterInput);
@@ -376,16 +299,14 @@ namespace commonFunctions
 					if (calNum == -1) {
 						return;
 					}
-					mainWin->autoServo ();
+					input.masterInput->calibrations = mainWin->getCalInfo ();
 					// automatically save; this is important to handle changes like the auto servo and auto carrier
 					commonFunctions::handleCommonMessage (ID_FILE_SAVEALL, win);
 					auto& calInfo = AUTO_CAL_LIST[calNum];
 					mainWin->reportStatus (qstr(calInfo.infoStr));
 					input.masterInput->profile = calInfo.prof;
-					input.masterInput->runList = calInfo.runList;
 					input.masterInput->expType = ExperimentType::AutoCal;
-					logStandard (input, andorWin->getLogger (), mainWin->getServoinfo (), andorWin->getAlignmentVals (),
-						calInfo.fileName, false);
+					logStandard (input, andorWin->getLogger (), andorWin->getAlignmentVals (), calInfo.fileName, false);
 					startExperimentThread (mainWin, input);
 				}
 				catch (ChimeraError & err)	{
@@ -417,15 +338,17 @@ namespace commonFunctions
 			case ID_FILE_MY_NIAWG_SAVEAS:	{ scriptWin->saveNiawgScriptAs (win); break; }
 			case ID_MASTERCONFIG_SAVEMASTERCONFIGURATION: { mainWin->masterConfig.save (mainWin, auxWin, andorWin); break; }
 			case ID_MASTERCONFIGURATION_RELOAD_MASTER_CONFIG: { mainWin->masterConfig.load (mainWin, auxWin, andorWin); break; }
+
+			case ID_TOP_BOTTOM_NEW_SCRIPT:		{ auxWin->newAgilentScript (AgilentEnum::name::TopBottom); break; }
+			case ID_TOP_BOTTOM_OPEN_SCRIPT:		{ auxWin->openAgilentScript (AgilentEnum::name::TopBottom, win); break; }
+			case ID_TOP_BOTTOM_SAVE_SCRIPT:		{ auxWin->saveAgilentScript (AgilentEnum::name::TopBottom); break; }
+			case ID_TOP_BOTTOM_SAVE_SCRIPT_AS:  { auxWin->saveAgilentScriptAs (AgilentEnum::name::TopBottom, win); break; }
+
+			case ID_AXIAL_NEW_SCRIPT:		{ auxWin->newAgilentScript (AgilentEnum::name::Axial); break; }
+			case ID_AXIAL_OPEN_SCRIPT:		{ auxWin->openAgilentScript (AgilentEnum::name::Axial, win); break; }
+			case ID_AXIAL_SAVE_SCRIPT:		{ auxWin->saveAgilentScript (AgilentEnum::name::Axial); break; }
+			case ID_AXIAL_SAVE_SCRIPT_AS:	{ auxWin->saveAgilentScriptAs (AgilentEnum::name::Axial, win); break; }
 			/*
-			case ID_TOP_BOTTOM_NEW_SCRIPT: { auxWin->newAgilentScript( whichAg::TopBottom); break; }
-			case ID_TOP_BOTTOM_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::TopBottom, win); break; }
-			case ID_TOP_BOTTOM_SAVE_SCRIPT: { auxWin->saveAgilentScript( whichAg::TopBottom); break; }
-			case ID_TOP_BOTTOM_SAVE_SCRIPT_AS: { auxWin->saveAgilentScriptAs( whichAg::TopBottom, win); break; }
-			case ID_AXIAL_NEW_SCRIPT: { auxWin->newAgilentScript( whichAg::Axial); break; }
-			case ID_AXIAL_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::Axial, win ); break; }
-			case ID_AXIAL_SAVE_SCRIPT: { auxWin->saveAgilentScript( whichAg::Axial); break; }
-			case ID_AXIAL_SAVE_SCRIPT_AS: { auxWin->saveAgilentScriptAs( whichAg::Axial, win ); break; }
 			case ID_FLASHING_NEW_SCRIPT: { auxWin->newAgilentScript( whichAg::Flashing ); break; }
 			case ID_FLASHING_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::Flashing, win ); break; }
 			case ID_FLASHING_SAVE_SCRIPT: { auxWin->saveAgilentScript( whichAg::Flashing ); break; }
@@ -466,7 +389,6 @@ namespace commonFunctions
 		try {
 			AllExperimentInput input;
 			input.masterInput = new ExperimentThreadInput ( win );
-			input.masterInput->runList = { true, true, false };
 			win->auxWin->fillMasterThreadInput (input.masterInput);
 			win->andorWin->loadCameraCalSettings( input );
 			win->mainWin->loadCameraCalSettings( input.masterInput );
@@ -486,7 +408,6 @@ namespace commonFunctions
 		win->scriptWin->checkScriptSaves( );
 		// Set the thread structure.
 		input.masterInput = new ExperimentThreadInput ( win );
-		input.masterInput->runList = {runMaster, runAndor, runBasler};
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
 		input.masterInput->skipNext = win->andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = win->auxWin->getTotalVariationNumber ( );
@@ -599,11 +520,10 @@ namespace commonFunctions
 	}
 
 
-	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, piezoChan<double> cameraPiezoVals,
+	void logStandard( AllExperimentInput input, DataLogger& logger, piezoChan<double> cameraPiezoVals,
 					  std::string specialName, bool needsCal ){
 		logger.initializeDataFiles( specialName, needsCal );
 		logger.logMasterInput( input.masterInput );
-		logger.logServoInfo (servos);
 		logger.logMiscellaneousStart();
 		logger.initializeAiLogging( input.masterInput->numAiMeasurements );
 		logger.logAndorPiezos (cameraPiezoVals);

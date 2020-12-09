@@ -604,14 +604,7 @@ void Script::updateScriptNameText(std::string configPath){
 		fileNameText->setText(cstr(text));
 	}
 	else{
-		std::string text = "??? -> ";
-		if (scriptName == ""){
-			text += "???";
-		}
-		else{
-			text += scriptName;
-		}
-		fileNameText->setText(cstr(text));
+		fileNameText->setText(qstr(scriptName));
 	}
 }
 

@@ -78,7 +78,7 @@ void ExpThreadWorker::experimentThreadProcedure () {
 		for (auto& device : input->devices.list) {
 			deviceNormalFinish (device);
 		}
-		normalFinish (input->expType, input->runList.master, startTime);
+		normalFinish (input->expType, true /*runmaster*/, startTime);
 	}
 	catch (ChimeraError & exception) {
 		for (auto& device : input->devices.list) {
@@ -798,13 +798,12 @@ unsigned ExpThreadWorker::determineVariationNumber (std::vector<parameterType> v
 	return variationNumber;
 }
 
-
 void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams) {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
 	bool niawgMismatch = false, rsgMismatch = false;
 	for (auto variationInc : range (determineVariationNumber (expParams))) {
-		if (input->runList.master) {
+		if (true /*runMaster*/) {
 			unsigned actualTrigs = input->ttls.countTriggers ({ DoRows::which::D,15 }, variationInc);
 			unsigned dacExpectedTrigs = input->aoSys.getNumberSnapshots (variationInc);
 			std::string infoString = "Actual/Expected DAC Triggers: " + str (actualTrigs) + "/"
@@ -907,7 +906,7 @@ bool ExpThreadWorker::handleFunctionCall (std::string word, ScriptStream& stream
 }
 
 void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
-	if (input->runList.master) {
+	if (true /*runMaster*/) {
 		auto variations = determineVariationNumber (runtime.expParams);
 		input->aoSys.resetDacEvents ();
 		input->ttls.resetTtlEvents ();
@@ -922,7 +921,7 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 		emit notification ("Calcualting DO system variations...\n", 1);
 		input->ttls.calculateVariations (runtime.expParams, this);
 		emit notification ("Calcualting AO system variations...\n", 1);
-		input->aoSys.calculateVariations (runtime.expParams, this);
+		input->aoSys.calculateVariations (runtime.expParams, this, input->calibrations);
 		emit notification ("Running final ado checks...\n");
 		for (auto variationInc : range (variations)) {
 			if (isAborting) { thrower (abortString); }
@@ -946,7 +945,8 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 void ExpThreadWorker::runConsistencyChecks (std::vector<parameterType> expParams) {
 	Sleep (1000);
 	emit plot_Xvals_determined (ParameterSystem::getKeyValues (expParams));
-	input->globalControl.setUsages (expParams);
+	emit expParamsSet (expParams);
+	//input->globalControl.setUsages (expParams);
 	for (auto& var : expParams) {
 		if (!var.constant && !var.active) {
 			emit warn (cstr ("WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n"));
@@ -988,7 +988,7 @@ void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameter
 	}
 	waitForAndorFinish ();
 	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
-	if (input->runList.master) { input->ttls.ftdi_write (variationInc, skipOption); }
+	if (true /*runMaster*/) { input->ttls.ftdi_write (variationInc, skipOption); }
 	handleDebugPlots ( input->ttls, input->aoSys, variationInc );
 }
 
@@ -1040,7 +1040,7 @@ void ExpThreadWorker::normalFinish (ExperimentType& expType, bool runMaster,
 }
 
 void ExpThreadWorker::startRep (unsigned repInc, unsigned variationInc, bool skip) {
-	if (input->runList.master) {
+	if (true /*runMaster*/) {
 		emit notification (qstr ("Starting Repetition #" + qstr (repInc) + "\n"), 2);
 		emit repUpdate (repInc + 1);
 		input->aoSys.resetDacs (variationInc, skip);

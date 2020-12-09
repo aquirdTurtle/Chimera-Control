@@ -2,19 +2,19 @@
 #include "stdafx.h"
 #include "Expression.h"
 #include "ConfigurationSystems/ConfigStream.h"
+#include "GeneralUtilityFunctions/my_str.h"
+#include <AnalogInput/CalibrationManager.h>
+
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iomanip>
 #include <iostream>
-#include "GeneralUtilityFunctions/my_str.h"
 #include <deque>
 
-Expression::Expression( )
-{
+Expression::Expression( ){
 	// in this case, the expression must be explicitly initialized using init() later.
 }
-Expression::Expression( std::string expressionString )
-{
+Expression::Expression( std::string expressionString ){
 	expressionStr = expressionString;
 }
 
@@ -33,18 +33,14 @@ Expression::Expression( std::string expressionString )
 Split the input into all math objects and variables. The separated such objects are stored and returned in a vector of
 strings.
 */
-std::vector<std::string> Expression::splitString( std::string workingString )
-{
-	//workingString = "(" + workingString + ")";
+std::vector<std::string> Expression::splitString( std::string workingString ){
 	std::vector<std::string> terms;
 	// separate terms out.
 	// specify only the kept separators
 	boost::char_separator<char> sep( "", " \t+-*/()^" );
 	boost::tokenizer<boost::char_separator<char>> tokens( workingString, sep );
-	for ( std::string t : tokens )
-	{
-		if ( t != " " && t != "\t" )
-		{
+	for ( std::string t : tokens ){
+		if ( t != " " && t != "\t" ){
 			// don't include whitespace.
 			terms.push_back( t );
 		}
@@ -53,45 +49,35 @@ std::vector<std::string> Expression::splitString( std::string workingString )
 }
 
 
-void Expression::doMultAndDiv( std::vector<std::string>& terms )
-{
+void Expression::doMultAndDiv( std::vector<std::string>& terms ){
 	/// find mult do mult
 	// this can be done as just a scan from left to right.
-	for ( unsigned count = 0; count < terms.size( ); count++ )
-	{
-		if ( terms[count] == "*" || terms[count] == "/" )
-		{
+	for ( unsigned count = 0; count < terms.size( ); count++ ){
+		if ( terms[count] == "*" || terms[count] == "/" ){
 			std::string individualResult;
 			double leftTerm = 0, rightTerm = 0;
-			try
-			{
-				if ( count <= 0 )
-				{
+			try	{
+				if ( count <= 0 ){
 					thrower ( "Operator " + terms[count] + " has no value on its left!" );
 				}
 				leftTerm = boost::lexical_cast<double>( terms[count - 1] );
 			}
-			catch ( boost::bad_lexical_cast& )
-			{
+			catch ( boost::bad_lexical_cast& ){
 				throwNested ( "Tried and failed to evaluate string " + terms[count - 1]
 						 + " to a double (error in for multiplication / division section)!" );
 			}
-			try
-			{
+			try	{
 				rightTerm = boost::lexical_cast<double>( terms[count + 1] );
 			}
-			catch ( boost::bad_lexical_cast& )
-			{
+			catch ( boost::bad_lexical_cast& ){
 				throwNested ( "Tried and failed to convert string " + terms[count + 1] + " to a double (error in for"
 						 " multiplication / division section)!" );
 			}
 			// calculate the result
-			if ( terms[count] == "/" )
-			{
+			if ( terms[count] == "/" ){
 				individualResult = str( leftTerm / rightTerm, 13 );
 			}
-			else
-			{
+			else{
 				individualResult = str( leftTerm * rightTerm, 13 );
 			}
 			// replace the * expression with the result.
@@ -105,55 +91,43 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 }
 
 
-void Expression::doAddAndSub( std::vector<std::string>& terms )
-{
+void Expression::doAddAndSub( std::vector<std::string>& terms ){
 	/// find add do add
-	for ( unsigned count = 0; count < terms.size( ); count++ )
-	{
-		if ( terms[count] == "+" || terms[count] == "-" )
-		{
+	for ( unsigned count = 0; count < terms.size( ); count++ ){
+		if ( terms[count] == "+" || terms[count] == "-" ){
 			std::string individualResult;
 			double leftTerm = 0, rightTerm = 0;
-			try
-			{
-				if ( count == 0 && terms[count] == "-" )
-				{
+			try{
+				if ( count == 0 && terms[count] == "-" ){
 					// this will convert (-1) to (0-1) which will evaluate correctly.
 					leftTerm = 0;
 					terms.insert( terms.begin( ), "0" );
 					count = 1;
 				}
-				else
-				{
-					if ( count <= 0 )
-					{
+				else{
+					if ( count <= 0 ){
 						thrower ( "Operator " + terms[count] + " has no value on its"
 								 " left!" );
 					}
 					leftTerm = boost::lexical_cast<double>( terms[count - 1] );
 				}
 			}
-			catch ( boost::bad_lexical_cast& )
-			{
+			catch ( boost::bad_lexical_cast& ){
 				throwNested ( "Tried and failed to evaluate string " + terms[count - 1]
 						 + " to a double (error in for addition/subtraction section)!" );
 			}
-			try
-			{
+			try{
 				rightTerm = boost::lexical_cast<double>( terms[count + 1] );
 			}
-			catch ( boost::bad_lexical_cast& )
-			{
+			catch ( boost::bad_lexical_cast& ){
 				throwNested ( "Tried and failed to evaluate string " + terms[count + 1]
 						 + " to a double (error in for addition/subtraction section)!" );
 			}
 			// caliculate the result
-			if ( terms[count] == "+" )
-			{
+			if ( terms[count] == "+" ){
 				individualResult = str( leftTerm + rightTerm, 13 );
 			}
-			else
-			{
+			else{
 				individualResult = str( leftTerm - rightTerm, 13 );
 			}
 			// replace the expression with the result.
@@ -169,12 +143,10 @@ void Expression::doAddAndSub( std::vector<std::string>& terms )
 
 
 // reduce handles reduction of standard math operations (i.e. not functions) only. 
-double Expression::reduce( std::vector<std::string> terms )
-{
+double Expression::reduce( std::vector<std::string> terms ){
 	bool parenthesisExists = true;
 	// parenthesis loop
-	while ( parenthesisExists )
-	{
+	while ( parenthesisExists ){
 		// this will store all the terms in the right-most parenthesis enclosure.
 		// arguably it's a little more intuitive, as to how a person would actually simplify,
 		// to do the innermost first. But it shouldn't make a mathematical difference, and this
@@ -184,10 +156,8 @@ double Expression::reduce( std::vector<std::string> terms )
 		// find rightmost parenthesis
 		unsigned count = 0;
 		int leftPos = 0, rightPos = 0;
-		for ( auto& elem : terms )
-		{
-			if ( elem == "(" )
-			{
+		for ( auto& elem : terms ){
+			if ( elem == "(" ){
 				// just always reset it
 				leftExists = true;
 				leftPos = count;
@@ -195,15 +165,12 @@ double Expression::reduce( std::vector<std::string> terms )
 			count++;
 		}
 		//
-		if ( leftExists )
-		{
+		if ( leftExists ){
 			rightmostParenthesisTerms = std::vector<std::string>( &terms[leftPos] + 1, &terms.back( ) + 1 );
 			bool rightExists = false;
 			count = 0;
-			for ( auto& elem : rightmostParenthesisTerms )
-			{
-				if ( elem == ")" )
-				{
+			for ( auto& elem : rightmostParenthesisTerms ){
+				if ( elem == ")" ){
 					// rightPos is set in terms of the original vector for future reference,
 					// not the new substring I just created.
 					rightPos = leftPos + count;
@@ -212,41 +179,33 @@ double Expression::reduce( std::vector<std::string> terms )
 				}
 				count++;
 			}
-			if ( !rightExists )
-			{
+			if ( !rightExists ){
 				thrower ( "Unmatched \"(\" in math expression!\r\n" );
 			}
 			rightmostParenthesisTerms = std::vector<std::string>( &terms[leftPos + 1], &terms[rightPos + 1] );
 			// now I have a term which I can analyze.
 		}
-		else
-		{
+		else{
 			// no left parenthesis left, so I'm finished.
 			parenthesisExists = false;
 			break;
 		}
 		// I now I have a subvector with no parenthesis in it. Verify that there's no parenthesis in it.
-		for ( auto elem : rightmostParenthesisTerms )
-		{
-			if ( elem == "(" || elem == ")" )
-			{
+		for ( auto elem : rightmostParenthesisTerms ){
+			if ( elem == "(" || elem == ")" ){
 				thrower ( "Math evaluation failed, there are parenthesis in an innermost term which should not"
 						 " have parenthesis in it! This is a bug." );
 			}
 		}
-
 		doMultAndDiv( rightmostParenthesisTerms );
-
 		doAddAndSub( rightmostParenthesisTerms );
 
 		// check that the list of terms has been reduced.
-		if ( rightmostParenthesisTerms.size( ) != 1 )
-		{
+		if ( rightmostParenthesisTerms.size( ) != 1 ){
 			std::string msg( "Math evaluation failed! After a complete run-through of a term, there was more than one "
 							 "element left! Terms were:\n" );
 			std::string termString;
-			for ( auto term : terms )
-			{
+			for ( auto term : terms ){
 				termString += term + "\n";
 			}
 			thrower ( msg + termString );
@@ -256,17 +215,14 @@ double Expression::reduce( std::vector<std::string> terms )
 		terms.erase( terms.begin( ) + leftPos, terms.begin( ) + (rightPos + 2) );
 		terms.insert( terms.begin( ) + leftPos, result );
 	} // end parenthesis loop
-	if ( terms.size( ) != 1 )
-	{
+	if ( terms.size( ) != 1 ){
 		thrower ( "\"reduce\" function failed to reduce its arguments to a single term!" );
 	}
 	double finalResult;
-	try
-	{
+	try{
 		finalResult = boost::lexical_cast<double>( terms[0] );
 	}
-	catch ( boost::bad_lexical_cast& )
-	{
+	catch ( boost::bad_lexical_cast& ){
 		throwNested ( "The \"reduce\" function in the expression system failed to convert its reduction to a double! "
 					  "Result of reduction was " + terms[0] + "\r\n" );
 	}
@@ -276,24 +232,19 @@ double Expression::reduce( std::vector<std::string> terms )
 
 // this function evaluates functions and leaves the input as only standard math operations and objects. There are many parallels between
 // this function and reduce.
-void Expression::evaluateFunctions( std::vector<std::string>& terms )
-{
+void Expression::evaluateFunctions( std::vector<std::string>& terms ){
 	// list of supported functions.
 	std::vector<std::string> functionList = { "sin", "cos", "exp", "ln", "log10" };
 	bool functionExists = true;
-	while ( functionExists )
-	{
+	while ( functionExists ){
 		std::vector<std::string> functionArgUnevaluated;
 		std::string funcName;
 		unsigned count = 0;
 		int funcPos = -1;
 		// find the rightmost function.
-		for ( auto& elem : terms )
-		{
-			for ( auto func : functionList )
-			{
-				if ( elem == func )
-				{
+		for ( auto& elem : terms ){
+			for ( auto func : functionList ){
+				if ( elem == func ){
 					// just always reset it
 					funcPos = count;
 					funcName = elem;
@@ -301,21 +252,17 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 			}
 			count++;
 		}
-
-		if ( funcPos == -1 )
-		{
+		if ( funcPos == -1 ){
 			// then the loop found no functions.
 			functionExists = false;
 			break;
 		}
-		if ( funcPos >= terms.size( ) - 3 )
-		{
+		if ( funcPos >= terms.size( ) - 3 ){
 			// the function position needs to have at least 3 terms after it (2 for parenthesis, 1 for the arg). 
 			// the last value is at position terms.size() - 1.
 			thrower ( "function " + funcName + " detected with no arguments!" );
 		}
-		if ( terms[funcPos + 1] != "(" )
-		{
+		if ( terms[funcPos + 1] != "(" ){
 			thrower ( "function " + funcName + " detected with enclosing parenthesis () to hold its arguments! "
 					 "all function arguments must be enclosed in parenthesis." );
 		}
@@ -328,17 +275,12 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 		bool closingParenthesisExists = false;
 		int subParenthesisCount = 0;
 		count = 0;
-		for ( auto& elem : maxArg )
-		{
-			if ( elem == "(" )
-			{
+		for ( auto& elem : maxArg ){
+			if ( elem == "(" ){
 				subParenthesisCount++;
 			}
-			else if ( elem == ")" )
-			{
-
-				if ( subParenthesisCount == 0 )
-				{
+			else if ( elem == ")" ){
+				if ( subParenthesisCount == 0 ){
 					// then I've found the closing parenthesis of the function arguments.
 					funcArgPosRight = funcArgPosLeft + count;
 					closingParenthesisExists = true;
@@ -348,8 +290,7 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 			}
 			count++;
 		}
-		if ( !closingParenthesisExists )
-		{
+		if ( !closingParenthesisExists ){
 			thrower ( "Function argument's enclosing () were unclosed! The initial ( didn't have a matching )!" );
 		}
 		// now I have a term which I can analyze.
@@ -362,25 +303,20 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 		double functionResult;
 
 		// { "sin", "cos", "exp", "ln", "log10" };
-		if ( funcName == "sin" )
-		{
+		if ( funcName == "sin" ){
 			functionResult = sin( functionArg );
 		}
-		else if ( funcName == "cos" )
-		{
+		else if ( funcName == "cos" ){
 			functionResult = cos( functionArg );
 		}
-		else if ( funcName == "exp" )
-		{
+		else if ( funcName == "exp" ){
 			functionResult = exp( functionArg );
 		}
-		else if ( funcName == "ln" )
-		{
+		else if ( funcName == "ln" ){
 			// log in cmath is the natural log.
 			functionResult = log( functionArg );
 		}
-		else if ( funcName == "log10" )
-		{
+		else if ( funcName == "log10" ){
 			functionResult = log10( functionArg );
 		}
 		std::string resultStr = str( functionResult, 13 );
@@ -391,51 +327,36 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 }
 
 
-void Expression::internalEvaluate ( std::vector<parameterType>& params, unsigned totalVariations )
-{
+void Expression::internalEvaluate ( std::vector<parameterType>& params, unsigned totalVariations ){
 	values.clear ( );
 	values.resize ( totalVariations );
-	for ( auto variation : range ( totalVariations ) )
-	{
+	for ( auto variation : range ( totalVariations ) ){
 		values[variation] = evaluate ( params, variation );
 	}
 }
 
-
-double Expression::getValue ( unsigned variation )
-{
-	if ( variation >= values.size ( ) )
-	{
+double Expression::getValue ( unsigned variation ){
+	if ( variation >= values.size ( ) ){
 		thrower ( "Tried to get expression value for variation that doesn't seem to exist!" );
 	}
 	return values[variation];
 }
 
-
 /*
 Evaluate takes in an expression, which can be a combination of variables, standard math operations, and standard
 math functions, and evaluates it to a double.
 */
-double Expression::evaluate( std::vector<parameterType>& variables, unsigned variation )
-{
-	/*
-	if ( expressionScope == "" )
-	{
-		thrower ( "trying to evaluate an expression without an expression scope! This probably means that you"
-				 " forgot to call assertValid on the expression, where the scope is set." );
-	}
-	*/
+double Expression::evaluate( std::vector<parameterType>& variables, unsigned variation, 
+	std::vector<calResult> calibrations ){
 	// make a constant copy of the original string to use during the evaluation.
 	const std::string originalExpression( expressionStr );
 	double resultOfReduction = 0;
 	// include "e" here because of scientific notation for floats
-	if ( std::string::npos == originalExpression.find_first_not_of ( "-.0123456789e" ) )
-	{
+	if ( std::string::npos == originalExpression.find_first_not_of ( "-.0123456789e" ) ){
 		// then only digits, so should probably evaluate straight. 
-		try
-		{
+		try{
 			resultOfReduction = boost::lexical_cast<double>( originalExpression );
-			return resultOfReduction;
+			return handleCalibration(resultOfReduction, calibrations);
 		}
 		catch ( boost::bad_lexical_cast& ) {	/* These cases might be doomed for failure. If only digits probably
 												   should have evaluated fine. */ }
@@ -447,18 +368,13 @@ double Expression::evaluate( std::vector<parameterType>& variables, unsigned var
 
 	std::vector<std::string> terms = splitString ( originalExpression );
 	// if not the default value (see header)
-	if ( variation != -1 )
-	{
+	if ( variation != -1 ){
 		// substitute all variables within the expression.
-		for ( auto& term : terms )
-		{
-			for ( auto& variable : variables )
-			{
+		for ( auto& term : terms ){
+			for ( auto& variable : variables ){
 				if ( term == variable.name && (variable.parameterScope == expressionScope
-												|| variable.parameterScope == GLOBAL_PARAMETER_SCOPE))
-				{
-					if ( variable.keyValues.size( ) == 0 )
-					{
+												|| variable.parameterScope == GLOBAL_PARAMETER_SCOPE)){
+					if ( variable.keyValues.size( ) == 0 ){
 						thrower ( "Attempting to use key that hasn't been generated yet!" );
 					}
 					term = str( variable.keyValues[variation], 12 );
@@ -469,14 +385,12 @@ double Expression::evaluate( std::vector<parameterType>& variables, unsigned var
 			}
 		}
 	}
-	if ( terms.size() == 1 )
-	{
+	if ( terms.size() == 1 ){
 		// This was probably a single variable so try just evaluating the variable term in the middle again.
-		try
-		{
+		try{
 			// try the simple thing.
 			resultOfReduction = boost::lexical_cast<double>( terms[0] );
-			return resultOfReduction;
+			return handleCalibration (resultOfReduction, calibrations);
 		}
 		catch ( boost::bad_lexical_cast& ) {	/* These cases might be doomed for failure since if only 3 terms
 												I don't think there should be any room for function evaluations.*/ }
@@ -485,14 +399,33 @@ double Expression::evaluate( std::vector<parameterType>& variables, unsigned var
 	// okay, now have to do the heavy lifting.
 	std::vector<std::string> fullTerms;
 	fullTerms.push_back ( "(" );
-	for ( auto t : terms )
-	{
+	for ( auto t : terms ){
 		fullTerms.push_back ( t );
 	}
 	fullTerms.push_back ( ")" );
 	evaluateFunctions( fullTerms );
 	/// do math.
-	return reduce( fullTerms );
+	return handleCalibration (reduce (fullTerms), calibrations);
+}
+
+double Expression::handleCalibration (double val, std::vector<calResult> calibrations) {
+	if (calName == "") {
+		return val;
+	}
+	else {
+		calResult cal;
+		for (auto calTest : calibrations) {
+			if (calTest.calibrationName == calName) {
+				cal = calTest;
+				break;
+			}
+		}
+		if (cal.calibrationName == "") {
+			thrower ("Expression needed calibration \"" + calName + "\" but didn't find it in the calibrations list given"
+				" to the evaluation function!");
+		}
+		return CalibrationManager::calibrationFunction (val, cal);
+	}
 }
 
 // this function checks whether the string "item" is usable as a double, either by direct reduction to double without
@@ -503,7 +436,10 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 	try{
 		value = evaluate();
 	}
-	catch ( ChimeraError& ){
+	catch ( ChimeraError& error){
+		if (error.whatBare ().substr (0, 29) == "Expression needed calibration") {
+			return; // that's fine, it got to the calibration stage. 
+		}
 		bool isVariable = false;
 		for ( unsigned varInc = 0; varInc < variables.size( ); varInc++ ){
 			auto& param = variables[varInc];
@@ -511,8 +447,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 												  || param.parameterScope == GLOBAL_PARAMETER_SCOPE )){
 				param.active = true;
 				isVariable = true;
-				if ( !param.constant )
-				{
+				if ( !param.constant ){
 					expressionVaries = true;
 				}
 				break;
@@ -568,8 +503,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 					needParenthesis = true;
 					continue;
 				}
-				try
-				{
+				try{
 					// first just check if any characters in string are alpha
 					bool contains_alpha = false;
 					for ( auto c : elem ){
@@ -621,7 +555,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				failed = true;
 			}
 			if ( failed ){
-				thrower ( "" + expressionStr + " is not a valid expression. It's not a double, a variable, "
+				thrower ( "\"" + expressionStr + "\" is not a valid expression. It's not a double, a variable, "
 						 "and it wont evaluate as a mathematical expression." );
 			}
 		}
@@ -631,3 +565,4 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 bool Expression::varies( ){
 	return expressionVaries;
 }
+

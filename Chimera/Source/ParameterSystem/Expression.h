@@ -5,28 +5,24 @@
 #include "afxwin.h"
 #include <string>
 #include <vector>
-class ConfigStream;
+#include <AnalogInput/calInfo.h>
 
-class Expression
-{
+class Expression {
 	public:
 		Expression( );
 		Expression( std::string expressionString );
-		//Expression (const std::string&) = delete;
 		void assertValid( std::vector<parameterType>& variables, std::string scope );
 		// default values are empty objects and variation #-1.
-		double evaluate( std::vector<parameterType>& variables = std::vector<parameterType>( ), unsigned variation=-1 );
 		static std::vector<std::string> splitString( std::string workingString );
 		std::string expressionStr;
+		std::string calName = "";
 		bool varies( );
-		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ), 
+		double evaluate ( std::vector<parameterType>& variables = std::vector<parameterType> (), unsigned variation = -1,
+						  std::vector<calResult> calibrations = std::vector<calResult>());
+		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ),
 			unsigned totalVariationNumber = -1 );
-		double getValue ( unsigned variation );
-		// not sure why, but need to use ofstream instead of stringstream or else I get very strange errors. 
-		// stringstream inherits from both basic_ofstream and basic_istream, so it makes sense that this works, but
-		// it doesn't make sense to me that using stringstream doesn't work.
-	
-		//friend ConfigStream& operator<<(ConfigStream& os, const Expression& expr);
+		double handleCalibration (double val, std::vector<calResult> calibrations);
+		double getValue ( unsigned variation );	
 	private:
 		void doMultAndDiv( std::vector<std::string>& terms );
 		void doAddAndSub( std::vector<std::string>& terms );

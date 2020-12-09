@@ -408,7 +408,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 		minColor = std::get<1> ( autoScaleInfo );
 	}
 	else{
-		colorRange = sliderMax.getValue ( ); - sliderMin.getValue ( );
+		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );
 		minColor = sliderMin.getValue ( );
 	}
 	// assumes non-zero size...

@@ -24,11 +24,10 @@ def pgcAtomFlashingImage():
   %on: andorTrig
   on: a9
   t += 0.1
-  var sidemot_imaging_power 0.24
-  var imaging_diagmot_power 0.1
-  dac: SideMotPower sidemot_imaging__sv
-  dac: RepumpPower repump_imaging__sv
-  dac: DiagMotPower diagmot_imaging__sv
+
+  dac: SideMotPower { 9 sidemot } % sidemot_imaging__sv
+  dac: RepumpPower { 0.2 repump } % repump_imaging__sv
+  dac: DiagMotPower { 0.86 diagmot } % diagmot_imaging__sv
   on: tweezerflashrf
   on: sidemotflash
   off: rf795

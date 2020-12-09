@@ -60,7 +60,8 @@ class AoSystem : public IChimeraSystem {
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DoCore& ttls);
 		void setDacTriggerEvents( DoCore& ttls, unsigned variation );
-		void calculateVariations( std::vector<parameterType>& variables, ExpThreadWorker* threadworker);
+		void calculateVariations( std::vector<parameterType>& variables, ExpThreadWorker* threadworker, 
+								  std::vector<calResult> calibrations);
 		void organizeDacCommands( unsigned variation );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
 									 DoCore& ttls );

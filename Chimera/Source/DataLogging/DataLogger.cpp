@@ -382,8 +382,8 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input ){
 		}
 		H5::Group runParametersGroup( file.createGroup( "/Master-Input" ) );
 		writeDataSet (input->profile.configuration, "Configuration", runParametersGroup);
-		writeDataSet( input->runList.master, "Run-Master", runParametersGroup );
-		if ( input->runList.master)	{
+		writeDataSet( true, "Run-Master", runParametersGroup );
+		if ( true /*runmaster*/ ) {
 			std::ifstream masterScript( ConfigSystem::getMasterAddressFromConfig( input->profile ) );
 			if ( !masterScript.is_open( ) )	{
 				thrower ( "ERROR: Failed to load master script for data logger!" );

@@ -4,15 +4,36 @@
 #include <DigitalOutput/DoRows.h>
 #include <Agilent/whichAg.h>
 
-struct calResult {
+struct calBase {
+	std::string dblVecToString (std::vector<double> ctrls) const {
+		std::string ctrlString;
+		for (auto val : ctrls) {
+			ctrlString += str (val, 4, true) + " ";
+		}
+		return ctrlString;
+	}
+};
+
+struct calResult : public calBase {
 	std::string calibrationName = "";
+	std::vector<double> ctrlVals;
+	std::vector<double> resVals;
 	std::vector<double> calibrationCoefficients;
 	bool includesSqrt=true;
 	double minval = 0;
 	double maxval = 0;
+	std::string stringRepr () const {
+		return calibrationName + " Calibration:"
+			+ "\n================================"
+			+ "\nControl Values: " + dblVecToString(ctrlVals) 
+			+ "\nResult Values: " + dblVecToString(resVals) 
+			+ "\nCalibration Coefficients: " + dblVecToString (calibrationCoefficients) 
+			+ "\nIncludes Sqrt: " + ( includesSqrt ? "True" : "False" )
+			+ "\nMin/Max: " + str (minval) + "/" + str (maxval);
+	}
 };
 
-struct calSettings {
+struct calSettings : public calBase {
 	bool active = false;
 	unsigned int aiInChan = 0;
 	unsigned int aoControlChannel = 0;
@@ -20,8 +41,6 @@ struct calSettings {
 	AgilentEnum::name whichAg;
 	unsigned agChannel;
 	QString ctrlPtString;
-	//std::vector<double> controlPoints;
-	std::vector<double> resultValues;
 	// in % from old value
 	bool calibrated = false;
 	unsigned polynomialOrder=6;
@@ -33,7 +52,6 @@ struct calSettings {
 	// refers to whether that particular result includes the sqrt. 
 	bool includeSqrt = true;
 	calResult result;
-
 };
 
 Q_DECLARE_METATYPE (calSettings)

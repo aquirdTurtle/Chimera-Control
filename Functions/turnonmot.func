@@ -14,12 +14,13 @@ def turnOnMot():
   var repump_pow 0.1 
   var repump_freq 0.08
   var mot_freq -0.7
-  dac: DiagMotPower diagmot__sv
+  dac: DiagMotPower { 4.6 diagmot } % diagmot__sv
   dac: RepumpPower repump_pow
   dac: MotFreq mot_freq 
   dac: RepumpFreq repump_freq
   %var tmpMotVal 0
-  dac: SideMotPower sidemot__sv
+  % sidemot__sv
+  dac: SideMotPower { 1.88 sidemot } % sidemot__sv
   %% Magnetic Field Control
   var motStrength 7.1
   var dField 0

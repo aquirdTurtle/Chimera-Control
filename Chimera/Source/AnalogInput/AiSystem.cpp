@@ -89,15 +89,20 @@ void AiSystem::initialize (QPoint& loc, IChimeraQtWindow* parent) {
 }
 
 void AiSystem::handleTimer () {
-	if (continuousQueryCheck->isChecked ()) {
-		refreshCurrentValues (); 
-		refreshDisplays ();
-	}
 	int interval = 1000;
 	try {
-		interval = boost::lexical_cast<int>(str(continuousInterval->text ()));
+		if (continuousQueryCheck->isChecked ()) {
+			refreshCurrentValues ();
+			refreshDisplays ();
+		}
+		try {
+			interval = boost::lexical_cast<int>(str (continuousInterval->text ()));
+		}
+		catch (boost::bad_lexical_cast&) { // just go with 1s if the input is invalid.
+		}
 	}
-	catch (boost::bad_lexical_cast&) { // just go with 1s if the input is invalid.
+	catch (ChimeraError & err) {
+		errBox (err.trace ());
 	}
 	QTimer::singleShot (interval, this, &AiSystem::handleTimer);
 }

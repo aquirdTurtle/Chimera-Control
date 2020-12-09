@@ -20,7 +20,7 @@ namespace commonFunctions{
 	void prepareMasterThread( int msgID, IChimeraQtWindow* win, AllExperimentInput& input, bool runNiawg, bool runTtls,
 							  bool runAndor, bool runBasler, bool startPlotThread );
 	void startExperimentThread (IChimeraQtWindow* win, AllExperimentInput& input);
-	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, piezoChan<double> cameraPiezoVals,
+	void logStandard( AllExperimentInput input, DataLogger& logger, piezoChan<double> cameraPiezoVals,
 					  std::string specialName="", bool needsCal=false );
 	void abortNiawg(IChimeraQtWindow* win);
 	void abortCamera(IChimeraQtWindow* win);

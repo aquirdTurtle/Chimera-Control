@@ -132,11 +132,6 @@ void IChimeraQtWindow::initializeMenu (){
 	connect (saveConfigAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_CONFIGURATION_SAVE_CONFIGURATION_AS, this); });
 	conf_p_m->addAction (saveConfigAs);
 
-	conf_p_m->addAction ("New Configuration_X");
-	conf_p_m->addAction ("Rename Current Configuration_X");
-	conf_p_m->addAction ("Delete Current Configuration_X");
-	
-	
 	profileM->addAction ("Save Entire Profile_X");
 	/// SCRIPTS
 	auto scriptsM = menubar->addMenu ("&Scripts");
@@ -148,8 +143,8 @@ void IChimeraQtWindow::initializeMenu (){
 	auto axM = otherAg->addMenu ("Axial");
 	auto flashingM = otherAg->addMenu ("Flashing");
 	auto uwM = otherAg->addMenu ("Microwave");
-	std::vector<QMenu*> scriptMenus = { tbM, axM, flashingM, uwM };
-	std::vector<QString> scriptNames = { "Top / Bottom", "Axial", "Flashing", "Microwave" };
+	std::vector<QMenu*> scriptMenus = { flashingM, uwM };
+	std::vector<QString> scriptNames = { "Flashing", "Microwave" };
 	for (auto num : range (scriptMenus.size())) {
 		auto menu = scriptMenus[num];
 		auto name = scriptNames[num];
@@ -158,6 +153,33 @@ void IChimeraQtWindow::initializeMenu (){
 		menu->addAction ("&Save " + name + " Script_X");
 		menu->addAction ("Save " + name + " Script &As_X");
 	}
+
+	auto* newAxScript = new QAction ("Ne&w Axial Script", this);
+	connect (newAxScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_NEW_SCRIPT, this); });
+	axM->addAction (newAxScript);
+	auto* openAxScript = new QAction ("Op&en Axial Script", this);
+	connect (openAxScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_OPEN_SCRIPT, this); });
+	axM->addAction (openAxScript);
+	auto* saveAxScript = new QAction ("&Save Axial Script", this);
+	connect (saveAxScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_SAVE_SCRIPT, this); });
+	axM->addAction (saveAxScript);
+	auto* saveAxScriptAs = new QAction ("Save Axial Script &As", this);
+	connect (saveAxScriptAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_SAVE_SCRIPT_AS, this); });
+	axM->addAction (saveAxScriptAs);
+
+	auto* newTBScript = new QAction ("Ne&w Top/Bottom Script", this);
+	connect (newTBScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_NEW_SCRIPT, this); });
+	tbM->addAction (newTBScript);
+	auto* openTBScript = new QAction ("Op&en Top/Bottom Script", this);
+	connect (openTBScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_OPEN_SCRIPT, this); });
+	tbM->addAction (openTBScript);
+	auto* saveTBScript = new QAction ("&Save Top/Bottom Script", this);
+	connect (saveTBScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_SAVE_SCRIPT, this); });
+	tbM->addAction (saveTBScript);
+	auto* saveTBScriptAs = new QAction ("Save Top/Bottom Script &As", this);
+	connect (saveTBScriptAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_SAVE_SCRIPT_AS, this); });
+	tbM->addAction (saveTBScriptAs);
+
 
 	auto* newNiawg = new QAction ("Ne&w NIAWG Script", this);
 	connect (newNiawg, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_NIAWG_NEW, this); });
@@ -200,13 +222,10 @@ void IChimeraQtWindow::initializeMenu (){
 	intM->addAction (saveasInt);
 
 	auto niawgM = menubar->addMenu ("NIAWG");
-	//niawgM->addAction ("Reload Default Waveforms");
 	auto* reloadDefaultNiawg = new QAction ("Reload Default Waveforms", this);
 	connect (reloadDefaultNiawg, &QAction::triggered, [this]() {this->scriptWin->restartNiawgDefaults (); });
 	niawgM->addAction (reloadDefaultNiawg);
-
-
-
+	   
 	niawgM->addAction ("Send Software Trigger_X");
 	niawgM->addAction ("Stream Waveform_X");
 	niawgM->addAction ("Get NIWAG Error_X");
