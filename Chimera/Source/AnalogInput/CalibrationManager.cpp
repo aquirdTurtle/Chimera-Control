@@ -246,7 +246,7 @@ std::vector<calResult> CalibrationManager::getCalibrationInfo (){
 }
 
 void CalibrationManager::handleSaveMasterConfig (std::stringstream& configStream) {
-	configStream << "\n/*CALIBRATION_MANAGER*/" 
+	configStream << "\nCALIBRATION_MANAGER" 
 		<< "\n/*Auto Cal Checked: */ " << expAutoCalButton->isChecked ()
 		<< "\n/*Calibration Number: */ " << calibrations.size ();
 	for (auto& cal : calibrations) {

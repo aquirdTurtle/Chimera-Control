@@ -16,7 +16,7 @@ AndorCameraSettingsControl::AndorCameraSettingsControl() : imageDimensionsObj("a
 void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::vector<std::string> vertSpeeds,
 											  std::vector<std::string> horSpeeds ){
 	auto& px = pos.rx (), & py = pos.ry ();
-	header = new QLabel ("CAMERA SETTINGS", parent);
+	header = new QLabel ("ANDOR CAMERA SETTINGS", parent);
 	header->setGeometry (px, py, 480, 25);
 	programNow = new QPushButton ("Program Now", parent);
 	programNow->setGeometry (px, py+=25, 480, 25);

@@ -198,51 +198,6 @@ void PictureControl::setSliderControlLocs (QPoint pos, int height){
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make
 * sure to change the background size before using this.
 * ********/
-void PictureControl::setCursorValueLocations( CWnd* parent ){
-	if (!coordinatesText || !coordinatesDisp) {
-		return;
-	}
-	CRect rect;
-	parent->GetWindowRect( &rect );
-	long width = rect.right - rect.left;
-	long height = rect.bottom - rect.top;
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	widthScale = 1;
-	heightScale = 1;
-	QPoint loc = { long( unscaledBackgroundArea.left * widthScale ), long( unscaledBackgroundArea.bottom * heightScale ) };
-	auto& px = loc.rx (), & py = loc.ry ();
-	coordinatesText->setGeometry (px, py, 100, 25);
-	coordinatesDisp->setGeometry (px+100, py, 100, 25);
-	valueText->setGeometry (px+200, py, 100, 25);
-	valueDisp->setGeometry (px+300, py, 100, 25);
-}
-
-/*
- * Called in order to see if a right click is above a camera pixel. Returns coordinates of the camera pixel.
- */
-coordinate PictureControl::checkClickLocation( CPoint clickLocation )
-{
-	CPoint test;
-	for (unsigned colInc = 0; colInc < grid.size(); colInc++){
-		for (unsigned rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
-			RECT relevantRect = grid[colInc][rowInc];
-			// check if inside box
-			if (clickLocation.x <= relevantRect.right && clickLocation.x >= relevantRect.left
-				 && clickLocation.y <= relevantRect.bottom && clickLocation.y >= relevantRect.top){
-				// returns row x column
-				coordinate location;
-				location.row = rowInc+1;
-				location.column = colInc+1;
-				return location;
-				// then click was inside a box so this should do something.
-			}
-		}
-	}
-	// null result. only first number is checked.
-	thrower ( "click location not found" );
-}
-
 
 /*
  * change the colormap used for a given picture.

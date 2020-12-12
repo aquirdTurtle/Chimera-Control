@@ -4,7 +4,7 @@
 #include "LowLevel/resource.h"
 
 #include "Plotting/PlottingInfo.h"
-
+/*
 class PlotDesignerDialog : public CDialog
 {
 	DECLARE_DYNAMIC( PlotDesignerDialog );
@@ -119,5 +119,6 @@ class PlotDesignerDialog : public CDialog
 
 		Control<CButton> saveButton;
 		Control<CButton> cancelButton;
-		*/
+		*//*
 };
+*/

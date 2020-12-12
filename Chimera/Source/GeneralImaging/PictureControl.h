@@ -37,14 +37,12 @@ class PictureControl : public QWidget{
 		void drawCircle(coordinate selectedLocation, QPainter& painter);
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
 		void drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter);
-		void setCursorValueLocations( CWnd* parent );
 		void handleEditChange( int id );
 		void updatePalette(QVector<QRgb> pallete );
 		void redrawImage();
 		void setActive( bool activeState );
 		bool isActive();
 		std::pair<unsigned, unsigned> getSliderLocations();
-		coordinate checkClickLocation( CPoint clickLocation );
 		void resetStorage();
 		void setHoverValue( );
 		void updatePlotData ( );

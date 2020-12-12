@@ -7,7 +7,6 @@
 #include <vector>
 #include <mutex>
 #include "GeneralObjects/Queues.h"
-#include "afxwin.h"
 #include <array>
 
 

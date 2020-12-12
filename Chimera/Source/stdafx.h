@@ -13,25 +13,7 @@
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            
 #endif
-// MFC core and standard components
-//#include <afx.h>
-//#include <afxwin.h>
-// MFC extensions
-#include <afxext.h>         
-// MFC support for Internet Explorer 4 Common Controls
-#ifndef _AFX_NO_OLE_SUPPORT
-#include <afxdtctl.h>           
-#endif
-// MFC support for Windows Common Controls
-#ifndef _AFX_NO_AFXCMN_SUPPORT
-#include <afxcmn.h>                     
-#endif
-///
-// 
-#include <afxcontrolbars.h>
-
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
-
 #include <stdio.h>
 #include <tchar.h>
 // My stuff

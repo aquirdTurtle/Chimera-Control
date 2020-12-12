@@ -109,7 +109,7 @@ void Agilent::initialize( QPoint& loc, std::string headerText, unsigned editHeig
 
 	settingCombo = new CQComboBox (win);
 	settingCombo->setGeometry (px, py += 20, wi / 4, 25);
-	win->connect ( settingCombo, qOverload<int> (&QComboBox::currentIndexChanged), [win, this](int) {
+	win->connect ( settingCombo, qOverload<int> (&QComboBox::activated), [win, this](int) {
 		try	{
 			checkSave (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
 			readGuiSettings ();

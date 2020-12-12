@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "afxwin.h"
+#include <vector>
 
 // a standardized wrapper for experiment data which usually needs a copy of something for each variation. Used to be
 // used to handle sequences as well, although sequences were actually working, I just hoped to keep it alive until I 

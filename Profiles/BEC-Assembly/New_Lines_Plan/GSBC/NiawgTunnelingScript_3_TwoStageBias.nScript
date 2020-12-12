@@ -8,7 +8,7 @@ var tundumpBias 0.03
 var ddumpBias 0.02  
 var main_v_f 81 
 var dumpf 117 
-var spacing 5.2
+var spacing 5
 
  var_v 3 linRamps [ lin lin lin ]    
 var_v 3 edgeramps [ lin nr lin ] 
@@ -18,7 +18,7 @@ var_v 3 amps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648 ]
 %var_v 3 loadAmps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648 ]
 
 %var_v 3 loadAmps [ 0.5143841416947187 0.4856158583052814 0 ]
-var_v 3 loadAmps [ 1 0 0 ] 
+var_v 3 loadAmps [ 0 1 0 ] 
 %var_v 3 amps [ 0.5143841416947187   0.4856158583052814 0 ]
 
 %var_v 3 finAmps [ tunnelBias (1-tunnelBias) tone3b ]  

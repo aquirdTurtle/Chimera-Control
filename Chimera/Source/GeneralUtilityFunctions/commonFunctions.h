@@ -1,6 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-#include "afxwin.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExperimentThread/AllExperimentInput.h"
 #include "AnalogInput/servoInfo.h"

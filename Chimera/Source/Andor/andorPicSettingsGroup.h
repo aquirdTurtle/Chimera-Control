@@ -2,7 +2,6 @@
 #include "GeneralImaging/softwareAccumulationOption.h"
 #include <array>
 #include <vector>
-#include "afxwin.h"
 
 struct andorPicSettingsGroup{
 	std::array<int, 4> colors;

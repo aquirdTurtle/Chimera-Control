@@ -142,7 +142,6 @@ void PictureManager::setSinglePicture( imageParameters imageParams){
 	auto sliderLoc = picturesLocation;
 	sliderLoc.rx() += picturesWidth;
 	pictures.front( ).setSliderControlLocs(sliderLoc, picturesHeight);
-	//pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );
 }
 

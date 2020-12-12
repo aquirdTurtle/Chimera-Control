@@ -332,7 +332,7 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 		deviceOutputInfo info;
 		ConfigSystem::stdGetFromConfig (configFile, intensityAgilent.getCore (), info, Version ("4.0"));
 		intensityAgilent.setOutputSettings (info);
-		intensityAgilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+		intensityAgilent.updateSettingsDisplay (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		try{
 			openNiawgScript (niawgName);
 		}

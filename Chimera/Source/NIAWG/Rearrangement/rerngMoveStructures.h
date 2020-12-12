@@ -3,15 +3,13 @@
 #include <atomic>
 #include <vector>
 #include <string>
-#include "afxwin.h"
 #include "NIAWG/NiawgStructures.h"
 #include "GeneralObjects/coordinate.h"
 #include "directions.h"
 
 
 // used for pre-writing rearrangement moves...
-struct rerngMove
-{
+struct rerngMove{
 	unsigned row;
 	unsigned col;
 	dir direction;
@@ -33,11 +31,9 @@ struct rerngMove
 
 
 // abstracted moves used by the min cost matching algorithm and the 
-struct complexMove
-{
+struct complexMove{
 	complexMove( ) {}
-	complexMove( dir direction )
-	{
+	complexMove( dir direction ){
 		moveDir = direction;
 		locationsToMove.clear( );
 	}
@@ -45,14 +41,11 @@ struct complexMove
 	dir moveDir;
 	std::vector<int_coordinate> locationsToMove;
 	bool needsFlash;
-	int dirInt( )
-	{
-		if ( moveDir == dir::right || moveDir == dir::left )
-		{
+	int dirInt( ){
+		if ( moveDir == dir::right || moveDir == dir::left ){
 			return (moveDir == dir::right) ? 1 : -1;
 		}
-		else
-		{
+		else{
 			return (moveDir == dir::up) ? 1 : -1;
 		}
 	}
@@ -60,26 +53,22 @@ struct complexMove
 
 
 // should be a one-dimensional move, only change in row or column. Could probably improve the struct to reflect that.
-struct simpleMove
-{
-	simpleMove( int irow, int icol, int frow, int fcol )
-	{
+struct simpleMove{
+	simpleMove( int irow, int icol, int frow, int fcol ){
 		initRow = irow;
 		initCol = icol;
 		finRow = frow;
 		finCol = fcol;
 		distanceToTarget = -1;
 	}
-	simpleMove ( int irow, int icol, int frow, int fcol, double d )
-	{
+	simpleMove ( int irow, int icol, int frow, int fcol, double d )	{
 		initRow = irow;
 		initCol = icol;
 		finRow = frow;
 		finCol = fcol;
 		distanceToTarget = d;
 	}
-	bool operator == ( const simpleMove & other ) const
-	{
+	bool operator == ( const simpleMove & other ) const	{
 		// two moves are equal if all members are equal.
 		return( initRow == other.initRow &&
 				initCol == other.initCol &&
@@ -91,48 +80,36 @@ struct simpleMove
 	unsigned long finRow;
 	unsigned long finCol;
 	double distanceToTarget;
-	dir dir( )
-	{
-		if ( finCol != initCol )
-		{
+	dir dir( )	{
+		if ( finCol != initCol ){
 			return (finCol > initCol) ? dir::right : dir::left;
 		}
-		else
-		{
+		else{
 			return (finRow > initRow) ? dir::up : dir::down;
 		}
 	}
-	int dirInt( )
-	{
-		if ( finCol != initCol )
-		{
+	int dirInt( ){
+		if ( finCol != initCol ){
 			return (finCol > initCol) ? 1 : -1;
 		}
-		else
-		{
+		else{
 			return (finRow > initRow) ? 1 : -1;
 		}
 	}
 	
-	int movingIndex()
-	{
-		if ( dir( ) == dir::up || dir( ) == dir::down )
-		{
+	int movingIndex(){
+		if ( dir( ) == dir::up || dir( ) == dir::down )	{
 			return initRow;
 		}
-		else
-		{
+		else{
 			return initCol;
 		}
 	}
-	int staticIndex( )
-	{
-		if ( dir( ) == dir::up || dir( ) == dir::down )
-		{
+	int staticIndex( ){
+		if ( dir( ) == dir::up || dir( ) == dir::down ){
 			return initCol;
 		}
-		else
-		{
+		else{
 			return initRow;
 		}
 	}
