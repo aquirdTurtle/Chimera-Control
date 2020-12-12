@@ -3,7 +3,6 @@
 
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralUtilityFunctions/Thrower.h"
-#include "afxwin.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -141,7 +140,7 @@ struct parameterType{
 	bool overwritten = false;
 
 	// records which scan dimension the variable is in.
-	USHORT scanDimension=0;
+	unsigned short scanDimension=0;
 	std::vector<indvParamRangeInfo> ranges;
 	/// this stuff used to be in the keyHandler system.
 	std::vector<double> keyValues;

@@ -2,7 +2,6 @@
 #pragma once
 
 #include "Plotting/dataPoint.h"
-#include "gdiplus.h"
 #include <QLineSeries>
 
 #include "PrimaryWindows/IChimeraQtWindow.h"

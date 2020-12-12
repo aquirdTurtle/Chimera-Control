@@ -10,35 +10,31 @@ def gsbc():
   var opfreq 0.2
   daclinspace: motFreq defaultMotFreq opFreq 1 10  
   dac: repumpfreq repumpf
-  t += 5  
+  t += 2 
   var sigma_op_pow 0.1
   var sigma_repump_pow 0
   dac: sigmaoppower { sigma_op_pow sigma_op } 
-  dac: sigmarepumpPower { sigma_repump_pow sigma_repump } % !!!
-  % sigma_repump__sv
+  dac: sigmarepumpPower { sigma_repump_pow sigma_repump } 
   dac: sigmaRepumpFreq 0
   dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
-  t += 1
   off: uw_mod_switch 
   % original times reported in sbc paper were 72.5us 
   % and 48us for top/bottom. 
   pulseon: topPulseTrig 0.01
   pulseon: axialmicropulsetrig 0.01
   repeat: 100
-    call axialRamanPulse(0.085)
+    call axialRamanPulse(axsbcpulselen)
     call opPulse(0.015)
-    call topRamanPulse(0.08)
+    call topRamanPulse(tbSbcPulseLen)
     call opPulse(0.015) 
-    call botRamanPulse(0.08)
+    call botRamanPulse(tbSbcPulseLen)
     call opPulse(0.015) 
   end	
   %var afterSbcOpTime 0.02
   %call opPulse(afterSbcOpTime) 
   dac: sigmaoppower 0
   dac: sigmarepumpPower 0
-  %dac: sigmarepumpPower sbc_sigma_repump
   dac: topPulseLev 0
   dac: axPulseLev 0
   dac: dac17 0
   dac: eoPulseLev 0
-  %t += 0.16

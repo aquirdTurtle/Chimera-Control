@@ -2,7 +2,6 @@
 
 #include <qlabel.h>
 #include <GeneralObjects/coordinate.h>
-#include "afxwin.h"
 
 class ImageLabel : public QLabel{ 
 	Q_OBJECT

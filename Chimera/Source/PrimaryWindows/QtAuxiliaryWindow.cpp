@@ -285,7 +285,7 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 			deviceOutputInfo info;
 			ConfigSystem::stdGetFromConfig (configFile, agilent.getCore (), info, Version ("4.0"));
 			agilent.setOutputSettings (info);
-			agilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+			agilent.updateSettingsDisplay (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
 		tektronixInfo info;
 		ConfigSystem::stdGetFromConfig (configFile, topBottomTek.getCore (), info);

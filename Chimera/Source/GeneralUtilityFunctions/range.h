@@ -1,6 +1,5 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "afxwin.h"
 #include <vector>
 #include <boost\range\irange.hpp>
 

@@ -4,7 +4,6 @@
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ConfigurationSystems/Version.h"
 #include "ExperimentThread/DeviceList.h"
-#include "afxwin.h"
 #include <array>
 #include <QMainWindow>
 

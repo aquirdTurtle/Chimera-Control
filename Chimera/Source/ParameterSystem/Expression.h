@@ -2,7 +2,6 @@
 #pragma once
 
 #include "ParameterSystem/ParameterSystemStructures.h"
-#include "afxwin.h"
 #include <string>
 #include <vector>
 #include <AnalogInput/calInfo.h>

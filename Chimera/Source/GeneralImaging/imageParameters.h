@@ -1,14 +1,11 @@
 // created by Mark O. Brown
 #pragma once
-#include "afxwin.h"
 #include <GeneralUtilityFunctions/my_str.h>
 #include <GeneralUtilityFunctions/Thrower.h>
 
-struct imageParameters
-{
+struct imageParameters{
 	imageParameters ( ) { };
-	imageParameters ( unsigned l, unsigned  t, unsigned  r, unsigned  b, unsigned  h_bin, unsigned  v_bin )
-	{
+	imageParameters ( unsigned l, unsigned  t, unsigned  r, unsigned  b, unsigned  h_bin, unsigned  v_bin ){
 		left = l;
 		top = t;
 		right = r;
@@ -25,49 +22,39 @@ struct imageParameters
 	unsigned horizontalBinning=1;
 	unsigned verticalBinning=1;
 
-	unsigned horRawPixelNum ( )
-	{
-		if ( left > right )
-		{
+	unsigned horRawPixelNum ( ){
+		if ( left > right ){
 			thrower ( "Invalid Image Parameters! Left greater than right!" );
 		}
 		return this->right - this->left + 1;
 	}
-	unsigned vertRawPixelNum ( )
-	{
-		if ( bottom > top )
-		{
+	unsigned vertRawPixelNum ( ){
+		if ( bottom > top ){
 			thrower ( "Invalid Image Parameters! bottom greater than top!" );
 		}
 		return this->top - this->bottom + 1;
 	}
 
 	/* in units of # of binned pixels */
-	unsigned width ( )
-	{ 
-		if ( this->horizontalBinning == 0 )
-		{
+	unsigned width ( ){ 
+		if ( this->horizontalBinning == 0 ){
 			thrower ( "ERROR: In imageParameters.width(), horizontalBinning was zero!" );
 		}
 		return horRawPixelNum() / this->horizontalBinning;
 	}
 	/* in units of # of binned pixels */
-	unsigned height( )
-	{
-		if ( this->verticalBinning == 0 )
-		{
+	unsigned height( ){
+		if ( this->verticalBinning == 0 ){
 			thrower ( "ERROR: In imageParameters.width(), verticalBinning was zero!" );
 		}
 		return vertRawPixelNum() / this->verticalBinning;
 	}
 	/* in units of # of binned pixels */
-	unsigned size ( )
-	{
+	unsigned size ( ){
 		return this->width ( ) * this->height ( );
 	}
 
-	std::string currValues ( )
-	{
+	std::string currValues ( ){
 		return ( str("Current image values are:") + 
 				 " left = " + str ( left ) +
 				 " right = " + str ( right ) +
@@ -81,8 +68,7 @@ struct imageParameters
 	If not consistent, the function throws.
 	cam can be one of "andor", "ace", and "scout".
 	*/
-	void checkConsistency ( std::string cam="andor" )
-	{
+	void checkConsistency ( std::string cam="andor" ){
 		std::string errstr = "ERROR: inside " + cam + " camera settings, ";
 		if ( left > right )	{
 			thrower ( errstr + "left > right." + currValues ( ) );

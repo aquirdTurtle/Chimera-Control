@@ -1,6 +1,7 @@
 ﻿// created by Mark O. Brown
 #pragma once
-
+#include "afxwin.h"
+//#include "fileapi.h"
 // don't think I've every really used this.
 class WinSerialFlume {
 	public:

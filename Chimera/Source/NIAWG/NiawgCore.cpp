@@ -4123,6 +4123,7 @@ void NiawgCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 void NiawgCore::loadExpSettings (ConfigStream& stream){
 	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
 	// now, but might cause slight breakages...
+	expOutput = NiawgOutput ();
 	expOutput.waves.resize (2);
 	ConfigSystem::stdGetFromConfig (stream, *this, experimentActive, Version ("4.12"));	
 	if (experimentActive){
