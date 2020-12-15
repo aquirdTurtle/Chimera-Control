@@ -5,6 +5,7 @@
 #include <ExperimentThread/ExpThreadWorker.h>
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <AnalogInput/CalibrationManager.h>
+#include <DataLogging/DataLogger.h>
 
 AgilentCore::AgilentCore (const agilentSettings& settings) : 
 	visaFlume (settings.safemode, settings.address),
@@ -480,9 +481,8 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
 	return tempSettings;
 }
 
-
 void AgilentCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
-	try	{
+	try {
 		H5::Group agilentsGroup;
 		try{
 			agilentsGroup = log.file.createGroup ("/Agilents");

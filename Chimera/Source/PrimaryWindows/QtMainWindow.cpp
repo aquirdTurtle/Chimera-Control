@@ -6,7 +6,6 @@
 #include <PrimaryWindows/QtScriptWindow.h>
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
-#include <PrimaryWindows/QtBaslerWindow.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
 #include <Plotting/ScopeThreadWorker.h>
@@ -36,17 +35,14 @@ QtMainWindow::QtMainWindow () :
 		andorWin = new QtAndorWindow;
 		which = "Auxiliary";
 		auxWin = new QtAuxiliaryWindow;
-		which = "Basler";
-		basWin = new QtBaslerWindow;
 	}
 	catch (ChimeraError& err) {
 		errBox ("FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace ());
 		return;
 	}
-	scriptWin->loadFriends( this, scriptWin, auxWin, basWin, andorWin );
-	andorWin->loadFriends (this, scriptWin, auxWin, basWin, andorWin);
-	auxWin->loadFriends (this, scriptWin, auxWin, basWin, andorWin);
-	basWin->loadFriends (this, scriptWin, auxWin, basWin, andorWin);
+	scriptWin->loadFriends( this, scriptWin, auxWin, andorWin );
+	andorWin->loadFriends (this, scriptWin, auxWin, andorWin);
+	auxWin->loadFriends (this, scriptWin, auxWin, andorWin);
 	startupTimes.push_back (chronoClock::now ());
 
 	for (auto* window : winList ()) {
@@ -170,66 +166,6 @@ void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
 	input->expType = ExperimentType::CameraCal;
 }
 
-LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp){
-	try	{
-		if (andorWin->wantsAutoPause ()){
-			reportErr ("No MOT and andor win wants auto pause!");
-			expWorker->pause ();
-		}
-		time_t t = time (0);
-		struct tm now;
-		localtime_s (&now, &t);
-		std::string message = "Experiment Stopped loading the MOT at ";
-		if (now.tm_hour < 10){
-			message += "0";
-		}
-		message += str (now.tm_hour) + ":";
-		if (now.tm_min < 10){
-			message += "0";
-		}
-		message += str (now.tm_min) + ":";
-		if (now.tm_sec < 10){
-			message += "0";
-		}
-		message += str (now.tm_sec);
-		//texter.sendMessage (message, &python, "Mot");
-	}
-	catch (ChimeraError& err){
-		reportErr (err.qtrace ());
-	}
-	return 0;
-}
-
-LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp){
-	try	{
-		if (andorWin->wantsAutoPause ()){
-			reportErr ("No Atoms and andor win wants auto pause!");
-			expWorker->pause ();
-		}
-		time_t t = time (0);
-		struct tm now;
-		localtime_s (&now, &t);
-		std::string message = "Experiment Stopped loading atoms at ";
-		if (now.tm_hour < 10){
-			message += "0";
-		}
-		message += str (now.tm_hour) + ":";
-		if (now.tm_min < 10){
-			message += "0";
-		}
-		message += str (now.tm_min) + ":";
-		if (now.tm_sec < 10){
-			message += "0";
-		}
-		message += str (now.tm_sec);
-		//texter.sendMessage (message, &python, "Loading");
-	}
-	catch (ChimeraError& err){
-		reportErr (err.qtrace ());
-	}
-	return 0;
-}
-
 void QtMainWindow::showHardwareStatus (){
 	try	{
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
@@ -341,7 +277,6 @@ void QtMainWindow::startExperimentThread (ExperimentThreadInput* input){
 	expWorker->moveToThread (expThread);
 	connect (expWorker, &ExpThreadWorker::updateBoxColor, this, &QtMainWindow::handleColorboxUpdate);
 	connect (expWorker, &ExpThreadWorker::prepareAndor, andorWin, &QtAndorWindow::handlePrepareForAcq);
-	connect (expWorker, &ExpThreadWorker::prepareBasler, basWin, &QtBaslerWindow::prepareWinForAcq);
 	connect (expWorker, &ExpThreadWorker::notification, this, &QtMainWindow::handleNotification);
 	connect (expWorker, &ExpThreadWorker::warn, this, &QtMainWindow::onErrorMessage);
 	connect (expWorker, &ExpThreadWorker::doAoData, auxWin, &QtAuxiliaryWindow::handleDoAoPlotData);
@@ -509,7 +444,6 @@ void QtMainWindow::handleColorboxUpdate (QString color, QString systemDelim){
 	scriptWin->changeBoxColor (delimStr, colorstr);
 	andorWin->changeBoxColor (delimStr, colorstr);
 	auxWin->changeBoxColor (delimStr, colorstr);
-	basWin->changeBoxColor (delimStr, colorstr);
 }
 
 void QtMainWindow::handleNotification (QString txt, unsigned level){

@@ -3,7 +3,6 @@
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "PrimaryWindows/QtMainWindow.h"
 #include "PrimaryWindows/QtAndorWindow.h"
-#include "PrimaryWindows/QtBaslerWindow.h"
 #include "PrimaryWindows/QtScriptWindow.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 

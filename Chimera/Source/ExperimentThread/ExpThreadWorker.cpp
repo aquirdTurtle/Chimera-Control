@@ -3,9 +3,11 @@
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <MiscellaneousExperimentOptions/Repetitions.h>
 #include <Scripts/Script.h>
+#include <DataLogging/DataLogger.h>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+
 
 ExpThreadWorker::ExpThreadWorker (ExperimentThreadInput* input_, std::atomic<bool>& expRunning) 
 	: experimentIsRunning(expRunning){

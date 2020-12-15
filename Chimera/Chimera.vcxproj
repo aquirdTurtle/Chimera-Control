@@ -346,18 +346,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Andor\AndorCameraThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
     <ClInclude Include="Source\Andor\cameraThreadInput.h" />
-    <QtMoc Include="Source\Basler\BaslerGrabThreadWorker.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Basler\BaslerGrabThreadWorker.h -o MOC\moc_BaslerGrabThreadWorker.cpp</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Basler\BaslerGrabThreadWorker.h -o MOC\moc_BaslerGrabThreadWorker.cpp</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC BaslerGrabThreadWorker.h</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC BaslerGrabThreadWorker.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_BaslerGrabThreadWorker.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC\moc_BaslerGrabThreadWorker.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Basler\BaslerGrabThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Basler\BaslerGrabThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-    </QtMoc>
-    <ClInclude Include="Source\Basler\BaslerWrapper.h" />
-    <ClInclude Include="Source\Basler\ImageEventHandler.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
@@ -459,16 +447,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtAndorWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\QtAndorWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
-    <QtMoc Include="Source\PrimaryWindows\QtBaslerWindow.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtBaslerWindow.h -o MOC\moc_QtBaslerWindow.cpp</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtBaslerWindow.h -o MOC\moc_QtBaslerWindow.cpp</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtBaslerWindow.h</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC QtBaslerWindow.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtBaslerWindow.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC\moc_QtBaslerWindow.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtBaslerWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\QtBaslerWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-    </QtMoc>
     <QtMoc Include="Source\PrimaryWindows\QtMainWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtMainWindow.h -o MOC\moc_QtMainWindow.cpp</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtMainWindow.h -o MOC\moc_QtMainWindow.cpp</Command>
@@ -514,9 +492,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\RealTimeDataAnalysis\AtomCruncherWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
     <ClInclude Include="Source\RealTimeDataAnalysis\atomGrid.h" />
-    <ClInclude Include="Source\Basler\BaslerCamera.h" />
-    <ClInclude Include="Source\Basler\BaslerSettings.h" />
-    <ClInclude Include="Source\Basler\BaslerSettingsControl.h" />
     <ClInclude Include="Source\GeneralObjects\CodeTimer.h" />
     <ClInclude Include="Source\Plotting\dataPoint.h" />
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsCore.h" />
@@ -616,8 +591,6 @@
     <ClCompile Include="Source\AnalogInput\CalibrationManager.cpp" />
     <ClCompile Include="Source\AnalogInput\CalibrationThreadWorker.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraThreadWorker.cpp" />
-    <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
-    <ClCompile Include="Source\Basler\ImageEventHandler.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\profileSettings.cpp" />
     <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
@@ -628,9 +601,6 @@
     <ClCompile Include="Source\Andor\AndorFlume.cpp" />
     <ClCompile Include="Source\Andor\AndorRunSettings.cpp" />
     <ClCompile Include="Source\Andor\AndorTriggerModes.cpp" />
-    <ClCompile Include="Source\Basler\BaslerCamera.cpp" />
-    <ClCompile Include="Source\Basler\BaslerSettings.cpp" />
-    <ClCompile Include="Source\Basler\BaslerSettingsControl.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
     <ClCompile Include="Source\GeneralFlumes\QtSerialFlume.cpp" />
     <ClCompile Include="Source\GeneralImaging\ImageLabel.cpp" />
@@ -653,7 +623,6 @@
     <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
     <ClCompile Include="Source\Python\NewPythonHandler.cpp" />

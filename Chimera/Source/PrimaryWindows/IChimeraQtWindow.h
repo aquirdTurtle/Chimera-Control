@@ -12,8 +12,6 @@ class ColorBox;
 class QtMainWindow;
 class QtScriptWindow;
 class QtAuxiliaryWindow;
-class QtBaslerWindow;
-class QtDeformableMirrorWindow;
 class QtAndorWindow;
 
 namespace Ui {
@@ -35,7 +33,7 @@ class IChimeraQtWindow : public QMainWindow{
 		void initializeShortcuts ();
 		void initializeMenu ();
 		void loadFriends (QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
-						  QtBaslerWindow* basWin_,  QtAndorWindow* andorWin_);
+						  QtAndorWindow* andorWin_);
 		void reportErr (QString errStr, unsigned errorLevel=0);
 		void reportStatus (QString statusStr, unsigned notificationLevel=0);
 
@@ -43,7 +41,6 @@ class IChimeraQtWindow : public QMainWindow{
 		QtMainWindow* mainWin = NULL;
 		QtScriptWindow* scriptWin = NULL;
 		QtAndorWindow* andorWin = NULL;
-		QtBaslerWindow* basWin = NULL;
 		QtAuxiliaryWindow* auxWin = NULL;
 		static constexpr unsigned numWindows = 5;
 		ColorBox* statBox;

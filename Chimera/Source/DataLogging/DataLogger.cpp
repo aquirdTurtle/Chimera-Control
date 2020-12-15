@@ -1,5 +1,7 @@
 // created by Mark O. Brown
+
 #include "stdafx.h"
+
 #include "DataLogger.h"
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"

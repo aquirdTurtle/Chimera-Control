@@ -3,7 +3,6 @@
 #include "QtMainWindow.h"
 #include "QtAuxiliaryWindow.h"
 #include "QtAndorWindow.h"
-#include "QtBaslerWindow.h"
 #include "QtScriptWindow.h"
 #include "ExperimentMonitoringAndStatus/colorbox.h"
 #include "GeneralUtilityFunctions/CommonFunctions.h"
@@ -21,11 +20,10 @@ void IChimeraQtWindow::reportStatus (QString statusStr, unsigned notificationLev
 }
 
 void IChimeraQtWindow::loadFriends ( QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
-										 QtBaslerWindow* basWin_, QtAndorWindow* andorWin_ ){
+									 QtAndorWindow* andorWin_ ){
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	auxWin = auxWin_;
-	basWin = basWin_;
 	andorWin = andorWin_;
 }
 
@@ -38,7 +36,7 @@ void IChimeraQtWindow::changeBoxColor (std::string sysDelim, std::string color){
 
 std::vector<IChimeraQtWindow*> IChimeraQtWindow::winList (){
 	std::vector<IChimeraQtWindow*> list = { (IChimeraQtWindow*)scriptWin, (IChimeraQtWindow*)andorWin, 
-		(IChimeraQtWindow*)auxWin, (IChimeraQtWindow*)basWin, (IChimeraQtWindow*)mainWin };
+											(IChimeraQtWindow*)auxWin, (IChimeraQtWindow*)mainWin };
 	return list;
 }
 

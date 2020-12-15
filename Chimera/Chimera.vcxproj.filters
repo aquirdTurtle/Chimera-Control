@@ -25,15 +25,6 @@
     <ClCompile Include="Source\AnalogOutput\AoSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Basler\BaslerCamera.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Basler\BaslerSettings.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Basler\BaslerSettingsControl.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsCore.cpp" />
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystem.cpp">
       <Filter>Auxiliary Window</Filter>
@@ -171,7 +162,6 @@
     <ClCompile Include="Source\MiscellaneousExperimentOptions\Repetitions.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp">
       <Filter>Andor Window</Filter>
@@ -189,7 +179,6 @@
     <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
     <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
@@ -206,9 +195,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
     <ClCompile Include="Source\Scripts\SyntaxHighlighter.cpp" />
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Basler\ImageEventHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp">
@@ -302,15 +288,6 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\Andor\andorPicSettingsGroup.h" />
-    <ClInclude Include="Source\Basler\BaslerCamera.h">
-      <Filter>Basler Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Basler\BaslerSettings.h">
-      <Filter>Basler Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Basler\BaslerSettingsControl.h">
-      <Filter>Basler Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsCore.h" />
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystem.h">
       <Filter>Auxiliary Window</Filter>
@@ -499,7 +476,6 @@
     <ClInclude Include="Source\MiscellaneousExperimentOptions\Repetitions.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Basler\BaslerWrapper.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentThreadInput.h">
       <Filter>General Files</Filter>
     </ClInclude>
@@ -530,9 +506,6 @@
     <ClInclude Include="Source\Andor\cameraThreadInput.h" />
     <ClInclude Include="Source\Agilent\whichAg.h" />
     <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
-    <ClInclude Include="Source\Basler\ImageEventHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Python\NewPythonHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -683,10 +656,8 @@
     <QtMoc Include="Source\ExperimentThread\ExpThreadWorker.h" />
     <QtMoc Include="Source\PrimaryWindows\QtAndorWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
-    <QtMoc Include="Source\PrimaryWindows\QtBaslerWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtMainWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h" />
-    <QtMoc Include="Source\Basler\BaslerGrabThreadWorker.h" />
     <QtMoc Include="Source\GeneralImaging\ImageLabel.h" />
     <QtMoc Include="Source\GeneralImaging\PictureControl.h" />
     <QtMoc Include="Source\Scripts\SyntaxHighlighter.h" />

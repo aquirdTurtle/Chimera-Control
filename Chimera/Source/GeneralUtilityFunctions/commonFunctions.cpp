@@ -8,7 +8,6 @@
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "PrimaryWindows/QtScriptWindow.h"
-#include "PrimaryWindows/QtBaslerWindow.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include "ExperimentThread/ExperimentType.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
@@ -22,7 +21,6 @@ namespace commonFunctions{
 		auto* mainWin = win->mainWin; 
 		auto* andorWin = win->andorWin;
 		auto* scriptWin = win->scriptWin;
-		auto* basWin = win->basWin;
 		auto* auxWin = win->auxWin;
 		try {
 			switch (msgID) {
@@ -71,20 +69,6 @@ namespace commonFunctions{
 				std::string status;
 				bool andorAborted = false, masterAborted = false, baslerAborted = false;
 				andorWin->wakeRearranger ();
-				try {
-					if (basWin->baslerCameraIsRunning ()) {
-						status = "Basler";
-						basWin->handleDisarmPress ();
-						baslerAborted = true;
-					}
-				}
-				catch (ChimeraError & err) {
-					mainWin->reportErr ("error while aborting basler! Error Message: " + err.qtrace ());
-					if (status == "Basler") {
-					}
-					mainWin->reportStatus ("EXITED WITH ERROR!\r\n");
-					andorWin->setTimerText ("ERROR!");
-				}
 				try {
 					if (mainWin->expIsRunning ()) {
 						status = "MASTER";

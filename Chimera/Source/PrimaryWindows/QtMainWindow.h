@@ -43,9 +43,6 @@ class QtMainWindow : public IChimeraQtWindow{
 
 		void fillExpDeviceList (DeviceList& list);
 
-		LRESULT onNoAtomsAlertMessage (WPARAM wp, LPARAM lp);
-		LRESULT onNoMotAlertMessage (WPARAM wp, LPARAM lp);
-
 		void onMachineOptRoundFin ();
 		void onAutoCalFin (QString msg, profileSettings finishedConfig);
 		void setStyleSheets ();

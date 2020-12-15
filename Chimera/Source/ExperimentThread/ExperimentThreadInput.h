@@ -15,8 +15,6 @@
 #include "ConfigurationSystems/profileSettings.h"
 #include "RealTimeDataAnalysis/atomCruncherInput.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
-#include "Basler/BaslerCamera.h"
-#include "Basler/baslerSettings.h"
 #include "ExperimentType.h"
 #include "DeviceList.h"
 #include "DirectDigitalSynthesis/DdsCore.h"

@@ -6,7 +6,6 @@
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include <PrimaryWindows/QtMainWindow.h>
-#include <PrimaryWindows/QtBaslerWindow.h>
 #include <RealTimeDataAnalysis/AnalysisThreadWorker.h>
 #include <RealTimeDataAnalysis/AtomCruncherWorker.h>
 #include <ExperimentThread/ExpThreadWorker.h>

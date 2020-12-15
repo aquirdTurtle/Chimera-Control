@@ -3,11 +3,12 @@
 #include "CalibrationManager.h"
 #include "boost/lexical_cast.hpp"
 #include "PhotodetectorCalibration.h"
-#include <QHeaderView>
-#include <QMenu>
 #include "GeneralObjects/ChimeraStyleSheets.h"
 #include <PrimaryWindows/QtMainWindow.h>
 #include <qapplication.h>
+#include <QHeaderView>
+#include <QMenu>
+#include <qthread.h>
 
 CalibrationManager::CalibrationManager (IChimeraQtWindow* parent) : IChimeraSystem (parent), 
 calibrationViewer(1, plotStyle::GeneralErrorPlot,std::vector<int>(),"Calibration View",false,false) {}
