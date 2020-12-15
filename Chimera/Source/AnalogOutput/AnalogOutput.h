@@ -1,14 +1,12 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "control.h"
+//#include "control.h"
 #include "AoStructures.h"
 #include <CustomQtControls/AutoNotifyCtrls.h>
 #include <qlabel.h>
 #include "PrimaryWindows/IChimeraQtWindow.h"
 
-
-class AnalogOutput
-{
+class AnalogOutput{
 	public:
 		AnalogOutput ( );
 		void initialize ( QPoint& pos, IChimeraQtWindow* parent, int whichDac );
@@ -21,7 +19,6 @@ class AnalogOutput
 		AoInfo info;
 		void setName ( std::string name );
 		void disable ( );
-		bool handleArrow ( CWnd* focus, bool up );
 	private:
 		unsigned dacNum;
 		CQLineEdit* edit;

@@ -208,7 +208,6 @@ std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAcc
 	std::array<softwareAccumulationOption, 4> opts;
 	for ( auto picInc : range(4)){
 		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ]->isChecked ( );
-		CString numTxt;
 		try{
 			opts[ picInc ].accumNum  = boost::lexical_cast<unsigned>( str(softwareAccumulateNum[picInc]->text ()) );
 		}

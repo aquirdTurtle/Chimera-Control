@@ -792,28 +792,6 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 				emit notification (qstr (infoString), 2);
 			}
 		}
-		/// check RSG
-		auto& rsg = input->devices.getSingleDevice< MicrowaveCore > ();
-		if (!rsgMismatch) {
-			auto actualTrigs = input->ttls.countTriggers (rsg.getRsgTriggerLine (), variationInc);
-			auto rsgExpectedTrigs = rsg.getNumTriggers (rsg.experimentSettings);
-			std::string infoString = "Actual/Expected RSG Triggers: " + str (actualTrigs) + "/"
-				+ str (rsgExpectedTrigs) + ".";
-			if (actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1) {
-				emit warn (cstr (
-					"WARNING: the RSG is not getting triggered by the ttl system the same number"
-					" of times a trigger command appears in the master script. " + infoString + " First "
-					"instance seen variation " + str (variationInc) + ".\r\n"));
-				rsgMismatch = true;
-			}
-			if (variationInc == 0) {
-				emit notification (qstr (infoString), 2);
-			}
-			/// check Agilents
-			for (auto& agilent : input->devices.getDevicesByClass<AgilentCore> ()) {
-				agilent.get ().checkTriggers (variationInc, input->ttls, this);
-			}
-		}
 	}
 }
 

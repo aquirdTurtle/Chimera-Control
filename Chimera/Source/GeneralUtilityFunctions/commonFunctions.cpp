@@ -379,7 +379,7 @@ namespace commonFunctions
 	}
 
 	void forceExit (IChimeraQtWindow* win){
-		PostQuitMessage ( 1 );
+		//PostQuitMessage ( 1 );
 	}
 
 

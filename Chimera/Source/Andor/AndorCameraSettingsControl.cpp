@@ -390,7 +390,6 @@ double AndorCameraSettingsControl::getKineticCycleTime( ){
 }
 
 double AndorCameraSettingsControl::getAccumulationCycleTime( ){
-	CString text;
 	if (!accumulationCycleTimeEdit){
 		return 0;
 	}

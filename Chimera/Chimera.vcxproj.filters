@@ -45,12 +45,6 @@
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp">
       <Filter>National-Instruments</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Microwave\MicrowaveCore.cpp">
-      <Filter>MicrowaveSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Microwave\MicrowaveSystem.cpp">
-      <Filter>MicrowaveSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
@@ -59,9 +53,6 @@
     </ClCompile>
     <ClCompile Include="Source\Agilent\SegmentEnd.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Microwave\WindFreakFlume.cpp">
-      <Filter>MicrowaveSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Plotting\PlotCtrl.cpp">
       <Filter>Plotting-And-Viewing</Filter>
@@ -84,14 +75,8 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Microwave\RsgFlume.cpp">
-      <Filter>MicrowaveSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp">
       <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp">
-      <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp">
       <Filter>Auxiliary Window</Filter>
@@ -342,15 +327,6 @@
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h">
       <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Microwave\MicrowaveCore.h">
-      <Filter>MicrowaveSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Microwave\microwaveSettings.h">
-      <Filter>MicrowaveSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Microwave\MicrowaveSystem.h">
-      <Filter>MicrowaveSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Agilent\scriptedAgilentWaveform.h">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClInclude>
@@ -362,9 +338,6 @@
     </ClInclude>
     <ClInclude Include="Source\Agilent\segmentStructs.h">
       <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Microwave\WindFreakFlume.h">
-      <Filter>MicrowaveSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Plotting\PlotDataSet.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
@@ -384,9 +357,6 @@
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Microwave\RsgFlume.h">
-      <Filter>MicrowaveSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
       <Filter>Auxiliary Window</Filter>
@@ -709,9 +679,6 @@
     </None>
     <None Include="Source\AnalogOutput\DaqMxFlume.h">
       <Filter>National-Instruments</Filter>
-    </None>
-    <None Include="Source\GeneralFlumes\WinSerialFlume.h">
-      <Filter>DIO</Filter>
     </None>
     <None Include="Source\GeneralFlumes\ftdiStructures.h">
       <Filter>DIO</Filter>

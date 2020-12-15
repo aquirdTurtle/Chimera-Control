@@ -65,7 +65,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -542,10 +542,7 @@
     <ClInclude Include="Source\GeneralObjects\ExpWrap.h" />
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h" />
-    <ClInclude Include="Source\Microwave\microwaveSettings.h" />
     <ClInclude Include="Source\GeneralObjects\Queues.h" />
-    <ClInclude Include="Source\Microwave\MicrowaveCore.h" />
-    <ClInclude Include="Source\Microwave\RsgFlume.h" />
     <ClInclude Include="Source\Agilent\SegmentEnd.h" />
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
     <ClInclude Include="Source\Andor\CameraCalibration.h" />
@@ -588,7 +585,6 @@
     <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\realTimePlotterInput.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\Repetitions.h" />
-    <ClInclude Include="Source\Microwave\MicrowaveSystem.h" />
     <ClInclude Include="Source\ConfigurationSystems\NoteSystem.h" />
     <ClInclude Include="Source\Andor\AndorRunMode.h" />
     <ClInclude Include="Source\Scripts\Script.h" />
@@ -624,7 +620,6 @@
     <QtMoc Include="Source\ParameterSystem\ParameterSystem.h" />
     <ClInclude Include="Source\ConfigurationSystems\Version.h" />
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h" />
-    <ClInclude Include="Source\Microwave\WindFreakFlume.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -687,8 +682,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
-    <ClCompile Include="Source\Microwave\MicrowaveCore.cpp" />
-    <ClCompile Include="Source\Microwave\RsgFlume.cpp" />
     <ClCompile Include="Source\Agilent\SegmentEnd.cpp" />
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp" />
@@ -721,7 +714,6 @@
     <ClCompile Include="Source\ConfigurationSystems\ProfileIndicator.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\range.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\Repetitions.cpp" />
-    <ClCompile Include="Source\Microwave\MicrowaveSystem.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp" />
     <ClCompile Include="Source\Scripts\Script.cpp" />
     <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp" />
@@ -746,8 +738,6 @@
     </ClCompile>
     <ClCompile Include="Source\ParameterSystem\ParameterSystem.cpp" />
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp" />
-    <ClCompile Include="Source\Microwave\WindFreakFlume.cpp" />
-    <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Atom.ico" />
@@ -786,7 +776,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Plotting\PlotCtrl.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Plotting\PlotCtrl.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
-    <None Include="Source\GeneralFlumes\WinSerialFlume.h" />
     <None Include="stylesheet.css" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

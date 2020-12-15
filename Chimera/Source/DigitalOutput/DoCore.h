@@ -1,6 +1,5 @@
 #pragma once
 #include "GeneralFlumes/ftdiFlume.h"
-#include "GeneralFlumes/WinSerialFlume.h"
 #include "GeneralFlumes/ftdiStructures.h"
 #include "GeneralObjects/ExpWrap.h"
 #include <GeneralObjects/Matrix.h>
@@ -75,7 +74,6 @@ class DoCore
 
 		ftdiConnectionOption connectType;
 		ftdiFlume ftFlume;
-		WinSerialFlume winSerial;
 		/// stuff for felix's do
 		const unsigned NUMPOINTS = 2048;
 		const unsigned int TIMEOFFS = unsigned int (0x0800);

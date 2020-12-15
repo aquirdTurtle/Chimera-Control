@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <unordered_map>
 #include <random>
-#include "afxcmn.h"
 #include <boost/lexical_cast.hpp>
 #include <qmenu.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>

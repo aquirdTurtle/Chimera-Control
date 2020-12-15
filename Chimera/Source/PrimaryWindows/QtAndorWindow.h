@@ -121,7 +121,6 @@ class QtAndorWindow : public IChimeraQtWindow{
 		DataLogger dataHandler;
 		std::vector<PlotCtrl*> mainAnalysisPlots;
 		coordinate selectedPixel = { 0,0 };
-		CMenu menu;
 		// some picture menu options
 		bool autoScalePictureData;
 		bool alwaysShowGrid;

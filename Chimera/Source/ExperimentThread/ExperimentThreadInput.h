@@ -5,7 +5,6 @@
 #include "AnalogOutput/AoSystem.h"
 #include "AnalogInput/AiSystem.h"
 #include "ParameterSystem/ParameterSystem.h"
-#include "Microwave/MicrowaveCore.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "Agilent/AgilentCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"

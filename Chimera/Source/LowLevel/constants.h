@@ -2,9 +2,6 @@
 #pragma once
 
 #include "Agilent/agilentStructures.h"
-#include "Microwave/WindFreakFlume.h"
-#include "Microwave/RsgFlume.h"
-#include "Microwave/microwaveSettings.h"
 #include "GeneralUtilityFunctions/my_str.h"
 #include <string>
 #include <vector>
@@ -26,8 +23,6 @@
 //#define TEST_PC
 
 #ifdef MASTER_COMPUTER
-	using MICROWAVE_FLUME = RsgFlume;
-	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	constexpr auto DM_SERIAL = "25CW012#060";
 	constexpr bool DM_SAFEMODE = true;
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM10";

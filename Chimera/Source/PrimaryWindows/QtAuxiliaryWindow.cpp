@@ -13,7 +13,7 @@
 #include <ExcessDialogs/doChannelInfoDialog.h>
 #include <ExcessDialogs/AoSettingsDialog.h>
 
-QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), uwSys(this),
+QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), 
 agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTINGS,this},
 Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),
@@ -45,7 +45,6 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		ttlBoard.initialize (loc, this);
 		aoSys.initialize (loc, this);
 		aiSys.initialize (loc, this);
-		uwSys.initialize (loc, this);
 		loc = QPoint{ 480, 25 };
 
 		agilents[(int)AgilentEnum::name::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
@@ -249,7 +248,6 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 	}
 	dds.handleSaveConfig (saveFile);
 	aiSys.handleSaveConfig (saveFile);
-	uwSys.handleSaveConfig (saveFile);
 }
 
 void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
@@ -268,9 +266,6 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 		AiSettings settings;
 		ConfigSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
 		aiSys.setAiSettings (settings);
-		microwaveSettings uwsettings;
-		ConfigSystem::stdGetFromConfig (configFile, uwSys.getCore (), uwsettings, Version ("4.10"));
-		uwSys.setMicrowaveSettings (uwsettings);
 	}
 	catch (ChimeraError&){
 		throwNested ("Auxiliary Window failed to read parameters from the configuration file.");
@@ -604,20 +599,6 @@ std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 	return msg;
 }
 
-
-std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
-	std::string msg;
-	msg += "Microwave System:\n";
-	if (!(MICROWAVE_SYSTEM_DEVICE_TYPE == microwaveDevice::NONE)){
-		msg += "\tCode System is Active!\n";
-		msg += "\t" + uwSys.getIdentity ();
-	}
-	else{
-		msg += "\tCode System is disabled! Enable in \"constants.h\"";
-	}
-	return msg;
-}
-
 std::vector<std::reference_wrapper<AgilentCore>> QtAuxiliaryWindow::getAgilents () {
 	std::vector<std::reference_wrapper<AgilentCore>> ags;
 	for (auto& ag : agilents) {
@@ -627,7 +608,6 @@ std::vector<std::reference_wrapper<AgilentCore>> QtAuxiliaryWindow::getAgilents 
 }
 
 void QtAuxiliaryWindow::fillExpDeviceList (DeviceList& list){
-	list.list.push_back (uwSys.getCore ());
 	for (auto& ag : agilents){
 		list.list.push_back (ag.getCore ());
 	}

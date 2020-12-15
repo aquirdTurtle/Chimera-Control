@@ -91,7 +91,6 @@ QtMainWindow::QtMainWindow () :
 		initializationString += andorWin->getSystemStatusString ();
 		initializationString += auxWin->getVisaDeviceStatus ();
 		initializationString += scriptWin->getSystemStatusString ();
-		initializationString += auxWin->getMicrowaveSystemStatus ();
 		reportStatus (qstr(initializationString));
 	}
 	catch (ChimeraError & err) {
@@ -244,7 +243,6 @@ void QtMainWindow::showHardwareStatus (){
 		initializationString += andorWin->getSystemStatusString ();
 		initializationString += auxWin->getVisaDeviceStatus ();
 		initializationString += scriptWin->getSystemStatusString ( );
-		initializationString += auxWin->getMicrowaveSystemStatus ();
 		infoBox (initializationString);
 	}
 	catch (ChimeraError& err)	{

@@ -528,13 +528,10 @@ void AndorCameraCore::setGainMode(){
 
 
 void AndorCameraCore::changeTemperatureSetting(bool turnTemperatureControlOff){
-	char aBuffer[256];
 	int minimumAllowedTemp, maximumAllowedTemp;
 	// the default, in case the program is in safemode.
 	minimumAllowedTemp = -60;
 	maximumAllowedTemp = 25;
-	// clear buffer
-	wsprintf(aBuffer, "");
 	// check if temp is in valid range
 	flume.getTemperatureRange(minimumAllowedTemp, maximumAllowedTemp);
 	if (runSettings.temperatureSetting < minimumAllowedTemp || runSettings.temperatureSetting > maximumAllowedTemp)	{

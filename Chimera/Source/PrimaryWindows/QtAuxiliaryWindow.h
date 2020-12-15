@@ -12,7 +12,6 @@
 #include "Scripts/Script.h"
 #include "GeneralObjects/RunInfo.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
-#include "Microwave/MicrowaveSystem.h"
 #include "GeneralFlumes/GpibFlume.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
 #include "Agilent/Agilent.h"
@@ -54,7 +53,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		DoSystem* getTtlSystem ();
 		std::array<AoInfo, 24> getDacInfo ();
 		std::string getVisaDeviceStatus ();
-		std::string getMicrowaveSystemStatus ();
 
 		void updateAgilent (AgilentEnum::name name);
 		void newAgilentScript (AgilentEnum::name name);
@@ -92,7 +90,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
         Ui::QtAuxiliaryWindow* ui;
 		std::string title;
 		/// control system classes
-		MicrowaveSystem uwSys;
 		std::array<Agilent, 4> agilents;
 		DoSystem ttlBoard;
 		AoSystem aoSys;
