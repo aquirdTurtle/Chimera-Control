@@ -2,7 +2,6 @@
 #pragma once
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExperimentThread/AllExperimentInput.h"
-#include "AnalogInput/servoInfo.h"
 
 class MainWindow;
 class ScriptingWindow;

@@ -906,12 +906,6 @@ void ExpThreadWorker::handlePause (std::atomic<bool>& isPaused, std::atomic<bool
 void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameterType> expParams) {
 	auto variations = determineVariationNumber (expParams);
 	emit notification (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
-	auto& aiSys = input->devices.getSingleDevice<AiSystem> ();
-	if (aiSys.wantsQueryBetweenVariations ()) {
-		// the main gui thread does the whole measurement here. This probably makes less sense now. 
-		emit notification ("Querying Voltages...\r\n");
-		//input->comm.sendLogVoltsMessage (variationInc);
-	}
 	if (input->sleepTime != 0) { Sleep (input->sleepTime); }
 	for (auto param : expParams) {
 		if (param.valuesVary) {

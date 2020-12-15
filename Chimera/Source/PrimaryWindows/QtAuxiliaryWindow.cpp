@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "QtAuxiliaryWindow.h"
-#include "Agilent/AgilentSettings.h"
 #include <qdesktopwidget.h>
 #include <PrimaryWindows/QtScriptWindow.h>
 #include <PrimaryWindows/QtAndorWindow.h>
@@ -12,8 +11,6 @@
 #include <ExcessDialogs/AoSettingsDialog.h>
 
 QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), 
-agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTINGS,this},
-Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),
 	aoSys (this, ANALOG_OUT_SAFEMODE), configParamCtrl (this, "CONFIG_PARAMETERS"),
 	globalParamCtrl (this, "GLOBAL_PARAMETERS"), dds (this, DDS_SAFEMODE){	
@@ -42,13 +39,6 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		statBox->initialize (loc, this, 480, mainWin->getDevices (), 2);
 		ttlBoard.initialize (loc, this);
 		aoSys.initialize (loc, this);
-		aiSys.initialize (loc, this);
-		loc = QPoint{ 480, 25 };
-
-		agilents[(int)AgilentEnum::name::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
-		agilents[(int)AgilentEnum::name::Axial].initialize (loc, "Microwave-Axial-Agilent", 100, this);
-		agilents[(int)AgilentEnum::name::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
-		agilents[(int)AgilentEnum::name::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
 		loc = QPoint{ 1440, 25 };
 		loc.ry() = 25;
 		globalParamCtrl.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global, 480, 500);
@@ -143,90 +133,6 @@ void QtAuxiliaryWindow::updateOptimization (AllExperimentInput& input){
 	reportStatus (qstr(msg));
 }
 
-// MESSAGE MAP FUNCTION
-LRESULT QtAuxiliaryWindow::onLogVoltsMessage (WPARAM wp, LPARAM lp){
-	aiSys.refreshCurrentValues ();
-	aiSys.refreshDisplays ();
-	andorWin->writeVolts (wp, aiSys.getCurrentValues ());
-	return TRUE;
-}
-
-
-void QtAuxiliaryWindow::newAgilentScript (AgilentEnum::name name){
-	try{
-		agilents[(int)name].verifyScriptable ();
-		mainWin->updateConfigurationSavedStatus (false);
-		agilents[(int)name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		agilents[(int)name].agilentScript.newScript ();
-		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
-	}
-	catch (ChimeraError& err){
-		reportErr (err.qtrace ());
-	}
-}
-
-void QtAuxiliaryWindow::openAgilentScript (AgilentEnum::name name, IChimeraQtWindow* parent){
-	try{
-		agilents[(int)name].verifyScriptable ();
-		mainWin->updateConfigurationSavedStatus (false);
-		agilents[(int)name].agilentScript.checkSave (mainWin->getProfileSettings ().configLocation,
-			mainWin->getRunInfo ());
-		std::string openFileName = openWithExplorer (parent, Script::AGILENT_SCRIPT_EXTENSION);
-		agilents[(int)name].agilentScript.openParentScript (openFileName,
-			mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
-	}
-	catch (ChimeraError& err){
-		reportErr (err.qtrace ());
-	}
-}
-
-
-void QtAuxiliaryWindow::updateAgilent (AgilentEnum::name name){
-	try	{
-		mainWin->updateConfigurationSavedStatus (false);
-		agilents[(int)name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		agilents[(int)name].readGuiSettings ();
-	}
-	catch (ChimeraError&){
-		throwNested ("Failed to update agilent.");
-	}
-}
-
-
-void QtAuxiliaryWindow::saveAgilentScript (AgilentEnum::name name){
-	try	{
-		agilents[(int)name].verifyScriptable ();
-		mainWin->updateConfigurationSavedStatus (false);
-		agilents[(int)name].agilentScript.saveScript (mainWin->getProfileSettings ().configLocation,
-			mainWin->getRunInfo ());
-		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
-	}
-	catch (ChimeraError& err){
-		reportErr (err.qtrace ());
-	}
-}
-
-
-void QtAuxiliaryWindow::saveAgilentScriptAs (AgilentEnum::name name, IChimeraQtWindow* parent){
-	try	{
-		agilents[(int)name].verifyScriptable ();
-		mainWin->updateConfigurationSavedStatus (false);
-		std::string extensionNoPeriod = agilents[(int)name].agilentScript.getExtension ();
-		if (extensionNoPeriod.size () == 0)	{
-			return;
-		}
-		extensionNoPeriod = extensionNoPeriod.substr (1, extensionNoPeriod.size ());
-		std::string newScriptAddress = saveWithExplorer ( parent, extensionNoPeriod,
-														  mainWin->getProfileSettings () );
-		agilents[(int)name].agilentScript.saveScriptAs (newScriptAddress, mainWin->getRunInfo ());
-		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
-	}
-	catch (ChimeraError& err){
-		reportErr (err.qtrace ());
-	}
-}
-
 ParameterSystem& QtAuxiliaryWindow::getGlobals (){
 	return globalParamCtrl;
 }
@@ -240,12 +146,7 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 	configParamCtrl.handleSaveConfig (saveFile);
 	ttlBoard.handleSaveConfig (saveFile);
 	aoSys.handleSaveConfig (saveFile);
-	for (auto& agilent : agilents){
-		agilent.handleSavingConfig (saveFile, mainWin->getProfileSettings ().configLocation,
-			mainWin->getRunInfo ());
-	}
 	dds.handleSaveConfig (saveFile);
-	aiSys.handleSaveConfig (saveFile);
 }
 
 void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
@@ -254,16 +155,7 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 		ConfigSystem::standardOpenConfig (configFile, "TTLS", &ttlBoard);
 		ConfigSystem::standardOpenConfig (configFile, "DACS", &aoSys);
 		aoSys.updateEdits ();
-		for (auto& agilent : agilents){
-			deviceOutputInfo info;
-			ConfigSystem::stdGetFromConfig (configFile, agilent.getCore (), info, Version ("4.0"));
-			agilent.setOutputSettings (info);
-			agilent.updateSettingsDisplay (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		}
 		ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
-		AiSettings settings;
-		ConfigSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
-		aiSys.setAiSettings (settings);
 	}
 	catch (ChimeraError&){
 		throwNested ("Auxiliary Window failed to read parameters from the configuration file.");
@@ -338,9 +230,6 @@ DoCore& QtAuxiliaryWindow::getTtlCore (){
 void QtAuxiliaryWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	try	{
 		input->globalParameters = globalParamCtrl.getAllParams ();
-		if (aiSys.wantsQueryBetweenVariations ()) {
-			input->numAiMeasurements = configParamCtrl.getTotalVariationNumber ();
-		}
 	}
 	catch (ChimeraError&) {
 		throwNested ("Auxiliary window failed to fill master thread input.");
@@ -349,10 +238,6 @@ void QtAuxiliaryWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 
 AoSystem& QtAuxiliaryWindow::getAoSys () {
 	return aoSys;
-}
-
-AiSystem& QtAuxiliaryWindow::getAiSys () {
-	return aiSys;
 }
 
 void QtAuxiliaryWindow::handleAbort (){
@@ -567,14 +452,6 @@ std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){
 	else{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
-	msg += "Analog In System:\n";
-	if (!ANALOG_IN_SAFEMODE){
-		msg += "\tCode System is Active!\n";
-		msg += "\t" + aiSys.getSystemStatus () + "\n";
-	}
-	else{
-		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
-	}
 	msg += "DDS System:\n";
 	if (!DDS_SAFEMODE){
 		msg += "\tDDS System is Active!\n";
@@ -587,29 +464,12 @@ std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){
 	return msg;
 }
 
-
 std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 	std::string msg;
-	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
-	for (auto& agilent : agilents){
-		msg += agilent.getCore ().configDelim + ":\n\t" + agilent.getDeviceIdentity ();
-	}
 	return msg;
 }
 
-std::vector<std::reference_wrapper<AgilentCore>> QtAuxiliaryWindow::getAgilents () {
-	std::vector<std::reference_wrapper<AgilentCore>> ags;
-	for (auto& ag : agilents) {
-		ags.push_back (ag.getCore ());
-	}
-	return ags;
-}
-
 void QtAuxiliaryWindow::fillExpDeviceList (DeviceList& list){
-	for (auto& ag : agilents){
-		list.list.push_back (ag.getCore ());
-	}
-	list.list.push_back (aiSys);
 	list.list.push_back (dds.getCore ());
 }
 

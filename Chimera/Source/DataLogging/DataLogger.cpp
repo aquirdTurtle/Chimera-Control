@@ -1,13 +1,13 @@
 // created by Mark O. Brown
 
 #include "stdafx.h"
-
 #include "DataLogger.h"
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
+#include <AnalogOutput/AoSystem.h>
 #include <Scripts/Script.h>
 
 DataLogger::DataLogger(std::string systemLocation, IChimeraQtWindow* parent) : IChimeraSystem(parent){
@@ -195,42 +195,6 @@ void DataLogger::logPlotData ( std::string name ){
 }
 
 
-void DataLogger::logServoInfo ( std::vector<servoInfo> servos ){
-	H5::Group servoGroup( file.createGroup ( "/Servos" ) );
-	for ( auto servo : servos ){
-		H5::Group thisServo ( servoGroup.createGroup ( servo.servoName ) );
-		writeDataSet ( servo.active, "Servo_Active", thisServo );
-		writeDataSet ( servo.aiInChan, "AI_Input_Channel", thisServo );
-		writeDataSet ( servo.aoControlChannel, "AO_Control_Channel", thisServo );
-		writeDataSet ( servo.controlValue, "Control_Value", thisServo );
-		writeDataSet ( servo.gain, "Servo_Gain", thisServo );
-		writeDataSet ( servo.servoed, "Servo_Is_Servoing_Correctly", thisServo );
-		writeDataSet ( servo.setPoint, "Set_Point", thisServo );
-		writeDataSet ( servo.tolerance, "Servo_Tolerance", thisServo );
-		writeDataSet (servo.monitorOnly, "Monitor_Only", thisServo );
-		writeDataSet (servo.mostRecentResult, "Most_Recent_Result", thisServo);
-		std::string ttlConfigStr;
-		for ( auto ttl : servo.ttlConfig ){
-			ttlConfigStr += DoRows::toStr(ttl.first) + str(ttl.second) + ", ";
-		}
-		if ( ttlConfigStr.size ( ) > 2 ){
-			// kill last comma and space.
-			ttlConfigStr = ttlConfigStr.substr ( 0, ttlConfigStr.size ( ) - 2 );
-		}
-		writeDataSet ( ttlConfigStr, "TTL_Configuration_During_Servo", thisServo );
-		std::string dacConfigStr;
-		for (auto dac : servo.aoConfig){
-			dacConfigStr += "dac" + str (dac.first) + ": " + str(dac.second) + "; ";
-		}
-		if (dacConfigStr.size () > 2){
-			// kill last comma and space.
-			dacConfigStr = dacConfigStr.substr (0, dacConfigStr.size () - 2);
-		}
-		writeDataSet (dacConfigStr, "AO_Configuration_During_Servo", thisServo);
-	}
-}
-
-
 void DataLogger::logAoSystemSettings ( AoSystem& aoSys ){
 	auto info = aoSys.getDacInfo ( );
 	H5::Group AoSystemGroup ( file.createGroup ( "/Ao_System" ) );
@@ -311,26 +275,6 @@ void DataLogger::updateOptimizationFile ( std::string appendTxt ){
 void DataLogger::finOptimizationFile ( ){
 	optFile.close ( );
 }
-
-void DataLogger::writeBaslerPic ( Matrix<long> image ){
-	if ( fileIsOpen == false ){
-		thrower ( "Tried to write to h5 file (for basler pic), but the file is closed!\r\n" );
-	}
-	// starting coordinates of writebtn area in the h5 file of the array of picture data points.
-	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
-	hsize_t slabdim[3] = { 1, image.getCols (), image.getRows () };// dims.width (), dims.height ()};
-	try {    
-		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
-		BaslerPictureDataset.write ( image.data.data ( ), H5::PredType::NATIVE_LONG, BaslerPicDataSpace,
-									 BaslerPicureSetDataSpace );
-	}
-	catch ( H5::Exception& err ){
-		auto fullE = getFullError (err);
-		throwNested ( "Failed to write basler pic data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n"
-					  "; Full error:" + fullE);
-	}
-}
-
 
 std::string DataLogger::getFullError (H5::Exception& err) {
 	FILE* pFile;
@@ -476,24 +420,6 @@ void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims){
 			+ fullE);
 	}
 }
-
- 
-void DataLogger::initializeAiLogging( unsigned numSnapshots ){
-	// initial settings
-	// list of commands?
-	if ( numSnapshots != 0 ){
-		H5::Group aioGroup ( file.createGroup ( "/AI" ) );
-		hsize_t setDims[] = { numSnapshots, AiSystem::NUMBER_AI_CHANNELS };
-		hsize_t singleMeasurementDims[] = { 1, AiSystem::NUMBER_AI_CHANNELS };
-		voltsSetDataSpace = H5::DataSpace( 2, setDims );
-		voltsDataSpace = H5::DataSpace( 2, singleMeasurementDims );
-		voltsDataSet = aioGroup.createDataSet( "Voltage-Measurements", H5::PredType::NATIVE_DOUBLE, voltsSetDataSpace );
-	}
-	else{
-		H5::Group aioGroup ( file.createGroup ( "/AI:NA" ) );
-	}
-}
- 
  
 void DataLogger::writeVolts( unsigned currentVoltNumber, std::vector<float64> data ){
 	if ( fileIsOpen == false ){

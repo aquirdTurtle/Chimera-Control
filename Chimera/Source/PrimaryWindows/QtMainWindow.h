@@ -4,11 +4,8 @@
 #include <QTimer>
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraQtWindow.h"
-#include <AnalogInput/CalibrationManager.h>
-#include <AnalogInput/ServoManager.h>
 #include "ConfigurationSystems/ConfigSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
@@ -23,6 +20,7 @@
 #include "Plotting/ScopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
+#include <AnalogOutput/calInfo.h>
 #include <string>
 #include <vector>
 #include <future>
@@ -75,7 +73,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		void abortMasterThread ();
 		std::string getSystemStatusString ();
 		bool masterIsRunning ();
-		RunInfo getRunInfo ();
 		void handleFinishText ();
 		unsigned getRepNumber ();
 		void logParams (DataLogger* logger, ExperimentThreadInput* input);
@@ -90,7 +87,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		QThread* getExpThread();
 		ExpThreadWorker* getExpThreadWorker();
 		void pauseExperiment ();
-		std::vector<calResult> getCalInfo ();
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
 		void handleNotification (QString txt, unsigned level=0);
@@ -115,13 +111,10 @@ class QtMainWindow : public IChimeraQtWindow{
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
-		CalibrationManager calManager;
 
 		ExpThreadWorker* expWorker;
 		QThread* expThread;
 		std::atomic<bool> experimentIsRunning = false;
-
-		RunInfo systemRunningInfo;
 		ScopeViewer masterRepumpScope, motScope, expScope;
 		//
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);

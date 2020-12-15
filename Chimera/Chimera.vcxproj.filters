@@ -1,15 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Agilent\Agilent.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\AnalogInput\AiSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AnalogOutput\AnalogOutput.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
@@ -35,15 +26,6 @@
     </ClCompile>
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp">
       <Filter>National-Instruments</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Agilent\Segment.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Agilent\SegmentEnd.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
     <ClCompile Include="Source\Plotting\PlotCtrl.cpp">
       <Filter>Plotting-And-Viewing</Filter>
@@ -144,9 +126,6 @@
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AnalogInput\ServoManager.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralObjects\CodeTimer.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
@@ -166,7 +145,6 @@
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
@@ -174,7 +152,6 @@
       <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
-    <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
@@ -233,15 +210,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AnalogInput\CalibrationManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Agilent\whichAg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\AnalogInput\CalibrationThreadWorker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -249,22 +217,6 @@
     </ClInclude>
     <ClInclude Include="FTDI\ftd2xx.h">
       <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\agilentStructures.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\AgilentSettings.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\AgilentChannelMode.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\Agilent.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AnalogInput\AiSettings.h" />
-    <ClInclude Include="Source\AnalogInput\AiSystem.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\AnalogOutput\AnalogOutput.h">
       <Filter>Auxiliary Window</Filter>
@@ -295,18 +247,6 @@
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystemStructures.h" />
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h">
       <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\scriptedAgilentWaveform.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\Segment.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\SegmentEnd.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Agilent\segmentStructs.h">
-      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="Source\Plotting\PlotDataSet.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
@@ -449,12 +389,6 @@
     <ClInclude Include="Source\ConfigurationSystems\NoteSystem.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AnalogInput\ServoManager.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AnalogInput\servoInfo.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\GeneralObjects\CodeTimer.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
@@ -487,7 +421,6 @@
     <ClInclude Include="Source\ExperimentThread\expSystemRunList.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
-    <ClInclude Include="Source\Agilent\AgilentCore.h" />
     <ClInclude Include="Source\DigitalOutput\DoRows.h">
       <Filter>DIO</Filter>
     </ClInclude>
@@ -495,8 +428,6 @@
       <Filter>DIO</Filter>
     </ClInclude>
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
-    <ClInclude Include="Source\AnalogInput\AiUnits.h" />
-    <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
     <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
@@ -504,7 +435,6 @@
     <ClInclude Include="Source\GeneralObjects\ChimeraStyleSheets.h" />
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
     <ClInclude Include="Source\Andor\cameraThreadInput.h" />
-    <ClInclude Include="Source\Agilent\whichAg.h" />
     <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
     <ClInclude Include="Source\Python\NewPythonHandler.h">
       <Filter>Header Files</Filter>
@@ -530,10 +460,7 @@
     <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AnalogInput\CalibrationManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AnalogInput\calInfo.h">
+    <ClInclude Include="Source\AnalogOutput\calInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -686,9 +613,6 @@
     </QtMoc>
     <QtMoc Include="Source\ExcessDialogs\AoSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\AnalogInput\CalibrationThreadWorker.h">
-      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

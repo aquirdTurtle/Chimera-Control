@@ -13,15 +13,11 @@
 #include "GeneralObjects/RunInfo.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
-#include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
-#include "AnalogInput/AiSystem.h"
-#include "AnalogInput/ServoManager.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include <Agilent/whichAg.h>
 
 #include <QMainWindow>
 #include <QTimer>
@@ -40,7 +36,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		void initializeWidgets ();
 		void handleNormalFin ();
 		void updateOptimization (AllExperimentInput& input);
-		LRESULT onLogVoltsMessage (WPARAM wp, LPARAM lp);
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
 		/// Message Map Functions
@@ -53,11 +48,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		std::array<AoInfo, 24> getDacInfo ();
 		std::string getVisaDeviceStatus ();
 
-		void updateAgilent (AgilentEnum::name name);
-		void newAgilentScript (AgilentEnum::name name);
-		void openAgilentScript (AgilentEnum::name name, IChimeraQtWindow* parent);
-		void saveAgilentScript (AgilentEnum::name name);
-		void saveAgilentScriptAs (AgilentEnum::name name, IChimeraQtWindow* parent);
 		void fillMasterThreadInput (ExperimentThreadInput* input);
 		void SetDacs ();
 
@@ -77,11 +67,9 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		void setVariablesActiveState (bool active);
 		DoCore& getTtlCore ();
 		AoSystem& getAoSys ();
-		AiSystem& getAiSys ();
 		ParameterSystem& getGlobals ();
 		std::vector<parameterType> getUsableConstants ();
 		void fillExpDeviceList (DeviceList& list);
-		std::vector<std::reference_wrapper<AgilentCore>> getAgilents ();
 	protected:
 		bool eventFilter (QObject* obj, QEvent* event);
 
@@ -89,10 +77,8 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
         Ui::QtAuxiliaryWindow* ui;
 		std::string title;
 		/// control system classes
-		std::array<Agilent, 4> agilents;
 		DoSystem ttlBoard;
 		AoSystem aoSys;
-		AiSystem aiSys;
 		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		MachineOptimizer optimizer;
 		ParameterSystem configParamCtrl, globalParamCtrl;

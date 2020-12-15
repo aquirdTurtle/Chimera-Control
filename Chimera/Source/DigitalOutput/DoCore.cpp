@@ -1,15 +1,14 @@
 #include "stdafx.h"
 #include "DoCore.h"
 #include "DoStructures.h"
+#include "DoRows.h"
 
 DoCore::DoCore (bool ftSafemode, bool serialSafemode) : ftFlume (ftSafemode), names(4, 16){
-	try
-	{
+	try	{
 		connectType = ftdiConnectionOption::Async;
 		ftdi_connectasync ("FT2E722BB");
 	}
-	catch (ChimeraError &)
-	{
+	catch (ChimeraError &)	{
 		throwNested ("Failed to initialize DO Core!?!");
 	}
 }

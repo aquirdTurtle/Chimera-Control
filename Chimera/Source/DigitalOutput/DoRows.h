@@ -4,10 +4,8 @@
 #include <array>
 // as of now not yet used extensively in the actual dio system
 
-struct DoRows
-{
-	enum class which
-	{
+struct DoRows{
+	enum class which{
 		A, B, C, D
 	};
 	static const std::array<which, 4> allRows;

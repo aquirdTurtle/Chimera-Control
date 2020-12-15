@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "Agilent/agilentStructures.h"
 #include "GeneralUtilityFunctions/my_str.h"
 #include <string>
 #include <vector>

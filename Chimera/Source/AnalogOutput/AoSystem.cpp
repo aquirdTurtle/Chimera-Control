@@ -10,6 +10,7 @@
 #include "GeneralObjects/CodeTimer.h"
 #include <boost/lexical_cast.hpp>
 #include <ExperimentThread/ExpThreadWorker.h>
+#include "calInfo.h"
 
 AoSystem::AoSystem(IChimeraQtWindow* parent, bool aoSafemode) : IChimeraSystem(parent), daqmx( aoSafemode ){
 	/// set some constants...

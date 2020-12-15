@@ -5,7 +5,6 @@
 #include <qgraphicslayout.h>
 #include <qdebug.h>
 #include <qmenu.h>
-#include <AnalogInput/CalibrationManager.h>
 
 PlotCtrl::PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds_in,
 					std::string titleIn, bool narrowOpt, bool plotHistOption ) :

@@ -328,13 +328,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="MOC\moc_predefs.h" />
-    <ClInclude Include="Source\Agilent\AgilentCore.h" />
-    <ClInclude Include="Source\Agilent\whichAg.h" />
-    <ClInclude Include="Source\AnalogInput\AiUnits.h" />
-    <ClInclude Include="Source\AnalogInput\CalibrationManager.h" />
-    <QtMoc Include="Source\AnalogInput\CalibrationThreadWorker.h" />
-    <ClInclude Include="Source\AnalogInput\calInfo.h" />
-    <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <QtMoc Include="Source\Andor\AndorCameraThreadWorker.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Andor\AndorCameraThreadWorker.h -o MOC\moc_AndorCameraThreadWorker.cpp</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Andor\AndorCameraThreadWorker.h -o MOC\moc_AndorCameraThreadWorker.cpp</Command>
@@ -345,6 +338,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Andor\AndorCameraThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Andor\AndorCameraThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
+    <ClInclude Include="Source\AnalogOutput\calInfo.h" />
     <ClInclude Include="Source\Andor\cameraThreadInput.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
@@ -393,12 +387,6 @@
     <QtMoc Include="Source\GeneralObjects\IChimeraSystem.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
     <ClInclude Include="Source\GeneralObjects\RunInfo.h" />
-    <ClInclude Include="Source\Agilent\Agilent.h" />
-    <ClInclude Include="Source\Agilent\AgilentChannelMode.h" />
-    <ClInclude Include="Source\Agilent\AgilentSettings.h" />
-    <ClInclude Include="Source\Agilent\agilentStructures.h" />
-    <ClInclude Include="Source\AnalogInput\AiSettings.h" />
-    <ClInclude Include="Source\AnalogInput\AiSystem.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\AlertSystem.h" />
     <ClInclude Include="Source\AnalogOutput\AnalogOutput.h" />
     <ClInclude Include="Source\Andor\AndorFlume.h" />
@@ -503,7 +491,6 @@
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h" />
     <ClInclude Include="Source\GeneralObjects\Queues.h" />
-    <ClInclude Include="Source\Agilent\SegmentEnd.h" />
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
     <ClInclude Include="Source\Andor\CameraCalibration.h" />
     <ClInclude Include="Source\Andor\CameraImageDimensions.h" />
@@ -547,13 +534,8 @@
     <ClInclude Include="Source\ConfigurationSystems\NoteSystem.h" />
     <ClInclude Include="Source\Andor\AndorRunMode.h" />
     <ClInclude Include="Source\Scripts\Script.h" />
-    <ClInclude Include="Source\Agilent\scriptedAgilentWaveform.h" />
     <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
     <ClInclude Include="Source\Scripts\ScriptStream.h" />
-    <ClInclude Include="Source\Agilent\Segment.h" />
-    <ClInclude Include="Source\Agilent\segmentStructs.h" />
-    <ClInclude Include="Source\AnalogInput\servoInfo.h" />
-    <ClInclude Include="Source\AnalogInput\ServoManager.h" />
     <ClInclude Include="Source\Python\SmsTextingControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h" />
@@ -582,14 +564,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Agilent\Agilent.cpp" />
-    <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp" />
-    <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
-    <ClCompile Include="Source\Agilent\whichAg.cpp" />
-    <ClCompile Include="Source\AnalogInput\AiSystem.cpp" />
-    <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
-    <ClCompile Include="Source\AnalogInput\CalibrationManager.cpp" />
-    <ClCompile Include="Source\AnalogInput\CalibrationThreadWorker.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraThreadWorker.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\profileSettings.cpp" />
@@ -630,7 +604,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
-    <ClCompile Include="Source\Agilent\SegmentEnd.cpp" />
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraSettingsControl.cpp" />
@@ -663,10 +636,7 @@
     <ClCompile Include="Source\MiscellaneousExperimentOptions\Repetitions.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp" />
     <ClCompile Include="Source\Scripts\Script.cpp" />
-    <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp" />
     <ClCompile Include="Source\Scripts\ScriptStream.cpp" />
-    <ClCompile Include="Source\Agilent\Segment.cpp" />
-    <ClCompile Include="Source\AnalogInput\ServoManager.cpp" />
     <ClCompile Include="Source\Python\SmsTextingControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />

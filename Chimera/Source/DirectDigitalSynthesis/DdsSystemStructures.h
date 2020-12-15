@@ -1,17 +1,15 @@
 ﻿#pragma once 
 
 #include <array>
+#include <ParameterSystem/Expression.h>
 
-struct ddsConnectionType
-{
-	enum class type
-	{
+struct ddsConnectionType{
+	enum class type	{
 		None, Serial, Async
 	};
 };
 
-struct ddsIndvRampListInfo
-{
+struct ddsIndvRampListInfo{
 	USHORT index=0;
 
 	unsigned channel=0;
@@ -22,8 +20,7 @@ struct ddsIndvRampListInfo
 	Expression rampTime="500"; // in milliseconds
 };
 
-struct ddsRampBasic
-{
+struct ddsRampBasic{
 	bool explicitlySet = false;
 	double freq1; // in MHZ
 	double freq2;
@@ -33,8 +30,7 @@ struct ddsRampBasic
 
 
 template<typename type>
-class ddsBox
-{
+class ddsBox{
 	public:
 		// a wrapper to make a matrix of "type" with the dimensions of the dds box - i.e. one value of "type" for each 
 		// channel of each board.

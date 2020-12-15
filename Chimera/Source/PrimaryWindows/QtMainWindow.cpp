@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "QtMainWindow.h"
-#include "Agilent/AgilentSettings.h"
 #include <ExperimentMonitoringAndStatus/ColorBox.h>
 #include <qdesktopwidget.h>
 #include <PrimaryWindows/QtScriptWindow.h>
@@ -21,8 +20,8 @@ QtMainWindow::QtMainWindow () :
 	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS),
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
 	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
-	expScope(EXPERIMENT_SCOPE_ADDRESS, EXPERIMENT_SCOPE_SAFEMODE, 4, "Experiment Scope"),
-	calManager(this){
+	expScope(EXPERIMENT_SCOPE_ADDRESS, EXPERIMENT_SCOPE_SAFEMODE, 4, "Experiment Scope")
+	{
 	statBox = new ColorBox ();
 	startupTimes.push_back (chronoClock::now ());
 	/// Initialize Windows
@@ -128,8 +127,6 @@ void QtMainWindow::initializeWidgets (){
 	masterRepumpScope.initialize (controlLocation, 480, 130, this, "Master/Repump");
 	motScope.initialize (controlLocation, 480, 130, this, "MOT");
 	expScope.initialize (controlLocation, 480, 130, this, "Experiment");
-	calManager.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (), auxWin->getTtlSystem (),
-						   auxWin->getAgilents(), andorWin->getPython()); 
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize (controlLocation, this);
 	mainOptsCtrl.initialize (controlLocation, this);
@@ -297,12 +294,10 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
-	input->calibrations = calManager.getCalibrationInfo ();
 	input->skipNext = NULL;
 }
 
 bool QtMainWindow::masterIsRunning () { return experimentIsRunning; }
-RunInfo QtMainWindow::getRunInfo () { return systemRunningInfo; }
 profileSettings QtMainWindow::getProfileSettings () { return profile.getProfileSettings (); }
 std::string QtMainWindow::getNotes () { return notes.getConfigurationNotes (); }
 void QtMainWindow::setNotes (std::string newNotes) { notes.setConfigurationNotes (newNotes); }
@@ -312,14 +307,10 @@ mainOptions QtMainWindow::getMainOptions () { return mainOptsCtrl.getOptions ();
 void QtMainWindow::setShortStatus (std::string text) { shortStatus.setText (text); }
 void QtMainWindow::changeShortStatusColor (std::string color) { shortStatus.setColor (color); }
 bool QtMainWindow::experimentIsPaused () { return expWorker->getIsPaused (); }
-std::vector<calResult> QtMainWindow::getCalInfo () {
-	return calManager.getCalibrationInfo ();
-}
 
 void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	input->sleepTime = debugger.getOptions ().sleepTime;
 	input->profile = profile.getProfileSettings ();
-	input->calibrations = calManager.getCalibrationInfo ();
 }
 
 void QtMainWindow::logParams (DataLogger* logger, ExperimentThreadInput* input){
@@ -373,7 +364,6 @@ void QtMainWindow::onFatalError (QString finMsg){
 	onErrorMessage (finMsg);
 	autoF5_AfterFinish = false;
 	// resetting things.
-	scriptWin->setIntensityDefault ();
 	std::string msgText = "Exited with Error!\nPassively Outputting Default Waveform.";
 	changeShortStatusColor ("R");
 	reportErr ("EXITED WITH ERROR!\n");
@@ -382,7 +372,6 @@ void QtMainWindow::onFatalError (QString finMsg){
 
 void QtMainWindow::onNormalFinish (QString finMsg, profileSettings finishedProfile) {
 	handleNotification (finMsg);
-	scriptWin->setIntensityDefault ();
 	setShortStatus ("Passively Outputting Default Waveform");
 	changeShortStatusColor ("B");
 	andorWin->handleNormalFinish (finishedProfile);
@@ -420,11 +409,9 @@ void QtMainWindow::handleFinishText (){
 }
 
 void QtMainWindow::handleMasterConfigOpen (ConfigStream& configStream){
-	calManager.handleOpenMasterConfig (configStream);
 }
 
 void QtMainWindow::handleMasterConfigSave (std::stringstream& configStream){
-	calManager.handleSaveMasterConfig (configStream);
 }
 
 void QtMainWindow::fillExpDeviceList (DeviceList& list) {}

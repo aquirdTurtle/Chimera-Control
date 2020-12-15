@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "QtAndorWindow.h"
-#include "Agilent/AgilentSettings.h"
 #include <qdesktopwidget.h>
 #include <PrimaryWindows/QtScriptWindow.h>
 #include <PrimaryWindows/QtAndorWindow.h>

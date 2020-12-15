@@ -1,11 +1,12 @@
 // created by Mark O. Brown
 #pragma once
+#include "nidaqmx2.h"
 
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"					  
 #include "Andor/CameraImageDimensions.h"
 #include "Andor/AndorRunSettings.h"
-#include "AnalogInput/ServoManager.h"
-#include "AnalogInput/servoInfo.h"
+#include <GeneralObjects/Matrix.h>
+#include <DigitalOutput/DoCore.h>
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
@@ -14,6 +15,7 @@
 #include <string>
 #include <functional>
 
+class AoSystem;
 struct ExperimentThreadInput;
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
@@ -26,10 +28,8 @@ class DataLogger : public IChimeraSystem {
 		void logError ( H5::Exception& err );
 		void initializeDataFiles( std::string specialName="", bool needsCal=true);
 		void writeAndorPic( Matrix<long> image, imageParameters dims );
-		void writeBaslerPic ( Matrix<long> image );
 		void writeVolts ( unsigned currentVoltNumber, std::vector<float64> data );
 		void assertCalibrationFilesExist ();
-		void logServoInfo (std::vector<servoInfo> servos);
 		void logMasterInput( ExperimentThreadInput* input );
 		void logMiscellaneousStart();
 		void logParameters( const std::vector<parameterType>& variables, H5::Group& group );
@@ -37,7 +37,6 @@ class DataLogger : public IChimeraSystem {
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DoCore& doSys );
 		void logPlotData ( std::string name );
-		void initializeAiLogging ( unsigned numSnapshots );
 		int getCalibrationFileIndex ();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void normalCloseFile();
