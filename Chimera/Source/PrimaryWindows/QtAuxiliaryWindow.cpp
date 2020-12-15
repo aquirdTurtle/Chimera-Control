@@ -14,8 +14,6 @@
 #include <ExcessDialogs/AoSettingsDialog.h>
 
 QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), uwSys(this),
-topBottomTek (TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"),
-eoAxialTek (EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG"),
 agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTINGS,this},
 Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),
@@ -47,8 +45,6 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		ttlBoard.initialize (loc, this);
 		aoSys.initialize (loc, this);
 		aiSys.initialize (loc, this);
-		topBottomTek.initialize (loc, this, "Top-Bottom-Tek", "Top", "Bottom", 480);
-		eoAxialTek.initialize (loc, this, "EO / Axial", "EO", "Axial", 480);
 		uwSys.initialize (loc, this);
 		loc = QPoint{ 480, 25 };
 
@@ -251,8 +247,6 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 		agilent.handleSavingConfig (saveFile, mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
 	}
-	topBottomTek.handleSaveConfig (saveFile);
-	eoAxialTek.handleSaveConfig (saveFile);
 	dds.handleSaveConfig (saveFile);
 	aiSys.handleSaveConfig (saveFile);
 	uwSys.handleSaveConfig (saveFile);
@@ -270,17 +264,7 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 			agilent.setOutputSettings (info);
 			agilent.updateSettingsDisplay (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
-		tektronixInfo info;
-		ConfigSystem::stdGetFromConfig (configFile, topBottomTek.getCore (), info);
-		topBottomTek.setSettings (info);
-		ConfigSystem::stdGetFromConfig (configFile, eoAxialTek.getCore (), info);
-		eoAxialTek.setSettings (info);
-
-		ConfigSystem::standardOpenConfig (configFile, topBottomTek.getDelim (), &topBottomTek, Version ("4.0"));
-		ConfigSystem::standardOpenConfig (configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ("4.0"));
-		if (configFile.ver >= Version ("4.5")) {
-			ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
-		}
+		ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
 		AiSettings settings;
 		ConfigSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
 		aiSys.setAiSettings (settings);
@@ -614,8 +598,6 @@ std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){
 std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 	std::string msg;
 	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
-	msg += "Tektronix 1:\n\t" + topBottomTek.queryIdentity ();
-	msg += "Tektronix 2:\n\t" + eoAxialTek.queryIdentity ();
 	for (auto& agilent : agilents){
 		msg += agilent.getCore ().configDelim + ":\n\t" + agilent.getDeviceIdentity ();
 	}
@@ -645,8 +627,6 @@ std::vector<std::reference_wrapper<AgilentCore>> QtAuxiliaryWindow::getAgilents 
 }
 
 void QtAuxiliaryWindow::fillExpDeviceList (DeviceList& list){
-	list.list.push_back (topBottomTek.getCore ());
-	list.list.push_back (eoAxialTek.getCore ());
 	list.list.push_back (uwSys.getCore ());
 	for (auto& ag : agilents){
 		list.list.push_back (ag.getCore ());

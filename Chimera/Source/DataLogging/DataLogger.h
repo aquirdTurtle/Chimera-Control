@@ -7,7 +7,6 @@
 #include "Basler/BaslerSettingsControl.h"
 #include "AnalogInput/ServoManager.h"
 #include "AnalogInput/servoInfo.h"
-#include "Tektronix/TektronixStructures.h"
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"

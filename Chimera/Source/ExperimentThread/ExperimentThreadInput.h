@@ -9,7 +9,6 @@
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "Agilent/AgilentCore.h"
 #include "NIAWG/NiawgCore.h"
-#include "Tektronix/TekCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Andor/AndorCameraCore.h"
 #include "expSystemRunList.h" 

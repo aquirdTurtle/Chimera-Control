@@ -19,7 +19,6 @@
 #include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
-#include "Tektronix/TektronixAfgControl.h"
 #include "AnalogInput/AiSystem.h"
 #include "AnalogInput/ServoManager.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
@@ -100,7 +99,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		AoSystem aoSys;
 		AiSystem aiSys;
 		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-		TektronixAfgControl topBottomTek, eoAxialTek;
 		MachineOptimizer optimizer;
 		ParameterSystem configParamCtrl, globalParamCtrl;
 		DdsSystem dds;

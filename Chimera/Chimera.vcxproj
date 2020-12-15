@@ -623,8 +623,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Scripts\SyntaxHighlighter.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Scripts\SyntaxHighlighter.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
-    <ClInclude Include="Source\Tektronix\TekCore.h" />
-    <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\commonFunctions.h" />
     <ClInclude Include="Source\NIAWG\NiawgCore.h" />
     <ClInclude Include="Source\LowLevel\resource.h" />
@@ -639,8 +637,6 @@
     <ClInclude Include="Source\ConfigurationSystems\Version.h" />
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h" />
     <ClInclude Include="Source\Microwave\WindFreakFlume.h" />
-    <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
-    <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -753,8 +749,6 @@
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />
     <ClCompile Include="Source\Scripts\SyntaxHighlighter.cpp" />
-    <ClCompile Include="Source\Tektronix\TekCore.cpp" />
-    <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgCore.cpp" />
     <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp" />
@@ -772,7 +766,6 @@
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp" />
     <ClCompile Include="Source\Microwave\WindFreakFlume.cpp" />
     <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp" />
-    <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Atom.ico" />
