@@ -75,9 +75,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
@@ -187,17 +184,12 @@
       <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\QtDeformableMirrorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
     <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
@@ -357,9 +349,6 @@
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
@@ -530,11 +519,6 @@
       <Filter>DIO</Filter>
     </ClInclude>
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
-    <ClInclude Include="Source\DeformableMirror\DmControl.h" />
-    <ClInclude Include="Source\DeformableMirror\DmCore.h" />
-    <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
-    <ClInclude Include="Source\DeformableMirror\DmOutputForm.h" />
-    <ClInclude Include="Source\DeformableMirror\DmProfileCreator.h" />
     <ClInclude Include="Source\AnalogInput\AiUnits.h" />
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
@@ -700,7 +684,6 @@
     <QtMoc Include="Source\PrimaryWindows\QtAndorWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtBaslerWindow.h" />
-    <QtMoc Include="Source\PrimaryWindows\QtDeformableMirrorWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtMainWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h" />
     <QtMoc Include="Source\Basler\BaslerGrabThreadWorker.h" />

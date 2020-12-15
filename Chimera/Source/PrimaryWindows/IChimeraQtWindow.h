@@ -35,7 +35,7 @@ class IChimeraQtWindow : public QMainWindow{
 		void initializeShortcuts ();
 		void initializeMenu ();
 		void loadFriends (QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
-						  QtBaslerWindow* basWin_, QtDeformableMirrorWindow* dmWindow_, QtAndorWindow* andorWin_);
+						  QtBaslerWindow* basWin_,  QtAndorWindow* andorWin_);
 		void reportErr (QString errStr, unsigned errorLevel=0);
 		void reportStatus (QString statusStr, unsigned notificationLevel=0);
 
@@ -43,10 +43,9 @@ class IChimeraQtWindow : public QMainWindow{
 		QtMainWindow* mainWin = NULL;
 		QtScriptWindow* scriptWin = NULL;
 		QtAndorWindow* andorWin = NULL;
-		QtAuxiliaryWindow* auxWin = NULL;
 		QtBaslerWindow* basWin = NULL;
-		QtDeformableMirrorWindow* dmWin = NULL;
-		static constexpr unsigned numWindows = 6;
+		QtAuxiliaryWindow* auxWin = NULL;
+		static constexpr unsigned numWindows = 5;
 		ColorBox* statBox;
 		virtual void changeBoxColor (std::string sysDelim, std::string color);
 	private:

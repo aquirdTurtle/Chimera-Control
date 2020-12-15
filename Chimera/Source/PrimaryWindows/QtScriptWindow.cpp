@@ -7,7 +7,6 @@
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtBaslerWindow.h>
-#include <PrimaryWindows/QtDeformableMirrorWindow.h>
 #include <ExcessDialogs/saveWithExplorer.h>
 #include <ExcessDialogs/openWithExplorer.h>
 

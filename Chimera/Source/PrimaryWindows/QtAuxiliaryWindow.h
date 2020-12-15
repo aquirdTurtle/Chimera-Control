@@ -12,7 +12,6 @@
 #include "Scripts/Script.h"
 #include "GeneralObjects/RunInfo.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
-#include "GeneralFlumes/GpibFlume.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
 #include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"

@@ -360,11 +360,6 @@
     <ClInclude Include="Source\Basler\ImageEventHandler.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
-    <ClInclude Include="Source\DeformableMirror\DmControl.h" />
-    <ClInclude Include="Source\DeformableMirror\DmCore.h" />
-    <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
-    <ClInclude Include="Source\DeformableMirror\DmOutputForm.h" />
-    <ClInclude Include="Source\DeformableMirror\DmProfileCreator.h" />
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
     <QtMoc Include="Source\ExcessDialogs\doChannelInfoDialog.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
@@ -474,16 +469,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtBaslerWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\QtBaslerWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
-    <QtMoc Include="Source\PrimaryWindows\QtDeformableMirrorWindow.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtDeformableMirrorWindow.h -o MOC\moc_QtDeformableMirrorWindow.cpp</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtDeformableMirrorWindow.h -o MOC\moc_QtDeformableMirrorWindow.cpp</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtDeformableMirrorWindow.h</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC QtDeformableMirrorWindow.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtDeformableMirrorWindow.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC\moc_QtDeformableMirrorWindow.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtDeformableMirrorWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\QtDeformableMirrorWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-    </QtMoc>
     <QtMoc Include="Source\PrimaryWindows\QtMainWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtMainWindow.h -o MOC\moc_QtMainWindow.cpp</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtMainWindow.h -o MOC\moc_QtMainWindow.cpp</Command>
@@ -567,7 +552,6 @@
     <ClInclude Include="Source\DataLogging\DataLogger.h" />
     <ClInclude Include="Source\Plotting\PlotDataSet.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.h" />
-    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h" />
     <ClInclude Include="Source\GeneralImaging\imageParameters.h" />
     <ClInclude Include="longnam.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h" />
@@ -637,10 +621,6 @@
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\profileSettings.cpp" />
     <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
-    <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
     <ClCompile Include="Source\ExcessDialogs\doChannelInfoDialog.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\AlertSystem.cpp" />
@@ -674,7 +654,6 @@
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\QtDeformableMirrorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
     <ClCompile Include="Source\Python\NewPythonHandler.cpp" />
@@ -702,7 +681,6 @@
     <ClCompile Include="Source\Plotting\PlotDataSet.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.cpp" />
-    <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\MasterConfiguration.cpp" />

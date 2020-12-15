@@ -9,7 +9,6 @@
 #include "PrimaryWindows/QtScriptWindow.h"
 #include "PrimaryWindows/QtBaslerWindow.h"
 #include "PrimaryWindows/QtMainWindow.h"
-#include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
 #include <qdebug.h>

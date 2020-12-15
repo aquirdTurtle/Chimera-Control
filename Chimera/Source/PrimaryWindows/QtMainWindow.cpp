@@ -7,7 +7,6 @@
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include <PrimaryWindows/QtBaslerWindow.h>
-#include <PrimaryWindows/QtDeformableMirrorWindow.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
 #include <Plotting/ScopeThreadWorker.h>
@@ -39,18 +38,15 @@ QtMainWindow::QtMainWindow () :
 		auxWin = new QtAuxiliaryWindow;
 		which = "Basler";
 		basWin = new QtBaslerWindow;
-		which = "DmWin";
-		dmWin = new QtDeformableMirrorWindow;
 	}
 	catch (ChimeraError& err) {
 		errBox ("FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace ());
 		return;
 	}
-	scriptWin->loadFriends( this, scriptWin, auxWin, basWin, dmWin, andorWin );
-	andorWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
-	auxWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
-	basWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
-	dmWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
+	scriptWin->loadFriends( this, scriptWin, auxWin, basWin, andorWin );
+	andorWin->loadFriends (this, scriptWin, auxWin, basWin, andorWin);
+	auxWin->loadFriends (this, scriptWin, auxWin, basWin, andorWin);
+	basWin->loadFriends (this, scriptWin, auxWin, basWin, andorWin);
 	startupTimes.push_back (chronoClock::now ());
 
 	for (auto* window : winList ()) {
@@ -514,8 +510,7 @@ void QtMainWindow::handleColorboxUpdate (QString color, QString systemDelim){
 	andorWin->changeBoxColor (delimStr, colorstr);
 	auxWin->changeBoxColor (delimStr, colorstr);
 	basWin->changeBoxColor (delimStr, colorstr);
-	dmWin->changeBoxColor (delimStr, colorstr);
- }
+}
 
 void QtMainWindow::handleNotification (QString txt, unsigned level){
 	mainStatus.addStatusText (str(txt), level);

@@ -8,7 +8,6 @@
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtBaslerWindow.h>
-#include <PrimaryWindows/QtDeformableMirrorWindow.h>
 
 
 QtBaslerWindow::QtBaslerWindow (QWidget* parent) : IChimeraQtWindow (parent), 

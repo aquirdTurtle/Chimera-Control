@@ -7,7 +7,6 @@
 #include "PrimaryWindows/QtMainWindow.h"
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
-#include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "PrimaryWindows/QtScriptWindow.h"
 #include "PrimaryWindows/QtBaslerWindow.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
@@ -16,49 +15,17 @@
 #include <QDateTime.h>
 
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses or hotkeys
-namespace commonFunctions
-{
+namespace commonFunctions{
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
 	void handleCommonMessage( int msgID, IChimeraQtWindow* win ){
 		auto* mainWin = win->mainWin; 
 		auto* andorWin = win->andorWin;
 		auto* scriptWin = win->scriptWin;
-		auto* dmWin = win->dmWin;
 		auto* basWin = win->basWin;
 		auto* auxWin = win->auxWin;
 		try {
 			switch (msgID) {
-				//case ID_MACHINE_OPTIMIZATION:{
-				//	// this is mostly prepared like F5.
-				//	if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) ){
-				//		return;
-				//	}
-				//	AllExperimentInput input;
-				//	andorWin->redrawPictures ( false );
-				//	try	{
-				//		mainWin->reportStatus ( "Starting Automatic Optimization...\r\n" );
-				//		andorWin->setTimerText ( "Starting..." );
-				//		prepareMasterThread ( msgID, win, input, true, true, true, true, true );
-				//		input.masterInput->quiet = true;
-				//		logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo(), andorWin->getAlignmentVals ());
-				//		auxWin->updateOptimization ( input );
-				//		input.masterInput->expType = ExperimentType::MachineOptimization;
-				//		startExperimentThread ( mainWin, input );
-				//	}
-				//	catch ( ChimeraError& err ){
-				//		if ( err.whatBare ( ) == "CANCEL" )	{
-				//			mainWin->reportStatus ( "Canceled camera initialization.\r\n" );
-				//			break;
-				//		}
-				//		mainWin->reportErr ( "Exited with Error!\n" + err.qtrace ( ) );
-				//		mainWin->reportStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
-				//		andorWin->setTimerText ( "ERROR!" );
-				//		andorWin->assertOff ( );
-				//		break;
-				//	}
-				//	break;
-				//}
 			case ID_FILE_RUN_EVERYTHING:
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS: {
