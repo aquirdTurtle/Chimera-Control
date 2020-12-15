@@ -16,7 +16,7 @@ class LongQSlider{
 		double getValue ( );
 		void setValue (int value, bool updateEdit=true );
 		int getSliderId ( );
-		void reposition ( QPoint loc, LONG totalheight );
+		void reposition ( QPoint loc, long totalheight );
 		unsigned getEditId ( );
 		void hide ( int hideornot );
 		QSlider* slider;

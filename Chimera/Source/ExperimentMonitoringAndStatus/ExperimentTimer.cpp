@@ -1,7 +1,5 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-#include "Commctrl.h"
-#include "Uxtheme.h"
 #include "ExperimentTimer.h"
 #include "PrimaryWindows/QtAndorWindow.h"
 #include <qprogressbar.h>
@@ -13,7 +11,7 @@ void ExperimentTimer::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	timeDisplay->setGeometry (px, py, 168, 40);
 	/// PROGRESS BARS
 	// subseries progress bar
-	LONG timerWidth = 550 * 2;
+	long timerWidth = 550 * 2;
 	variationProgress = new QProgressBar (parent);
 	variationProgress->setGeometry (px + 168, py, timerWidth - 168,15);
 	variationProgress->setRange (0, 10000);

@@ -476,7 +476,7 @@ void DoCore::organizeTtlCommands (unsigned variation, DoSnapshot initSnap)
 		if (commandInc == 0 || fabs (orderedCommandList[commandInc].time - timeOrganizer.back ().first) > 1e-6)
 		{
 			// new time
-			std::vector<USHORT> testVec = { USHORT (commandInc) };
+			std::vector<unsigned short> testVec = { unsigned short (commandInc) };
 			timeOrganizer.push_back ({ orderedCommandList[commandInc].time, testVec });
 		}
 		else

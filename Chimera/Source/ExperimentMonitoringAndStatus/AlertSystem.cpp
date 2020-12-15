@@ -1,9 +1,9 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "AlertSystem.h"
-#include <Mmsystem.h>
-#include <mciapi.h>
-#pragma comment(lib, "Winmm.lib")
+//#include <Mmsystem.h>
+//#include <mciapi.h>
+//#pragma comment(lib, "Winmm.lib")
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
 #include <boost/lexical_cast.hpp>
@@ -119,13 +119,13 @@ bool AlertSystem::wantsMotAlerts ( )
 
 void AlertSystem::playSound()
 {
-	mciSendString("play mp3 from 0", NULL, 0, NULL);
+	//mciSendString("play mp3 from 0", NULL, 0, NULL);
 }
 
 
 void AlertSystem::stopSound()
 {
-	mciSendString("stop mp3", NULL, 0, NULL);
+	//mciSendString("stop mp3", NULL, 0, NULL);
 }
 
 

@@ -18,10 +18,10 @@ class ParameterModel : public QAbstractTableModel
         std::vector<parameterType>& getParams ();
         ScanRangeInfo getRangeInfo ();
         void setRangeInfo (ScanRangeInfo info);
-        const USHORT preRangeColumns = 5;
+        const unsigned short preRangeColumns = 5;
         void checkScanDimensionConsistency ();
         void checkVariationRangeConsistency ();
-        void setVariationRangeNumber (int num, USHORT dimNumber);
+        void setVariationRangeNumber (int num, unsigned short dimNumber);
         const bool isGlobal;
     private:
         const IndvRangeInfo defaultRangeInfo = { 2,false,true };

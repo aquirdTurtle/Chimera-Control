@@ -5,9 +5,6 @@
 #include <string>
 #include <vector>
 #include <array>
-#include <pylon/PylonIncludes.h>
-#include <pylon/usb/BaslerUsbInstantCamera.h>
-#include <pylon/1394/Basler1394InstantCamera.h>
 
 // running in safemode means that the program doesn't actually try to connect to physical devices. Generally, it will 
 // follow the exact coding logic, but at the exact point where it would normally communicate with a device, it will 
@@ -41,7 +38,6 @@
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS (str (CODE_ROOT) + "\\Master-Configuration.txt");
 	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\Camera";
 	const std::string MOT_ROUTINES_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT";
-
 	// location where wave data can be outputted for analyzing with another computer.
 #endif
 /// Random other Constants

@@ -77,15 +77,15 @@ class PictureControl : public QWidget{
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.
 		imageParameters unofficialImageParameters;
 		// Arguably I should make these static controls instead of keeping track explicitly of these things. 
-		RECT unscaledBackgroundArea;
+		QRect unscaledBackgroundArea;
 		// scaled for the size of the window
-		RECT scaledBackgroundArea;
+		QRect scaledBackgroundArea;
 		// scaled for the dimensions of the picture
-		RECT pictureArea;
+		QRect pictureArea;
 		int colorIndicator;
 		QVector<QRgb> imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
-		std::vector<std::vector<RECT>> grid;
+		std::vector<std::vector<QRect>> grid;
 		ImageLabel* pictureObject;
 		QPixmap* pixmap;
 

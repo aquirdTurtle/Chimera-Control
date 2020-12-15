@@ -124,50 +124,8 @@ void IChimeraQtWindow::initializeMenu (){
 	profileM->addAction ("Save Entire Profile_X");
 	/// SCRIPTS
 	auto scriptsM = menubar->addMenu ("&Scripts");
-	auto intM = scriptsM->addMenu ("Int&ensity Script");
 	auto masterSc = scriptsM->addMenu ("M&aster Script");
-	auto otherAg = scriptsM->addMenu ("Othe&r Agilents");
-	auto tbM = otherAg->addMenu ("Top / Bottom");
-	auto axM = otherAg->addMenu ("Axial");
-	auto flashingM = otherAg->addMenu ("Flashing");
-	auto uwM = otherAg->addMenu ("Microwave");
-	std::vector<QMenu*> scriptMenus = { flashingM, uwM };
-	std::vector<QString> scriptNames = { "Flashing", "Microwave" };
-	for (auto num : range (scriptMenus.size())) {
-		auto menu = scriptMenus[num];
-		auto name = scriptNames[num];
-		menu->addAction ("Ne&w " + name + " Script_X");
-		menu->addAction ("Op&en " + name + " Script_X");
-		menu->addAction ("&Save " + name + " Script_X");
-		menu->addAction ("Save " + name + " Script &As_X");
-	}
-
-	auto* newAxScript = new QAction ("Ne&w Axial Script", this);
-	connect (newAxScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_NEW_SCRIPT, this); });
-	axM->addAction (newAxScript);
-	auto* openAxScript = new QAction ("Op&en Axial Script", this);
-	connect (openAxScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_OPEN_SCRIPT, this); });
-	axM->addAction (openAxScript);
-	auto* saveAxScript = new QAction ("&Save Axial Script", this);
-	connect (saveAxScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_SAVE_SCRIPT, this); });
-	axM->addAction (saveAxScript);
-	auto* saveAxScriptAs = new QAction ("Save Axial Script &As", this);
-	connect (saveAxScriptAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_AXIAL_SAVE_SCRIPT_AS, this); });
-	axM->addAction (saveAxScriptAs);
-
-	auto* newTBScript = new QAction ("Ne&w Top/Bottom Script", this);
-	connect (newTBScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_NEW_SCRIPT, this); });
-	tbM->addAction (newTBScript);
-	auto* openTBScript = new QAction ("Op&en Top/Bottom Script", this);
-	connect (openTBScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_OPEN_SCRIPT, this); });
-	tbM->addAction (openTBScript);
-	auto* saveTBScript = new QAction ("&Save Top/Bottom Script", this);
-	connect (saveTBScript, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_SAVE_SCRIPT, this); });
-	tbM->addAction (saveTBScript);
-	auto* saveTBScriptAs = new QAction ("Save Top/Bottom Script &As", this);
-	connect (saveTBScriptAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_SAVE_SCRIPT_AS, this); });
-	tbM->addAction (saveTBScriptAs);
-	
+		
 	auto* newMaster = new QAction ("Ne&w Master Script", this);
 	connect (newMaster, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_MASTERSCRIPT_NEW, this); });
 	masterSc->addAction (newMaster);
@@ -183,17 +141,6 @@ void IChimeraQtWindow::initializeMenu (){
 	
 	/// 
 	auto* newInt = new QAction ("Ne&w Intensity Agilent Script", this);
-	connect (newInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_NEW, this); });
-	intM->addAction (newInt);
-	auto* openInt = new QAction ("Op&en Intensity Agilent Script", this);
-	connect (openInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_OPEN, this); });
-	intM->addAction (openInt);
-	auto* saveInt = new QAction ("&Save Intensity Agilent Script", this);
-	connect (saveInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_SAVE, this); });
-	intM->addAction (saveInt);
-	auto* saveasInt = new QAction ("Save Intensity Agilent Script &As", this);
-	connect (saveasInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_SAVEAS, this); });
-	intM->addAction (saveasInt);
 
 	auto masterSystemsM = menubar->addMenu ("Master Systems");
 	auto* changeIndvDo = new QAction ("View or Change Individual Digital Output Settings", this);

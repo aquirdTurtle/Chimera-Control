@@ -3,7 +3,7 @@
 #include "LongQSlider.h"
 #include "boost/lexical_cast.hpp"
 
-void LongQSlider::reposition (QPoint loc, LONG totalHeight){
+void LongQSlider::reposition (QPoint loc, long totalHeight){
 	if (!header || !edit || !slider){
 		return;
 	}

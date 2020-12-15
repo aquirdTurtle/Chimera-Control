@@ -249,7 +249,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <ShowIncludes>false</ShowIncludes>
+      <ShowIncludes>true</ShowIncludes>
       <UseFullPaths>false</UseFullPaths>
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>

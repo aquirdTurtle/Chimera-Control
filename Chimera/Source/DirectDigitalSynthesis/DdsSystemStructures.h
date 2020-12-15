@@ -10,7 +10,7 @@ struct ddsConnectionType{
 };
 
 struct ddsIndvRampListInfo{
-	USHORT index=0;
+	unsigned short index=0;
 
 	unsigned channel=0;
 	Expression freq1="100"; // in MHZ

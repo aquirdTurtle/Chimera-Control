@@ -115,7 +115,7 @@ class AoSystem : public IChimeraSystem {
 		ExpWrap<std::vector<AoCommand>> dacCommandList;
 		ExpWrap<std::vector<AoSnapshot>> dacSnapshots, loadSkipDacSnapshots;
 		ExpWrap<std::array<std::vector<double>, 3>> finalFormatDacData, loadSkipDacFinalFormat;
-		std::pair<USHORT, USHORT> dacTriggerLine;
+		std::pair<unsigned short, unsigned short> dacTriggerLine;
 
 		double dacTriggerTime;
 		bool roundToDacPrecision;

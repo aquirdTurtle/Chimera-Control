@@ -1,23 +1,21 @@
 // created by Mark O. Brown
 #pragma once
-#include <Mmsystem.h>
-#include <mciapi.h>
+//#include <Mmsystem.h>
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qlineedit.h>
 
-#pragma comment(lib, "Winmm.lib")
+//#pragma comment(lib, "Winmm.lib")
 
 class AlertSystem
 {
 	public:
-		AlertSystem() : alertMessageID{ 0 }
-		{
+		AlertSystem() {
 			// load the music!
-			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
+			//mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
 		}
-		~AlertSystem() { mciSendString( "close mp3", NULL, 0, NULL ); }
+		~AlertSystem() { /*mciSendString( "close mp3", NULL, 0, NULL );*/ }
 		void initialize( QPoint& positions, IChimeraQtWindow* parent );
 		void alertMainThread( int level );
 		void soundAlert();

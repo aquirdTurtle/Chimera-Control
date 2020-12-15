@@ -83,7 +83,7 @@ void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWi
 	}
 	if ( histOption ){
 		horGraph = new PlotCtrl ( 1, plotStyle::HistPlot, std::vector<int> ( ), "", true );
-		QPoint pt{ 365, LONG (860) };
+		QPoint pt{ 365, long (860) };
 		horGraph->init ( pt, 1565 - 50, 65, parent );
 	}
 	pictureObject = new ImageLabel (parent);
@@ -96,16 +96,16 @@ void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWi
 		pt = rand () % 255;
 	}
 	
-	px += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	sliderMin.initialize(loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MIN" );
+	px += unscaledBackgroundArea.right () - unscaledBackgroundArea.left ();
+	sliderMin.initialize(loc, parent, 50, unscaledBackgroundArea.bottom () - unscaledBackgroundArea.top (), "MIN" );
 	sliderMin.setValue ( 0 );
 	parent->connect (sliderMin.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
 	px += 25;
-	sliderMax.initialize ( loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MAX" );
+	sliderMax.initialize ( loc, parent, 50, unscaledBackgroundArea.bottom () - unscaledBackgroundArea.top (), "MAX" );
 	sliderMax.setValue ( 300 );
 	parent->connect (sliderMax.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
 	// reset this.
-	px -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
+	px -= unscaledBackgroundArea.right() - unscaledBackgroundArea.left ();
 	
 	py += height - 25;
 	coordinatesText = new QLabel ("Coordinates:", parent);
@@ -141,7 +141,7 @@ void PictureControl::setPictureArea( QPoint loc, int width, int height ){
 	auto& px = loc.rx (), & py = loc.ry ();
 	unscaledBackgroundArea = { px, py, px + width, py + height };
 	// reserve some area for the texts.
-	unscaledBackgroundArea.right -= 100;
+	unscaledBackgroundArea.setRight (unscaledBackgroundArea.right () - 100);
 	sBA = unscaledBackgroundArea;
 	/*
 	sBA.left *= width;
@@ -160,8 +160,8 @@ void PictureControl::setPictureArea( QPoint loc, int width, int height ){
 	double heightPicScale;
 	auto& uIP = unofficialImageParameters;
 	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
-	double sba_w = sBA.right - sBA.left;
-	double sba_h = sBA.bottom - sBA.top;
+	double sba_w = sBA.right () - sBA.left ();
+	double sba_h = sBA.bottom () - sBA.top ();
 	if (w_to_h_ratio > sba_w/sba_h){
 		widthPicScale = 1;
 		heightPicScale = (1.0/ w_to_h_ratio) * (sba_w / sba_h);
@@ -171,13 +171,13 @@ void PictureControl::setPictureArea( QPoint loc, int width, int height ){
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
 
-	unsigned long picWidth = unsigned long( (sBA.right - sBA.left)*widthPicScale );
-	unsigned long picHeight = (sBA.bottom - sBA.top)*heightPicScale;
-	QPoint mid = { (sBA.left + sBA.right) / 2, (sBA.top + sBA.bottom) / 2 };
-	pictureArea.left = mid.x() - picWidth / 2;
-	pictureArea.right = mid.x() + picWidth / 2;
-	pictureArea.top = mid.y() - picHeight / 2;
-	pictureArea.bottom = mid.y() + picHeight / 2;
+	unsigned long picWidth = unsigned long( (sBA.right () - sBA.left())*widthPicScale );
+	unsigned long picHeight = (sBA.bottom() - sBA.top())*heightPicScale;
+	QPoint mid = { (sBA.left () + sBA.right ()) / 2, (sBA.top () + sBA.bottom ()) / 2 };
+	pictureArea.setLeft(mid.x() - picWidth / 2);
+	pictureArea.setRight(mid.x() + picWidth / 2);
+	pictureArea.setTop(mid.y() - picHeight / 2);
+	pictureArea.setBottom(mid.y() + picHeight / 2);
 	
 	if (pictureObject){
 		pictureObject->setGeometry (px, py, width, height);
@@ -252,8 +252,8 @@ void PictureControl::recalculateGrid(imageParameters newParameters){
 	auto& uIP = unofficialImageParameters;
 	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
 	auto& sBA = scaledBackgroundArea;
-	double sba_w = sBA.right - sBA.left;
-	double sba_h = sBA.bottom - sBA.top;
+	double sba_w = sBA.right () - sBA.left ();
+	double sba_h = sBA.bottom () - sBA.top ();
 	if (w_to_h_ratio > sba_w / sba_h){
 		widthPicScale = 1;
 		heightPicScale = (1.0 / w_to_h_ratio) * (sba_w / sba_h);
@@ -263,30 +263,29 @@ void PictureControl::recalculateGrid(imageParameters newParameters){
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
 
-	long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
-	long height = long((scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale);
-	QPoint mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
-				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
-	pictureArea.left = mid.x() - width / 2;
-	pictureArea.right = mid.x() + width / 2;
-	pictureArea.top = mid.y() - height / 2;
-	pictureArea.bottom = mid.y() + height / 2;
-	//
+	long width = long((scaledBackgroundArea.right () - scaledBackgroundArea.left ())*widthPicScale);
+	long height = long((scaledBackgroundArea.bottom () - scaledBackgroundArea.top ())*heightPicScale);
+	QPoint mid = { (scaledBackgroundArea.left () + scaledBackgroundArea.right ()) / 2,
+				  (scaledBackgroundArea.top () + scaledBackgroundArea.bottom ()) / 2 };
+	pictureArea.setLeft (mid.x () - width / 2);
+	pictureArea.setRight (mid.x () + width / 2);
+	pictureArea.setTop (mid.y () - height / 2);
+	pictureArea.setBottom (mid.y () + height / 2);
 
 	grid.resize(newParameters.width());
 	for (unsigned colInc = 0; colInc < grid.size(); colInc++){
 		grid[colInc].resize(newParameters.height());
 		for (unsigned rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			// for all 4 pictures...
-			grid[colInc][rowInc].left = int(pictureArea.left
-											 + (double)(colInc+1) * (pictureArea.right - pictureArea.left) 
-											 / (double)grid.size( ) + 2);
-			grid[colInc][rowInc].right = int(pictureArea.left
-				+ (double)(colInc + 2) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
-			grid[colInc][rowInc].top = int(pictureArea.top
-				+ (double)(rowInc)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
-			grid[colInc][rowInc].bottom = int(pictureArea.top
-				+ (double)(rowInc + 1)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
+			grid[colInc][rowInc].setLeft(int(pictureArea.left()
+											 + (double)(colInc+1) * (pictureArea.right () - pictureArea.left ())
+											 / (double)grid.size( ) + 2));
+			grid[colInc][rowInc].setRight(int(pictureArea.left()
+				+ (double)(colInc + 2) * (pictureArea.right () - pictureArea.left ()) / (double)grid.size() + 2));
+			grid[colInc][rowInc].setTop(int(pictureArea.top ()
+				+ (double)(rowInc)* (pictureArea.bottom () - pictureArea.top ()) / (double)grid[colInc].size()));
+			grid[colInc][rowInc].setBottom(int(pictureArea.top()
+				+ (double)(rowInc + 1)* (pictureArea.bottom () - pictureArea.top ()) / (double)grid[colInc].size()));
 		}
 	}
 }
@@ -301,8 +300,8 @@ void PictureControl::setActive( bool activeState )
 	}
 	active = activeState;
 	if (!active){
-		sliderMax.hide ( SW_HIDE );
-		sliderMin.hide ( SW_HIDE );
+		sliderMax.hide ( true );
+		sliderMin.hide (true);
 		//
 		coordinatesText->hide( );
 		coordinatesDisp->hide( );
@@ -310,8 +309,8 @@ void PictureControl::setActive( bool activeState )
 		valueDisp->hide(  );
 	}
 	else{
-		sliderMax.hide ( SW_SHOW );
-		sliderMin.hide ( SW_SHOW );
+		sliderMax.hide ( false );
+		sliderMin.hide ( false );
 		coordinatesText->show();
 		coordinatesDisp->show();
 		valueText->show( );
@@ -352,8 +351,8 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	auto minColor = sliderMin.getValue ( );
 	auto maxColor = sliderMax.getValue ( );
 	mostRecentAutoscaleInfo = autoScaleInfo;
-	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
-	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
+	int pixelsAreaWidth = pictureArea.right () - pictureArea.left () + 1;
+	int pixelsAreaHeight = pictureArea.bottom () - pictureArea.top () + 1;
 	int dataWidth = grid.size ( );
 	// first element containst whether autoscaling or not.
 	long colorRange;
@@ -447,7 +446,7 @@ void PictureControl::handleMouse (QMouseEvent* event){
 	unsigned colCount = 0;
 	for ( auto col : grid ){
 		for ( auto box : col ){
-			if (loc.x() < box.right && loc.x () > box.left && loc.y() > box.top && loc.y () < box.bottom ) {
+			if (loc.x() < box.right () && loc.x () > box.left () && loc.y() > box.top () && loc.y () < box.bottom ()) {
 				coordinatesDisp->setText( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
 				selectedLocation = { rowCount, colCount };
 				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 ){
@@ -480,8 +479,8 @@ void PictureControl::drawGrid(QPainter& painter){
 	// draw rectangles indicating where the pixels are.
 	for (unsigned columnInc = 0; columnInc < grid.size(); columnInc++){
 		for (unsigned rowInc = 0; rowInc < grid[columnInc].size(); rowInc++){
-			unsigned pixelRow = picScaleFactor * grid[columnInc][rowInc].top;
-			unsigned pixelColumn = picScaleFactor * grid[columnInc][rowInc].left;
+			unsigned pixelRow = picScaleFactor * grid[columnInc][rowInc].top();
+			unsigned pixelColumn = picScaleFactor * grid[columnInc][rowInc].left();
 			QRect rect = QRect (QPoint (pixelColumn, pixelRow),
 						 QPoint (pixelColumn + picScaleFactor - 2, pixelRow + picScaleFactor - 2));
 			painter.drawRect (rect);

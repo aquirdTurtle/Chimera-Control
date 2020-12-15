@@ -53,7 +53,7 @@ class DoSystem : public IChimeraSystem {
 		bool getTtlStatus ( DoRows::which row, int number );
 		void updateDefaultTtl( DoRows::which row, unsigned column, bool state);
 		bool getDefaultTtl( DoRows::which row, unsigned column);
-		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
+		std::pair<unsigned short, unsigned short> calcDoubleShortTime( double time );
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
 		void updatePush( DoRows::which row, unsigned col );
 		allDigitalOutputs& getDigitalOutputs();

@@ -222,8 +222,8 @@ allDigitalOutputs& DoSystem::getDigitalOutputs ( ){
 	return outputs;
 }
 
-std::pair<USHORT, USHORT> DoSystem::calcDoubleShortTime( double time ){
-	USHORT lowordTime, hiwordTime;
+std::pair<unsigned short, unsigned short> DoSystem::calcDoubleShortTime( double time ){
+	unsigned short lowordTime, hiwordTime;
 	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 	// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
 	lowordTime = unsigned __int64( time * 10000 ) % 65535;

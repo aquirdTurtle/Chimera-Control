@@ -246,7 +246,7 @@ void ParameterModel::checkVariationRangeConsistency () {
 }
 
 
-void ParameterModel::setVariationRangeNumber (int num, USHORT dimNumber){
+void ParameterModel::setVariationRangeNumber (int num, unsigned short dimNumber){
     // -2 for the two +- columns
     int currentVariableRangeNumber = (columnCount () - preRangeColumns) / 3;
     checkScanDimensionConsistency ();
