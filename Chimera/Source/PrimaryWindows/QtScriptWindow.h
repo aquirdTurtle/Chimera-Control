@@ -2,7 +2,6 @@
 
 #include <QMainWindow>
 #include <QTimer>
-#include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "Agilent/Agilent.h"
@@ -11,7 +10,6 @@
  
 // a convenient structure for containing one object for each script. For example, the address of each script.
 template <typename type> struct scriptInfo{
-	type niawg;
 	type intensityAgilent;
 	type master;
 };
@@ -29,8 +27,6 @@ class QtScriptWindow : public IChimeraQtWindow{
 		void initializeWidgets ();
 
 		void fillExpDeviceList (DeviceList& list);
-		void passRerngModeComboChange ();
-		void passExperimentRerngButton ();
 		void checkScriptSaves ();
 
 		scriptInfo<std::string> getScriptNames ();
@@ -55,12 +51,6 @@ class QtScriptWindow : public IChimeraQtWindow{
 		void saveIntensityScript ();
 		void saveIntensityScriptAs (IChimeraQtWindow* parent);
 
-		void newNiawgScript ();
-		void openNiawgScript (IChimeraQtWindow* parent);
-		void openNiawgScript (std::string name);
-		void saveNiawgScript ();
-		void saveNiawgScriptAs (IChimeraQtWindow* parent);
-
 		void newMasterScript ();
 		void openMasterScript (IChimeraQtWindow* parent);
 		void openMasterScript (std::string name);
@@ -77,22 +67,8 @@ class QtScriptWindow : public IChimeraQtWindow{
 
 		profileSettings getProfile ();
 		void setIntensityDefault ();
-		void passNiawgIsOnPress ();
-		void setNiawgRunningState (bool newRunningState);
-		void handleControlNiawgCheck ();
-		bool niawgIsRunning ();
-		void stopRearranger ();
-		void waitForRearranger ();
-		void setNiawgDefaults ();
-		void restartNiawgDefaults ();
-		NiawgCore& getNiawg ();
-		void stopNiawg ();
-		void sendNiawgSoftwareTrig ();
-		void streamNiawgWaveform ();
-		std::string getNiawgErr ();
     private:
         Ui::QtScriptWindow* ui;
-        NiawgSystem niawg;
         Script masterScript;
         ProfileIndicator profileDisplay;
         Agilent intensityAgilent;

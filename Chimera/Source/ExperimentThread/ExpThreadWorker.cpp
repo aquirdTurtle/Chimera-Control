@@ -361,32 +361,6 @@ void ExpThreadWorker::loadAgilentScript (std::string scriptAddress, ScriptStream
 	scriptFile.close ();
 }
 
-void ExpThreadWorker::loadNiawgScript (std::string scriptAddress, ScriptStream& niawgScript) {
-	std::ifstream scriptFile;
-	// check if file address is good.
-	FILE* file;
-	fopen_s (&file, cstr (scriptAddress), "r");
-	if (!file) {
-		thrower ("The Niawg Script File \"" + scriptAddress + "\" does not exist! The Master-Manager tried to "
-			"open this file before starting the script analysis.");
-	}
-	else {
-		fclose (file);
-	}
-	scriptFile.open (cstr (scriptAddress));
-	// check opened correctly
-	if (!scriptFile.is_open ()) {
-		thrower ("File passed test making sure the file exists, but it still failed to open?!?! "
-			"(A low level-bug, this shouldn't happen.)");
-	}
-	// dump the file into the stringstream.	
-	niawgScript.str ("");
-	niawgScript.clear ();
-	niawgScript << scriptFile.rdbuf ();
-	niawgScript.seekg (0);
-	scriptFile.close ();
-}
-
 void ExpThreadWorker::loadMasterScript (std::string scriptAddress, ScriptStream& currentMasterScript) {
 	std::ifstream scriptFile;
 	// check if file address is good.
@@ -509,9 +483,9 @@ bool ExpThreadWorker::handleVectorizedValsDeclaration (std::string word, ScriptS
 	catch (boost::bad_lexical_cast) {
 		thrower ("Failed to convert constant vector length to an unsigned int!");
 	}
-	if (vecLength_ui == 0 || vecLength_ui > NiawgConstants::MAX_NIAWG_SIGNALS) {
+	if (vecLength_ui == 0 || vecLength_ui > 32) {
 		thrower ("Invalid constant vector length: " + str (vecLength_ui) + ", must be greater than 0 and less than "
-			+ str (NiawgConstants::MAX_NIAWG_SIGNALS));
+			+ str (32));
 	}
 	std::string bracketDelims;
 	stream >> bracketDelims;
@@ -801,7 +775,7 @@ unsigned ExpThreadWorker::determineVariationNumber (std::vector<parameterType> v
 void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams) {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
-	bool niawgMismatch = false, rsgMismatch = false;
+	bool rsgMismatch = false;
 	for (auto variationInc : range (determineVariationNumber (expParams))) {
 		if (true /*runMaster*/) {
 			unsigned actualTrigs = input->ttls.countTriggers ({ DoRows::which::D,15 }, variationInc);
@@ -813,24 +787,6 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 				thrower ("the number of dac triggers that the ttl system sends to the dac line does not "
 					"match the number of dac snapshots! " + infoString + ", seen in variation #"
 					+ str (variationInc) + "\r\n");
-			}
-			if (variationInc == 0) {
-				emit notification (qstr (infoString), 2);
-			}
-		}
-		auto& niawg = input->devices.getSingleDevice<NiawgCore> ();
-		if (niawg.experimentActive && !niawgMismatch) {
-			auto actualTrigs = input->ttls.countTriggers (niawg.getTrigLines (), variationInc);
-			auto niawgExpectedTrigs = niawg.getNumberTrigsInScript ();
-			std::string infoString = "Actual/Expected NIAWG Triggers: " + str (actualTrigs) + "/"
-				+ str (niawgExpectedTrigs) + ".";
-			if (actualTrigs != niawgExpectedTrigs)
-			{
-				emit warn (
-					cstr ("WARNING: the NIAWG is not getting triggered by the ttl system the same number"
-						" of times a trigger command appears in the NIAWG script. " + infoString + " First "
-						"instance seen variation " + str (variationInc) + ".\r\n"));
-				niawgMismatch = true;
 			}
 			if (variationInc == 0) {
 				emit notification (qstr (infoString), 2);

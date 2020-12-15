@@ -22,7 +22,6 @@ class IChimeraQtWindow;
 class Script : public IChimeraSystem {
 	public:
 		static constexpr auto MASTER_SCRIPT_EXTENSION = "mScript";
-		static constexpr auto NIAWG_SCRIPT_EXTENSION = "nScript";
 		static constexpr auto AGILENT_SCRIPT_EXTENSION = "aScript";
 		static constexpr auto FUNCTION_EXTENSION = "func";
 

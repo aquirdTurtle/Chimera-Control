@@ -45,9 +45,6 @@
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp">
       <Filter>National-Instruments</Filter>
     </ClCompile>
-    <ClCompile Include="Source\NIAWG\NiawgStructures.cpp">
-      <Filter>National-Instruments</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Microwave\MicrowaveCore.cpp">
       <Filter>MicrowaveSystem</Filter>
     </ClCompile>
@@ -75,12 +72,6 @@
     <ClCompile Include="Source\Plotting\PlottingInfo.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\NIAWG\Rearrangement\rerngGuiControl.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\NIAWG\Rearrangement\rerngOptionStructures.cpp">
-      <Filter>Main Window\Structures</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
@@ -107,9 +98,6 @@
     </ClCompile>
     <ClCompile Include="Source\ParameterSystem\ParameterSystem.cpp">
       <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\NIAWG\Fgen.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\ftdiFlume.cpp">
       <Filter>DIO</Filter>
@@ -214,10 +202,6 @@
       <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
-    <ClCompile Include="Source\NIAWG\NiawgSystem.cpp" />
-    <ClCompile Include="Source\NIAWG\NiawgCore.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
@@ -358,9 +342,6 @@
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h">
       <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NIAWG\NiawgStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Microwave\MicrowaveCore.h">
       <Filter>MicrowaveSystem</Filter>
     </ClInclude>
@@ -391,21 +372,6 @@
     <ClInclude Include="Source\Plotting\PlottingInfo.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NIAWG\Rearrangement\rerngContainer.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\Rearrangement\rerngGuiControl.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\Rearrangement\rerngMoveStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\Rearrangement\rerngOptionStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\Rearrangement\rerngThreadInput.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
@@ -430,9 +396,6 @@
     </ClInclude>
     <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h">
       <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\Fgen.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\ftdiFlume.h">
       <Filter>DIO</Filter>
@@ -482,9 +445,6 @@
       <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
-    <ClInclude Include="Source\NIAWG\directions.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
@@ -600,10 +560,6 @@
       <Filter>DIO</Filter>
     </ClInclude>
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
-    <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
-    <ClInclude Include="Source\NIAWG\NiawgCore.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DeformableMirror\DmControl.h" />
     <ClInclude Include="Source\DeformableMirror\DmCore.h" />
     <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
@@ -641,16 +597,10 @@
     <ClInclude Include="Source\ConfigurationSystems\ConfigSystem.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NIAWG\NiawgConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\rampInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\AnalogInput\CalibrationManager.h">
@@ -754,9 +704,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Planning.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Old_Intensity_Calibrations.txt">
       <Filter>National-Instruments</Filter>
     </None>
@@ -780,11 +727,6 @@
     </None>
     <None Include="MOC\moc_predefs.h.cbt" />
     <None Include="stylesheet.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Source\LowLevel\Chimera.rc">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Source\ExperimentThread\ExpThreadWorker.h" />

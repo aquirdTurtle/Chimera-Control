@@ -36,7 +36,6 @@
 	constexpr bool DOFTDI_SAFEMODE = false;
 	constexpr bool DDS_SAFEMODE = false;
 	constexpr bool BASLER_SAFEMODE = true;
-	constexpr bool NIAWG_SAFEMODE = true;
 	constexpr bool ANDOR_SAFEMODE = false;
 	#ifdef _DEBUG
 	constexpr bool PYTHON_SAFEMODE = true;
@@ -88,7 +87,6 @@
 	const std::string DEBUG_OUTPUT_LOCATION = str (CODE_ROOT) + "\\Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.
-	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 	const std::string DM_PROFILES_LOCATION = str(CODE_ROOT) + "\\DM-Library";
 	const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + "\\flatProfile.txt";
 #endif

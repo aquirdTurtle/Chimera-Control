@@ -635,8 +635,7 @@ void QtAndorWindow::prepareAtomCruncher (AllExperimentInput& input){
 	//input.cruncherInput->imQueue = &imQueue;
 	// options
 	if (input.masterInput){
-		auto& niawg = input.masterInput->devices.getSingleDevice< NiawgCore > ();
-		input.cruncherInput->rearrangerActive = niawg.expRerngOptions.active;
+		input.cruncherInput->rearrangerActive = false;
 	}
 	else{
 		input.cruncherInput->rearrangerActive = false;

@@ -25,11 +25,7 @@ void Script::initialize (int width, int height, QPoint& loc, IChimeraQtWindow* p
 	auto& px = loc.rx (), & py = loc.ry ();
 	deviceType = deviceTypeInput;
 	ScriptableDevice devenum;
-	if (deviceTypeInput == "NIAWG") {
-		devenum = ScriptableDevice::NIAWG;
-		extension = str (".") + NIAWG_SCRIPT_EXTENSION;
-	}
-	else if (deviceTypeInput == "Agilent") {
+	if (deviceTypeInput == "Agilent") {
 		devenum = ScriptableDevice::Agilent;
 		extension = str (".") + AGILENT_SCRIPT_EXTENSION;
 	}
@@ -79,39 +75,6 @@ void Script::initialize (int width, int height, QPoint& loc, IChimeraQtWindow* p
 							"-      extra white-space is generally fine and doesn't screw up analysis of the script. Format as you like.\n"
 							"-      Simple Math (+-/*) is supported in the scripts as well. To insert a mathematical expresion, just \n"
 							"-      add parenthesis () around the full expression");
-	}
-	else if( deviceType == "NIAWG"){
-		help->setToolTip (">>> This is a script for programming the NI AWG 5451. <<<\n"
-							"- the input format is referenced below using angled brackets <...>. Place the input on\n"
-							" the line below the command in the format specified.\n"
-							"- The ramping type options are currently \"lin\", \"tanh\" and \"nr\".\n"
-							"- The associated c++ code has been designed to be flexible when it comes to trailing white spaces at the ends of\n"
-							" lines and in between commands, so use whatever such formatting pleases your eyes.\n"
-							"Accepted Commands:\n"
-							"(a)Wait Commands\n"
-							"\"waitTilTrig\"\n"
-							"\"waitSet# <# of samples to wait>\"\n"
-							"(b)Repeat Commands\n"
-							"\"repeatSet# <# of times to repeat>\"\n"
-							"\"repeatTilTrig\"\n"
-							"\"repeatForever\"\n"
-							"\"endRepeat\"\n"
-							"(c)Logic Commands\n"
-							"\"ifTrig\"\n"
-							"\"else\"\n"
-							"\"endIf\"\n"
-							"(d)Constant Waveforms\n"
-							"\"gen2const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
-							"(e)Amplitude Ramps\n"
-							"\"gen2ampramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
-							"(f)frequency Ramps\n"
-							"\"gen2freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
-							"Etc.\n"
-							"(g)Amplitude and Frequency Ramps\n"
-							"\"gen2freq&ampramp <freq1 ramp type> <init freq1> <fin freq1> <amp ramp1 type> <init ramp1> <fin ramp1> <phase1 (rad)>;...\n"
-							"...<similar for 2nd>; <time> <t manage>\"\n"
-							"(j)Create marker event after last waveform\n"
-							"\"markerEvent <samples after previous waveform to wait>\"\n");
 	}
 	else if (deviceType == "Agilent"){
 		help->setToolTip (">>> Scripted Agilent Waveform Help <<<\n"
@@ -270,7 +233,7 @@ void Script::saveScript(std::string configPath, RunInfo info){
 		for (unsigned scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++){
 			if (scriptName == info.currentlyRunningScripts[scriptInc]){
 				thrower ("System is currently running. You can't save over any files in use by the system while"
-						 " it runs, which includes the NIAWG scripts and the intensity script.");
+						 " it runs, which includes the intensity script.");
 			}
 		}
 	}
@@ -444,10 +407,7 @@ void Script::newFunction(){
 void Script::newScript(){
 	std::string tempName;
 	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
-	if (deviceType == "NIAWG"){
-		tempName += "DEFAULT_SCRIPT.nScript";
-	}
-	else if (deviceType == "Agilent"){
+	if (deviceType == "Agilent"){
 		tempName += "DEFAULT_INTENSITY_SCRIPT.aScript";
 	}
 	else if (deviceType == "Master"){
@@ -469,12 +429,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	int myError = _splitpath_s(cstr(parentScriptFileAndPath), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, 
 								_MAX_FNAME, extChars, _MAX_EXT);
 	std::string extStr(extChars);
-	if (deviceType == "NIAWG"){
-		if (extStr != str(".") + NIAWG_SCRIPT_EXTENSION){
-			thrower ("Attempted to open non-NIAWG script inside NIAWG script control.");
-		}
-	}
-	else if (deviceType == "Agilent"){
+	if (deviceType == "Agilent"){
 		if (extStr != str( "." ) + AGILENT_SCRIPT_EXTENSION){
 			thrower ("Attempted to open non-agilent script from agilent script control.");
 		}

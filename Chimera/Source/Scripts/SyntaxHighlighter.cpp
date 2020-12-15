@@ -1,6 +1,5 @@
 #include <stdafx.h>
 #include <Scripts/SyntaxHighlighter.h>
-#include <NIAWG/NiawgStructures.h>
 #include <GeneralUtilityFunctions/my_str.h>
 
 SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* parent) : 
@@ -36,26 +35,6 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
 		addRules ({ "t" }, QColor (255, 255, 255), false, true);
 		addRules ({ ":" }, QColor (255, 255, 255), false, false);
 		addRules ({ "sin","cos","tan","exp","ln","var" }, QColor (42, 161, 152), true, true);
-	}
-	else if (device == ScriptableDevice::NIAWG) {
-		QVector<QString> niawgCommands = { "flash", "rearrange", "horizontal", "vertical" };
-		for (auto num : range (NiawgConstants::MAX_NIAWG_SIGNALS)) {
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "const"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "ampramp"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "freqramp"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "freq&ampramp"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "const_v"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "ampramp_v"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "freqramp_v"));
-			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "freq&ampramp_v"));
-		}
-		addRules (niawgCommands, QColor (108, 113, 196), true, true);
-		addRules ({"repeattiltrig", "repeatset#", "repeattilsoftwaretrig", "endrepeat", "repeatforever"}, 
-				  QColor (38, 139, 210), true, true);
-		addRules ({"lin", "nr", "tanh"}, QColor(133, 153, 0), true, true);
-		addRules ({ "\\{","\\}","\\[","\\]" }, QColor(42, 161, 152),true,false);
-		addRules ({ "var_v", "var" }, QColor (42, 161, 152), true, false);
-		addRules ({ "#" }, QColor (100, 100, 100), true, false);
 	}
 	else if (device == ScriptableDevice::Agilent) {
 		addRules ({"ramp", "hold", "pulse"}, QColor(108, 113, 196), true, true);

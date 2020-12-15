@@ -94,7 +94,6 @@ void IChimeraQtWindow::initializeMenu (){
 	runMenuM->addAction (runAll);
 
 	runMenuM->addAction ("Run Camera_X");
-	runMenuM->addAction ("Run NIAWG_X");
 	runMenuM->addAction ("Run Master_X");
 	runMenuM->addAction ("Run Basler_X");
 	runMenuM->addAction ("Run Basler and Master_X");
@@ -105,7 +104,6 @@ void IChimeraQtWindow::initializeMenu (){
 	runMenuM->addAction (abortAll);
 
 	runMenuM->addAction ("Abort Camera_X");
-	runMenuM->addAction ("Abort NIAWG_X");
 	runMenuM->addAction ("Abort Master_X");
 	runMenuM->addAction ("Abort Basler_X");
 	auto* pause = new QAction ("Pause Experiment\tF2", this);
@@ -135,7 +133,6 @@ void IChimeraQtWindow::initializeMenu (){
 	profileM->addAction ("Save Entire Profile_X");
 	/// SCRIPTS
 	auto scriptsM = menubar->addMenu ("&Scripts");
-	auto niawgScM = scriptsM->addMenu ("NIA&WG Script");
 	auto intM = scriptsM->addMenu ("Int&ensity Script");
 	auto masterSc = scriptsM->addMenu ("M&aster Script");
 	auto otherAg = scriptsM->addMenu ("Othe&r Agilents");
@@ -179,20 +176,6 @@ void IChimeraQtWindow::initializeMenu (){
 	auto* saveTBScriptAs = new QAction ("Save Top/Bottom Script &As", this);
 	connect (saveTBScriptAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_TOP_BOTTOM_SAVE_SCRIPT_AS, this); });
 	tbM->addAction (saveTBScriptAs);
-
-
-	auto* newNiawg = new QAction ("Ne&w NIAWG Script", this);
-	connect (newNiawg, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_NIAWG_NEW, this); });
-	niawgScM->addAction (newNiawg);
-	auto* openNiawg = new QAction ("Op&en NIAWG Script", this);
-	connect (openNiawg, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_NIAWG_OPEN, this); });
-	niawgScM->addAction (openNiawg);
-	auto* saveNiawg = new QAction ("&Save NIAWG Script", this);
-	connect (saveNiawg, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_NIAWG_SAVE, this); });
-	niawgScM->addAction (saveNiawg);
-	auto* saveNiawgAs = new QAction ("Save NIAWG Script &As", this);
-	connect (saveNiawgAs, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_NIAWG_SAVEAS, this); });
-	niawgScM->addAction (saveNiawgAs);
 	
 	auto* newMaster = new QAction ("Ne&w Master Script", this);
 	connect (newMaster, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_MASTERSCRIPT_NEW, this); });
@@ -221,30 +204,7 @@ void IChimeraQtWindow::initializeMenu (){
 	connect (saveasInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_SAVEAS, this); });
 	intM->addAction (saveasInt);
 
-	auto niawgM = menubar->addMenu ("NIAWG");
-	auto* reloadDefaultNiawg = new QAction ("Reload Default Waveforms", this);
-	connect (reloadDefaultNiawg, &QAction::triggered, [this]() {this->scriptWin->restartNiawgDefaults (); });
-	niawgM->addAction (reloadDefaultNiawg);
-	   
-	niawgM->addAction ("Send Software Trigger_X");
-	niawgM->addAction ("Stream Waveform_X");
-	niawgM->addAction ("Get NIWAG Error_X");
-	niawgM->addAction ("NIAWG is On_X");
-	auto andorM = menubar->addMenu ("Andor");
-	andorM->addAction ("Show Pictures in Real Time_X");
-	andorM->addAction ("Autoscale Pictures_X");
-	andorM->addAction ("Always Show Grid_X");
-	andorM->addAction ("Color > Max Special_X");
-	andorM->addAction ("Color < Min Special_X");
-	auto andorsubm = andorM->addMenu ("Data Type");
-	andorsubm->addAction ("Raw Counts_X");
-	andorsubm->addAction ("Photons Collected_X");
-	andorsubm->addAction ("Photons Scattered_X");
-	auto plottingM = menubar->addMenu ("Plotting");
-	plottingM->addAction ("Stop Plotter_X");
 	auto masterSystemsM = menubar->addMenu ("Master Systems");
-	masterSystemsM->addAction ("Round DAC Values to DAC's Precision_X");
-
 	auto* changeIndvDo = new QAction ("View or Change Individual Digital Output Settings", this);
 	connect (changeIndvDo, &QAction::triggered, [this, cmnMsg]() {auxWin->ViewOrChangeTTLNames(); });
 	masterSystemsM->addAction (changeIndvDo);
@@ -261,6 +221,4 @@ void IChimeraQtWindow::initializeMenu (){
 	auto* reloadStylesheets = new QAction ("Reload Stylesheet", this);
 	connect (reloadStylesheets, &QAction::triggered, [this, cmnMsg]() {this->mainWin->setStyleSheets ();});
 	prefM->addAction (reloadStylesheets);
-	auto baslerM = menubar->addMenu ("Basler");
-	baslerM->addAction ("Autoscale Pictures_X");
 }

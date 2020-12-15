@@ -2,7 +2,6 @@
 
 #include <QMainWindow>
 #include <QTimer>
-#include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "Agilent/Agilent.h"

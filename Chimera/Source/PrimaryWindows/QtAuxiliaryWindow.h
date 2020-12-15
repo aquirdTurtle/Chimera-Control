@@ -1,6 +1,5 @@
 #pragma once
 
-#include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "ExperimentThread/ExperimentThreadInput.h"

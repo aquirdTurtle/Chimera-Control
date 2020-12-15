@@ -8,7 +8,6 @@
 #include "Microwave/MicrowaveCore.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "Agilent/AgilentCore.h"
-#include "NIAWG/NiawgCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Andor/AndorCameraCore.h"
 #include "expSystemRunList.h" 

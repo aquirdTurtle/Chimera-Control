@@ -2,7 +2,6 @@
 #include "stdafx.h"
 
 #include "ConfigurationSystems/ConfigSystem.h"
-#include "NIAWG/NiawgCore.h"
 #include "Andor/AndorCameraCore.h"
 #include <RealTimeDataAnalysis/DataAnalysisControl.h>
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
@@ -39,16 +38,6 @@ void ConfigSystem::initialize( QPoint& pos, IChimeraQtWindow* win){
 		}});
 	py += 25;
 	updateConfigurationSavedStatus( true );
-}
-
-std::string ConfigSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream){
-	// open configuration file and grab the niawg script file address from it.
-	initializeAtDelim (configStream, "SCRIPTS");
-	configStream.get ();
-	auto getlineF = ConfigSystem::getGetlineFunc (configStream.ver);
-	std::string niawgScriptAddresses;
-	getlineF (configStream, niawgScriptAddresses);
-	return niawgScriptAddresses;
 }
 
 void ConfigSystem::checkSaveEntireProfile(IChimeraQtWindow* win){

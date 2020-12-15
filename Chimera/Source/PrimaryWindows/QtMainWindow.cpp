@@ -27,7 +27,6 @@ QtMainWindow::QtMainWindow () :
 	calManager(this){
 	statBox = new ColorBox ();
 	startupTimes.push_back (chronoClock::now ());
-	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
 	std::string which = "";
 	try	{
@@ -151,15 +150,6 @@ void QtMainWindow::initializeWidgets (){
 unsigned QtMainWindow::getAutoCalNumber () { return autoCalNum; }
 
 void QtMainWindow::onAutoCalFin (QString msg, profileSettings finishedConfig){
-	try	{
-		scriptWin->restartNiawgDefaults ();
-	}
-	catch (ChimeraError& except)	{
-		reportErr ("The niawg finished normally, but upon restarting the default waveform, threw the "
-						"following error: " + except.qtrace ());
-		reportStatus ("ERROR!\r\n");
-	}
-	scriptWin->setNiawgRunningState (false);
 	andorWin->handleNormalFinish (finishedConfig);
 	autoCalNum++;
 	if (autoCalNum >= AUTO_CAL_LIST.size ())	{
@@ -379,7 +369,6 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	input->calibrations = calManager.getCalibrationInfo ();
-	// the mot procedure doesn't need the NIAWG at all.
 	input->skipNext = NULL;
 }
 
@@ -458,16 +447,8 @@ void QtMainWindow::onFatalError (QString finMsg){
 	scriptWin->setIntensityDefault ();
 	std::string msgText = "Exited with Error!\nPassively Outputting Default Waveform.";
 	changeShortStatusColor ("R");
-	try{
-		scriptWin->restartNiawgDefaults ();
-		reportErr ("EXITED WITH ERROR!\n");
-		reportStatus ("EXITED WITH ERROR!\nInitialized Default Waveform\r\n");
-	}
-	catch (ChimeraError& except){
-		reportErr ("EXITED WITH ERROR! " + except.qtrace ());
-		reportStatus ("EXITED WITH ERROR!\nNIAWG RESTART FAILED!\r\n");
-	}
-	scriptWin->setNiawgRunningState (false);
+	reportErr ("EXITED WITH ERROR!\n");
+	reportStatus ("EXITED WITH ERROR!\nInitialized Default Waveform\r\n");
 }
 
 void QtMainWindow::onNormalFinish (QString finMsg, profileSettings finishedProfile) {
@@ -475,20 +456,9 @@ void QtMainWindow::onNormalFinish (QString finMsg, profileSettings finishedProfi
 	scriptWin->setIntensityDefault ();
 	setShortStatus ("Passively Outputting Default Waveform");
 	changeShortStatusColor ("B");
-	scriptWin->stopRearranger ();
 	andorWin->handleNormalFinish (finishedProfile);
 	handleFinishText ();
 	auxWin->handleNormalFin ();
-	try { scriptWin->restartNiawgDefaults (); }
-	catch (ChimeraError& except){
-		reportErr ("The niawg finished normally, but upon restarting the default waveform, threw the "
-			"following error: " + except.qtrace ());
-		reportStatus ("ERROR!\r\n");
-	}
-	scriptWin->setNiawgRunningState (false);
-	try { scriptWin->waitForRearranger (); }
-	catch (ChimeraError& err) { reportErr (err.qtrace ()); }
-
 	if (autoF5_AfterFinish)	{
 		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F5, this);
 		autoF5_AfterFinish = false;

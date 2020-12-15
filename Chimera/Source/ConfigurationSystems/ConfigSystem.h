@@ -3,7 +3,6 @@
 #include "Control.h"
 #include "GeneralObjects/commonTypes.h"
 #include "profileSettings.h"
-#include "NIAWG/NiawgStructures.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "Scripts/ScriptStream.h"
 #include <vector>
@@ -38,7 +37,6 @@ class ConfigSystem : public IChimeraSystem {
 		void deleteConfiguration();
 		void openConfigFromPath( std::string pathToConfig, IChimeraQtWindow* win);
 		static void getVersionFromFile( ConfigStream& file );
-		static std::string getNiawgScriptAddrFromConfig(ConfigStream& configStream);
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
 		bool configurationSettingsReadyCheck(IChimeraQtWindow* win);
