@@ -11,7 +11,6 @@
 #include "NIAWG/NiawgCore.h"
 #include "Tektronix/TekCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
-#include "Piezo/PiezoCore.h"
 #include "Andor/AndorCameraCore.h"
 #include "expSystemRunList.h" 
 #include "Andor/AndorRunSettings.h"

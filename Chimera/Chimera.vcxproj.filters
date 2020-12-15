@@ -48,15 +48,6 @@
     <ClCompile Include="Source\NIAWG\NiawgStructures.cpp">
       <Filter>National-Instruments</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Piezo\PiezoController.cpp">
-      <Filter>PiezoControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Piezo\PiezoCore.cpp">
-      <Filter>PiezoControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Piezo\PiezoFlume.cpp">
-      <Filter>PiezoControllers</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Microwave\MicrowaveCore.cpp">
       <Filter>MicrowaveSystem</Filter>
     </ClCompile>
@@ -92,9 +83,6 @@
     </ClCompile>
     <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp">
-      <Filter>PiezoControllers</Filter>
     </ClCompile>
     <ClCompile Include="Source\ExcessDialogs\openWithExplorer.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
@@ -376,18 +364,6 @@
     <ClInclude Include="Source\NIAWG\NiawgStructures.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Piezo\CmdLibrary.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Piezo\PiezoController.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Piezo\PiezoCore.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Piezo\PiezoFlume.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Microwave\MicrowaveCore.h">
       <Filter>MicrowaveSystem</Filter>
     </ClInclude>
@@ -436,9 +412,6 @@
     <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Piezo\SerialPiezoFlume.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\DataAnalysisControl.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
@@ -448,9 +421,6 @@
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Piezo\PiezoType.h">
-      <Filter>PiezoControllers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Microwave\RsgFlume.h">
       <Filter>MicrowaveSystem</Filter>
@@ -661,9 +631,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Python\NewPythonHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Piezo\piezoChan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\analysisSettings.h">

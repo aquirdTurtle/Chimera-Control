@@ -550,21 +550,6 @@ void DataLogger::logMiscellaneousStart(){
 }
 
 
-void DataLogger::logAndorPiezos (piezoChan<double> cameraPiezoVals) {
-	try {
-		H5::Group andorAlginmentGroup (file.createGroup ("/AndorAlignment"));
-		writeDataSet (cameraPiezoVals.x, "xval", andorAlginmentGroup);
-		writeDataSet (cameraPiezoVals.y, "yval", andorAlginmentGroup);
-		writeDataSet (cameraPiezoVals.z, "zval", andorAlginmentGroup);
-	}
-	catch (H5::Exception & err) {
-		auto fullE = getFullError (err);
-		throwNested ("Failed to write Andor Camera Alignmentdata to HDF5 file! Error: " + str (err.getDetailMsg ()) 
-			+ "\n""; Full error:" + fullE);
-	}
-}
-
-
 void DataLogger::assertClosed () {
 	AndorPicureSetDataSpace.close ();
 	AndorPictureDataset.close ();

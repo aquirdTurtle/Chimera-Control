@@ -7,7 +7,6 @@
 #include "IChimeraQtWindow.h"
 
 #include "LowLevel/constants.h"
-#include "Piezo/PiezoController.h"
 #include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "ParameterSystem/ParameterSystem.h"
@@ -45,7 +44,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		void initializeWidgets ();
 		void handleNormalFin ();
 		void updateOptimization (AllExperimentInput& input);
-		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		LRESULT onLogVoltsMessage (WPARAM wp, LPARAM lp);
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
@@ -88,9 +86,7 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		ParameterSystem& getGlobals ();
 		std::vector<parameterType> getUsableConstants ();
 		void fillExpDeviceList (DeviceList& list);
-
 		std::vector<std::reference_wrapper<AgilentCore>> getAgilents ();
-
 	protected:
 		bool eventFilter (QObject* obj, QEvent* event);
 
@@ -108,7 +104,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		MachineOptimizer optimizer;
 		ParameterSystem configParamCtrl, globalParamCtrl;
 		DdsSystem dds;
-		PiezoController piezo1, piezo2, piezo3;
 
 		std::vector<PlotCtrl*> aoPlots;
 		std::vector<PlotCtrl*> ttlPlots;

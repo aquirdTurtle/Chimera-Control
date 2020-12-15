@@ -20,9 +20,7 @@ QtAndorWindow::QtAndorWindow (QWidget* parent) : IChimeraQtWindow (parent),
 	dataHandler (DATA_SAVE_LOCATION, this),
 	andor (ANDOR_SAFEMODE),
 	pics (false, "ANDOR_PICTURE_MANAGER", false, Qt::SmoothTransformation),
-	imagingPiezo (this, IMG_PIEZO_INFO),
-	analysisHandler (this)
-{
+	analysisHandler (this){
 	statBox = new ColorBox ();
 	setWindowTitle ("Andor Window");
 }
@@ -41,7 +39,6 @@ void QtAndorWindow::initializeWidgets (){
 	alerts.initialize (position, this);
 	analysisHandler.initialize (position, this);
 	andorSettingsCtrl.initialize (position, this, andor.getVertShiftSpeeds(), andor.getHorShiftSpeeds());
-	imagingPiezo.initialize (position, this, 480, { "Horizontal Pzt.", "Disconnected", "Vertical Pzt." });
 	position = { 480, 25 };
 	stats.initialize (position, this);
 	for (auto pltInc : range (6)){
@@ -161,7 +158,6 @@ void QtAndorWindow::windowSaveConfig (ConfigStream& saveFile){
 	andorSettingsCtrl.handleSaveConfig (saveFile);
 	pics.handleSaveConfig (saveFile);
 	analysisHandler.handleSaveConfig (saveFile);
-	imagingPiezo.handleSaveConfig (saveFile);
 }
 
 void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
@@ -203,7 +199,6 @@ void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 	catch (ChimeraError& e){
 		reportErr (qstr ("Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace ()));
 	}
-	ConfigSystem::standardOpenConfig (configFile, imagingPiezo.getConfigDelim (), &imagingPiezo, Version ("5.3"));
 	analysisHandler.updateUnofficialPicsPerRep (andorSettingsCtrl.getConfigSettings ().andor.picsPerRepetition);
 }
 
@@ -885,11 +880,6 @@ void QtAndorWindow::readImageParameters (){
 
 void QtAndorWindow::fillExpDeviceList (DeviceList& list){
 	list.list.push_back (andor);
-}
-
-piezoChan<double> QtAndorWindow::getAlignmentVals () {
-	auto& core = imagingPiezo.getCore ();
-	return { core.getCurrentXVolt (), core.getCurrentYVolt (), core.getCurrentZVolt () };
 }
 
 void QtAndorWindow::handleNormalFinish (profileSettings finishedProfile) {

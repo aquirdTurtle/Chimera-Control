@@ -8,7 +8,6 @@
 #include "AnalogInput/ServoManager.h"
 #include "AnalogInput/servoInfo.h"
 #include "Tektronix/TektronixStructures.h"
-#include <Piezo/piezoChan.h>
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
@@ -40,7 +39,6 @@ class DataLogger : public IChimeraSystem {
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DoCore& doSys );
 		void logPlotData ( std::string name );
-		void logAndorPiezos (piezoChan<double> cameraPiezoVals);
 		void initializeAiLogging ( unsigned numSnapshots );
 		int getCalibrationFileIndex ();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
@@ -90,8 +88,7 @@ class DataLogger : public IChimeraSystem {
 };
 
 
-template <class type> void writeDataSet( type data, H5::Group group )
-{
+template <class type> void writeDataSet( type data, H5::Group group ){
 	H5::DataSet rightSet = imageDims.createDataSet( "Right", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
 	rightSet.write( &settings.imageSettings.right, H5::PredType::NATIVE_INT );
 }

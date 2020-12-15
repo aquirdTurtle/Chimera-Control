@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <GeneralObjects/coordinate.h>
-#include <Piezo/piezoChan.h>
 #include <RealTimeDataAnalysis/atomGrid.h>
 #include <AnalogInput/calInfo.h>
 

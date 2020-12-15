@@ -68,8 +68,7 @@ namespace commonFunctions
 					prepareMasterThread (msgID, win, input, false, true, false, true, false);
 					commonFunctions::getPermissionToStart (win, false, true, input);
 					input.masterInput->expType = ExperimentType::Normal;
-					logStandard (input, andorWin->getLogger (), andorWin->getAlignmentVals (),
-						"", false);
+					logStandard (input, andorWin->getLogger (), "", false);
 					startExperimentThread (mainWin, input);
 				}
 				catch (ChimeraError & err) {
@@ -105,7 +104,7 @@ namespace commonFunctions
 						commonFunctions::getPermissionToStart (win, true, true, input);
 					}
 					mainWin->autoF5_AfterFinish = false;
-					logStandard (input, andorWin->getLogger (), andorWin->getAlignmentVals ());
+					logStandard (input, andorWin->getLogger ());
 					startExperimentThread (mainWin, input);
 				}
 				catch (ChimeraError & err) {
@@ -307,7 +306,7 @@ namespace commonFunctions
 					mainWin->reportStatus (qstr (calInfo.infoStr));
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->expType = ExperimentType::AutoCal;
-					logStandard (input, andorWin->getLogger (), andorWin->getAlignmentVals (), calInfo.fileName, false);
+					logStandard (input, andorWin->getLogger (), calInfo.fileName, false);
 					startExperimentThread (mainWin, input);
 				}
 				catch (ChimeraError & err) {
@@ -523,17 +522,14 @@ namespace commonFunctions
 		}
 		mainWin->reportStatus ( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
-
-
-	void logStandard( AllExperimentInput input, DataLogger& logger, piezoChan<double> cameraPiezoVals,
+	
+	void logStandard( AllExperimentInput input, DataLogger& logger, 
 					  std::string specialName, bool needsCal ){
 		logger.initializeDataFiles( specialName, needsCal );
 		logger.logMasterInput( input.masterInput );
 		logger.logMiscellaneousStart();
 		logger.initializeAiLogging( input.masterInput->numAiMeasurements );
-		logger.logAndorPiezos (cameraPiezoVals);
 	}
-
 
 	bool getPermissionToStart( IChimeraQtWindow* win, bool runNiawg, bool runMaster, AllExperimentInput& input ){
 		std::string startMsg = "Current Settings:\r\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\r\n";

@@ -446,7 +446,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
     <ClInclude Include="Source\NIAWG\rampInfo.h" />
-    <ClInclude Include="Source\Piezo\piezoChan.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtScriptWindow.h -o MOC\moc_QtScriptWindow.cpp</Command>
@@ -536,7 +535,6 @@
     <ClInclude Include="Source\Basler\BaslerCamera.h" />
     <ClInclude Include="Source\Basler\BaslerSettings.h" />
     <ClInclude Include="Source\Basler\BaslerSettingsControl.h" />
-    <ClInclude Include="Source\Piezo\CmdLibrary.h" />
     <ClInclude Include="Source\GeneralObjects\CodeTimer.h" />
     <ClInclude Include="Source\Plotting\dataPoint.h" />
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsCore.h" />
@@ -548,15 +546,10 @@
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h" />
     <ClInclude Include="Source\Microwave\microwaveSettings.h" />
-    <ClInclude Include="Source\Piezo\PiezoController.h" />
-    <ClInclude Include="Source\Piezo\PiezoCore.h" />
-    <ClInclude Include="Source\Piezo\PiezoFlume.h" />
-    <ClInclude Include="Source\Piezo\PiezoType.h" />
     <ClInclude Include="Source\GeneralObjects\Queues.h" />
     <ClInclude Include="Source\Microwave\MicrowaveCore.h" />
     <ClInclude Include="Source\Microwave\RsgFlume.h" />
     <ClInclude Include="Source\Agilent\SegmentEnd.h" />
-    <ClInclude Include="Source\Piezo\SerialPiezoFlume.h" />
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
     <ClInclude Include="Source\Andor\CameraCalibration.h" />
     <ClInclude Include="Source\Andor\CameraImageDimensions.h" />
@@ -712,14 +705,10 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgStructures.cpp" />
-    <ClCompile Include="Source\Piezo\PiezoController.cpp" />
-    <ClCompile Include="Source\Piezo\PiezoCore.cpp" />
-    <ClCompile Include="Source\Piezo\PiezoFlume.cpp" />
     <ClCompile Include="Source\NIAWG\Rearrangement\rerngOptionStructures.cpp" />
     <ClCompile Include="Source\Microwave\MicrowaveCore.cpp" />
     <ClCompile Include="Source\Microwave\RsgFlume.cpp" />
     <ClCompile Include="Source\Agilent\SegmentEnd.cpp" />
-    <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp" />
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraSettingsControl.cpp" />

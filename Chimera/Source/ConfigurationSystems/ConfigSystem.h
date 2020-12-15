@@ -77,35 +77,9 @@ class ConfigSystem : public IChimeraSystem {
 		// I try to use version sub changes for small changes and version main for big formatting (sometimes backwards 
 		// incompatible) changes
 
-		// version 3.6: rerngMode added instead of various bools
-		// Version 3.7: stop reporting initial ttl and dac values in configs.
-		// Version 4.0: changed the way I readbtn in data for different controls. Each control re-opens the file and scans  
-		// untill it finds the appropriate section for it to readbtn. Makes it so that if one thing fails, everything  
-		// afterwards doesn't also fail.
-		// Version 4.1: Added auto threshold analysis option
-		// Version 4.2: Agilent channel mode added and saving this as text instead of index
-		// Version 4.3: Refactored parameter system range structure to include range info separate for each dimension.
-		// Version 4.4: added software accumulation picture options
-		// Version 4.5: Added DDS system to save.
-		// Version 4.6: Added Piezo System 1 to save.
-		// Version 4.7: Added display grid check
-		// Version 4.8: Moved pics per rep and exposure times to the CameraSettingsControl part of the config.
-		// Version 4.9: added aisystem settings to config file.
-		// Version 4.10: Added Microwave system settings to config file.
-		// Version 4.11: Moved niawg system to script window, changing order of file.
-		// Version 4.12: Added "Control Niawg" option.
-		/// Version 5.0: Revamped reading and writing to the files to use Scriptstream, supporting comments. Includes
-		// a variety of minor formatting changes and a bunch of comments into the file.
-		// Verion 5.1: Added control option for dds system
-		// Version 5.2: added 3rd piezo (not actually connected at the time)
-		// Version 5.3: Added Imaging Piezo
-		// Version 5.4: Added Auto Bump Analysis Options
-		// Version 5.5: Added Andor transformation Mode Option
-		// Version 5.6: Added Andor Control option
-		// Version 5.7: Added Basler Control Option
-		// Version 5.8: Added shift speeds to andor system
-		// Version 5.9: Added burst mode control to andor system.
-		const Version version = Version( "5.9" );
+		// version 1.0: Start of minimalist chimera versioning. add notes here as you change the version to document
+		// what the new changes. 
+		const Version version = Version( "1.0" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;

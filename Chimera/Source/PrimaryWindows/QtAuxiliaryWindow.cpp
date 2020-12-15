@@ -20,8 +20,7 @@ agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTI
 Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),
 	aoSys (this, ANALOG_OUT_SAFEMODE), configParamCtrl (this, "CONFIG_PARAMETERS"),
-	globalParamCtrl (this, "GLOBAL_PARAMETERS"), dds (this, DDS_SAFEMODE),
-	piezo1 (this, PIEZO_1_INFO), piezo2 (this, PIEZO_2_INFO), piezo3(this, PIEZO_3_INFO){	
+	globalParamCtrl (this, "GLOBAL_PARAMETERS"), dds (this, DDS_SAFEMODE){	
 	statBox = new ColorBox ();
 	setWindowTitle ("Auxiliary Window");
 }
@@ -58,13 +57,8 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		agilents[(int)AgilentEnum::name::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
 		agilents[(int)AgilentEnum::name::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
 		loc = QPoint{ 1440, 25 };
-		loc.rx() += 300;
-		piezo1.initialize (loc, this, 180, { "Top-x", "Top-y", "Axial-y" });
-		piezo2.initialize (loc, this, 180, { "EO-x", "EO-y", "Axial-x" });
-		piezo3.initialize (loc, this, 180, { "Bot-x", "Bot-y", "---" });
-		loc.rx () -= 300;
 		loc.ry() = 25;
-		globalParamCtrl.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global, 300, 500);
+		globalParamCtrl.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global, 480, 500);
 		configParamCtrl.initialize (loc, this, "CONFIGURATION PARAMETERS", ParameterSysType::config);
 		configParamCtrl.setParameterControlActive (false);
 		dds.initialize (loc, this, "DDS SYSTEM");
@@ -244,14 +238,6 @@ ParameterSystem& QtAuxiliaryWindow::getGlobals (){
 	return globalParamCtrl;
 }
 
-std::vector<std::reference_wrapper<PiezoCore> > QtAuxiliaryWindow::getPiezoControllers (){
-	std::vector<std::reference_wrapper<PiezoCore> > controllers;
-	controllers.push_back (piezo1.getCore ());
-	controllers.push_back (piezo2.getCore ());
-	controllers.push_back (piezo3.getCore ());
-	return controllers;
-}
-
 std::pair<unsigned, unsigned> QtAuxiliaryWindow::getTtlBoardSize (){
 	return ttlBoard.getTtlBoardSize ();
 }
@@ -268,9 +254,6 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 	topBottomTek.handleSaveConfig (saveFile);
 	eoAxialTek.handleSaveConfig (saveFile);
 	dds.handleSaveConfig (saveFile);
-	piezo1.handleSaveConfig (saveFile);
-	piezo2.handleSaveConfig (saveFile);
-	piezo3.handleSaveConfig (saveFile);
 	aiSys.handleSaveConfig (saveFile);
 	uwSys.handleSaveConfig (saveFile);
 }
@@ -298,9 +281,6 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 		if (configFile.ver >= Version ("4.5")) {
 			ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
 		}
-		ConfigSystem::standardOpenConfig (configFile, piezo1.getConfigDelim (), &piezo1, Version ("4.6"));
-		ConfigSystem::standardOpenConfig (configFile, piezo2.getConfigDelim (), &piezo2, Version ("4.6"));
-		ConfigSystem::standardOpenConfig (configFile, piezo3.getConfigDelim (), &piezo3, Version ("5.2"));
 		AiSettings settings;
 		ConfigSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
 		aiSys.setAiSettings (settings);
@@ -627,14 +607,6 @@ std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){
 	else{
 		msg += "\tDDS System is disabled! Enable in \"constants.h\"\n";
 	}
-	msg += "Piezo System:\n";
-	msg += "\tPiezo System is Active!\n";
-	msg += "\tDevice List: " + piezo1.getPiezoDeviceList () + "\n";
-	msg += "\t Device Info:\n" + str ("\t\t");
-	msg += piezo1.getDeviceInfo () + "\n";
-	msg += piezo2.getDeviceInfo () + "\n";
-	msg += piezo3.getDeviceInfo () + "\n";
-	msg += "- End Dev Info";
 	return msg;
 }
 
@@ -681,8 +653,5 @@ void QtAuxiliaryWindow::fillExpDeviceList (DeviceList& list){
 	}
 	list.list.push_back (aiSys);
 	list.list.push_back (dds.getCore ());
-	list.list.push_back (piezo1.getCore ());
-	list.list.push_back (piezo2.getCore ());
-	list.list.push_back (piezo3.getCore ());
 }
 
