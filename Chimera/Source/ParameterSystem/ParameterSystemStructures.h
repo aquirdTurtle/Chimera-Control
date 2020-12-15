@@ -23,24 +23,22 @@ struct indvParamRangeInfo{
 	}
 };
 
-// shared between all parameters.
-struct IndvRangeInfo
-{
-unsigned int variations;
-bool leftInclusive;
-bool rightInclusive;
-bool operator==( const IndvRangeInfo& v )
-{
-	return ( variations == v.variations &&
-			 leftInclusive == v.leftInclusive &&
-			 rightInclusive == v.rightInclusive );
-}
+// shared between all parameters. not sure why the inclusivity needs to be shared. maybe something to do with the
+// algorithm currently used to generate vals. 
+struct IndvRangeInfo{
+	unsigned int variations;
+	bool leftInclusive;
+	bool rightInclusive;
+	bool operator==( const IndvRangeInfo& v ){
+		return ( variations == v.variations &&
+				 leftInclusive == v.leftInclusive &&
+				 rightInclusive == v.rightInclusive );
+	}
 };
 
 
 class ScanRangeInfo{
-	/*
-	This class is basically a wrapper around a 2d vector
+	/*This class is basically a wrapper around a 2d vector
 	*/
 	private:
 	const IndvRangeInfo defaultRangeInfo = { 2,false,true };
@@ -124,11 +122,10 @@ struct vectorizedNiawgVals{
 };
 
 
-struct parameterType{
+struct parameterType {
 	parameterType () { };
 	parameterType (int rangeSize){
-		for (auto rangeVariations : range(rangeSize))
-		{
+		for (auto rangeVariations : range(rangeSize)){
 			ranges.push_back ({ 0, 0 });
 		}
 	}

@@ -572,6 +572,8 @@ double CalibrationManager::calibrationFunction (double val, calResult calibratio
 }
 
 std::vector<double> CalibrationManager::calPtTextToVals (QString qtxt) {
+	// format is " [ initVal finVal ) numVals" where "[" and ")" can be either brackets or parenthesis for inclusive
+	// and exclusive endpoints, or it's just a list of values for arbitrary values. 
 	std::vector<double> vals;
 	if (qtxt == "") {
 		return vals;
@@ -579,17 +581,26 @@ std::vector<double> CalibrationManager::calPtTextToVals (QString qtxt) {
 	std::stringstream tmpStream (cstr (qtxt));
 	std::string ctrlTxt;
 	tmpStream >> ctrlTxt;
-	if (ctrlTxt == "(") {
-		double leftBound, rightBound, inc;
-		tmpStream >> leftBound >> rightBound >> inc;
+	if (ctrlTxt == "(" || ctrlTxt == "[") {
+		bool lIncl = bool(ctrlTxt == "[");
+		double leftBound, rightBound;
+		unsigned numPts;
+		std::string rightInclusive;
+		tmpStream >> leftBound >> rightBound >> rightInclusive >> numPts;
+		if (rightInclusive != ")" && rightInclusive != "]") {
+			thrower ("ERROR: bad right inclusive text! Expected \")\" or \"]\"!");
+		}
+		bool rIncl = bool (rightInclusive == "]");
 		if (!tmpStream) {
 			errBox ("Error In trying to set the calibration control values! Make sure text is all doubles.");
 			return vals;
 		}
-		auto val = leftBound;
-		while (val <= rightBound) {
-			vals.push_back (val);
-			val += inc;
+		int spacings = numPts + (!lIncl && !rIncl) - (lIncl && rIncl);
+		double valueRange = (rightBound - leftBound);
+		double initVal = (lIncl ? leftBound : leftBound + valueRange / spacings);
+		unsigned valNum = 0;
+		for (auto valNum : range (numPts)) {
+			vals.push_back(valueRange * valNum / spacings + initVal);
 		}
 	}
 	else {
