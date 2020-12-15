@@ -670,7 +670,6 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 				break;
 			}
 		}
-
 		for (auto keyInc : range (randomizerMultiKey.values.size ())){
 			tempKeyRandomized.values[keyInc] = tempKey.values[randomizerMultiKey.values[keyInc]];
 		}

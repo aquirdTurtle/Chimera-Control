@@ -10,8 +10,7 @@
 
 ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name ) :
 	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name ), viewPlot(traceNumIn,
-		plotStyle::OscilloscopePlot, std::vector<int>(), name)
-{
+		plotStyle::OscilloscopePlot, std::vector<int>(), name) {
 	try{
 		if (safemode) { ymult = 1.0; }
 		data_pdv.resize (numTraces);
@@ -21,6 +20,7 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned trace
 		//visa.close( );
 	}
 	catch ( ChimeraError& err ){
+		/*
 		auto answer = QMessageBox::question (NULL, "Scope Init Failed!", qstr("Failed to initialize " + scopeName 
 			+ ". " + err.trace() + ". Try again?"), QMessageBox::Yes | QMessageBox::No);
 		while (answer == QMessageBox::Yes) {
@@ -35,7 +35,7 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned trace
 				answer = QMessageBox::question (NULL, "Scope Init Failed!", qstr ("Failed to initialize " + scopeName
 					+ ". " + err.trace () + ". Try again?"), QMessageBox::Yes | QMessageBox::No);
 			}
-		}		
+		}*/
 		initializationFailed = true;
 	}
 }

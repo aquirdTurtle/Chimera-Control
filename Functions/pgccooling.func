@@ -20,7 +20,7 @@ def PgcCooling():
   t += 1
   var pgc_time 4
   on: repumpRf
-  on: sideMotRf
+  off: sideMotRf
   on: diagMotRf
   t += pgc_time 
   off: repumpRf
