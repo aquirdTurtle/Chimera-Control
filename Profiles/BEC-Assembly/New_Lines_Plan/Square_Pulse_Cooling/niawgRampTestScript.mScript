@@ -1,8 +1,0 @@
-t = 1
-pulseon: niawgTrig 0.1
-dac: dac0 0
-var waitTime 1
-t += waitTime
-pulseon: aceTrig 0.1
-t += 300
-pulseon: niawgTrig 0.1

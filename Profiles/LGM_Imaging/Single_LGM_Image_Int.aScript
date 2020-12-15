@@ -1,6 +1,0 @@
-var loadingdepth 6
-var lgmImageDepth 20
-hold loadingDepth 1 onceWaitTrig #  
-ramp lin loadingDepth lgmImageDepth 1 onceWaitTrig #  
-ramp lin lgmImageDepth loadingDepth 1 once #  
- 

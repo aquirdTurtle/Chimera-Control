@@ -12,14 +12,7 @@ void MainOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 	header = new QLabel ("MAIN OPTIONS", parent);
 	header->setGeometry (QRect (px, py, 480, 20));
 	py += 20;
-	
-	randomizeRepsButton = new QCheckBox ("Randomize Repetitions?", parent);
-	randomizeRepsButton->setGeometry (QRect (px, py, 480, 20));
-	randomizeRepsButton->setEnabled (false);
 	auto configUpdate = [parent]() {parent->configUpdated (); };
-	parent->connect (randomizeRepsButton, &QCheckBox::stateChanged, configUpdate);
-	py += 20;
-
 	randomizeVariationsButton = new QCheckBox ("Randomize Variations?", parent);
 	randomizeVariationsButton->setGeometry (QRect (px, py, 480, 20));
 	parent->connect (randomizeVariationsButton, &QCheckBox::stateChanged, configUpdate);
@@ -43,7 +36,6 @@ void MainOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 
 void MainOptionsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "MAIN_OPTIONS"
-			 << "\n/*Randomize Reps?*/ " << randomizeRepsButton->isChecked ()
 			 << "\n/*Randomize Variations?*/ " << randomizeVariationsButton->isChecked()
 			 << "\n/*Atom Threshold for Load Skip*/ " << str(atomThresholdForSkipEdit->text());
 	saveFile << "\nEND_MAIN_OPTIONS\n";

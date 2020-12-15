@@ -1,9 +1,0 @@
-var loadingdepth 13.4
-var imagingDepth 12.7
-var lgmImageDepth 20
-hold loadingDepth 1 onceWaitTrig #  
-ramp lin loadingDepth imagingDepth 1 onceWaitTrig #  
-ramp lin imagingDepth lgmImageDepth 1 onceWaitTrig #  
-ramp lin lgmImageDepth imagingDepth 1 onceWaitTrig #  
-ramp lin imagingDepth loadingDepth 1 once #  
- 

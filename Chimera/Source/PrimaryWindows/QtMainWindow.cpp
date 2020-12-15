@@ -7,7 +7,6 @@
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
-#include <Plotting/ScopeThreadWorker.h>
 #include <ExperimentThread/ExpThreadWorker.h>
 #include <QThread.h>
 #include <qapplication.h>
@@ -17,11 +16,7 @@
 
 QtMainWindow::QtMainWindow () : 
 	profile (PROFILES_PATH, this),
-	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS),
-	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
-	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
-	expScope(EXPERIMENT_SCOPE_ADDRESS, EXPERIMENT_SCOPE_SAFEMODE, 4, "Experiment Scope")
-	{
+	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS){
 	statBox = new ColorBox ();
 	startupTimes.push_back (chronoClock::now ());
 	/// Initialize Windows
@@ -124,15 +119,10 @@ void QtMainWindow::initializeWidgets (){
 	profile.initialize (controlLocation, this);
 	controlLocation = { 960, 50 };
 	notes.initialize (controlLocation, this);
-	masterRepumpScope.initialize (controlLocation, 480, 130, this, "Master/Repump");
-	motScope.initialize (controlLocation, 480, 130, this, "MOT");
-	expScope.initialize (controlLocation, 480, 130, this, "Experiment");
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize (controlLocation, this);
 	mainOptsCtrl.initialize (controlLocation, this);
 	debugger.initialize (controlLocation, this);
-	texter.initialize (controlLocation, this);
-
 }
 
 unsigned QtMainWindow::getAutoCalNumber () { return autoCalNum; }
@@ -148,14 +138,6 @@ void QtMainWindow::onAutoCalFin (QString msg, profileSettings finishedConfig){
 	else{
 		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
 	}
-}
-
-void QtMainWindow::onMachineOptRoundFin (){
-	// do normal finish
-	onNormalFinish ("", {});
-	Sleep (1000);
-	// then restart.
-	//commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
 }
 
 void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
@@ -229,32 +211,6 @@ unsigned QtMainWindow::getRepNumber () { return repetitionControl.getRepetitionN
 
 std::string QtMainWindow::getSystemStatusString (){
 	std::string status;
-	status += "\nMOT Scope:\n";
-	if (!MOT_SCOPE_SAFEMODE){
-		status += "\tCode System is Active!\n";
-		try{
-			status += "\t" + motScope.getScopeInfo ();
-		}
-		catch (ChimeraError& err){
-			status += "\tFailed to get device info! Error: " + err.trace ();
-		}
-	}
-	else{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
-	}
-	status += "Master/Repump Scope:\n";
-	if (!MASTER_REPUMP_SCOPE_SAFEMODE){
-		status += "\tCode System is Active!\n";
-		try	{
-			status += "\t" + masterRepumpScope.getScopeInfo ();
-		}
-		catch (ChimeraError& err){
-			status += "\tFailed to get device info! Error: " + err.trace ();
-		}
-	}
-	else{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
-	}
 	return status;
 }
 

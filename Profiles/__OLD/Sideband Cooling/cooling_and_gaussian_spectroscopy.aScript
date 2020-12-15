@@ -1,5 +1,0 @@
-hold 0 1 onceWaitTrig #
-pulse gaussian 0 0.4 pulseWidth (pulse_length/2) 
-(pulse_length+oppulselength) repeat 83 #
-hold 0 1 onceWaitTrig #
-pulse gaussian 0 0.4 specPulseWidth 0.05 0.25 once #

@@ -11,13 +11,11 @@
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
 #include "ExperimentMonitoringAndStatus/StatusIndicator.h"
-#include "Python/SmsTextingControl.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "DataLogging/DataLogger.h"
 #include "ConfigurationSystems/NoteSystem.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "Plotting/ScopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
 #include <AnalogOutput/calInfo.h>
@@ -41,7 +39,6 @@ class QtMainWindow : public IChimeraQtWindow{
 
 		void fillExpDeviceList (DeviceList& list);
 
-		void onMachineOptRoundFin ();
 		void onAutoCalFin (QString msg, profileSettings finishedConfig);
 		void setStyleSheets ();
 		//
@@ -109,13 +106,11 @@ class QtMainWindow : public IChimeraQtWindow{
 		MainOptionsControl mainOptsCtrl;
 		StatusControl mainStatus;
 		StatusControl errorStatus;
-		SmsTextingControl texter;
 		StatusIndicator shortStatus;
 
 		ExpThreadWorker* expWorker;
 		QThread* expThread;
 		std::atomic<bool> experimentIsRunning = false;
-		ScopeViewer masterRepumpScope, motScope, expScope;
 		//
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
 		unsigned autoCalNum = 0;

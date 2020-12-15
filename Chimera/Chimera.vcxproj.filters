@@ -78,9 +78,6 @@
     <ClCompile Include="Source\Scripts\ScriptStream.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Python\SmsTextingControl.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralImaging\PictureControl.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureStats.cpp" />
@@ -163,10 +160,6 @@
     <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraThreadWorker.cpp" />
-    <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
-    <ClCompile Include="Source\Plotting\ScopeViewer.cpp">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralImaging\ImageLabel.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
@@ -305,9 +298,6 @@
     </ClInclude>
     <ClInclude Include="Source\Scripts\ScriptStream.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Python\SmsTextingControl.h">
-      <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralImaging\imageParameters.h">
       <Filter>Andor Window\Structures</Filter>
@@ -591,10 +581,6 @@
     <QtMoc Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.h" />
     <QtMoc Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.h" />
     <QtMoc Include="Source\ParameterSystem\ParameterModel.h" />
-    <QtMoc Include="Source\Plotting\ScopeThreadWorker.h" />
-    <QtMoc Include="Source\Plotting\ScopeViewer.h">
-      <Filter>Plotting-And-Viewing</Filter>
-    </QtMoc>
     <QtMoc Include="Source\Plotting\PlotCtrl.h">
       <Filter>Plotting-And-Viewing</Filter>
     </QtMoc>

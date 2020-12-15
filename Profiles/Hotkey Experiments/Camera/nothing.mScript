@@ -1,5 +1,0 @@
-%% Very simple.
-
-t = 1
-dac: dac0 0
-off: a0

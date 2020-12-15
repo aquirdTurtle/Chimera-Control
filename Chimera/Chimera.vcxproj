@@ -404,16 +404,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\ParameterModel.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\ParameterModel.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
-    <QtMoc Include="Source\Plotting\ScopeThreadWorker.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Plotting\ScopeThreadWorker.h -o MOC\moc_ScopeThreadWorker.cpp</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Plotting\ScopeThreadWorker.h -o MOC\moc_ScopeThreadWorker.cpp</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC ScopeThreadWorker.h</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC ScopeThreadWorker.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_ScopeThreadWorker.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC\moc_ScopeThreadWorker.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-    </QtMoc>
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtScriptWindow.h -o MOC\moc_QtScriptWindow.cpp</Command>
@@ -536,7 +526,6 @@
     <ClInclude Include="Source\Scripts\Script.h" />
     <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
     <ClInclude Include="Source\Scripts\ScriptStream.h" />
-    <ClInclude Include="Source\Python\SmsTextingControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h" />
     <QtMoc Include="Source\Scripts\SyntaxHighlighter.h">
@@ -593,7 +582,6 @@
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
     <ClCompile Include="Source\CustomQtControls\LongQSlider.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
-    <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
@@ -614,7 +602,6 @@
     <ClCompile Include="Source\GeneralFlumes\ftdiFlume.cpp" />
     <ClCompile Include="Source\CustomQtControls\functionCombo.cpp" />
     <ClCompile Include="Source\ExcessDialogs\openWithExplorer.cpp" />
-    <ClCompile Include="Source\Plotting\ScopeViewer.cpp" />
     <ClCompile Include="Source\Plotting\PlotCtrl.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigSystem.cpp" />
     <ClCompile Include="Source\ExcessDialogs\AoSettingsDialog.cpp" />
@@ -637,7 +624,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp" />
     <ClCompile Include="Source\Scripts\Script.cpp" />
     <ClCompile Include="Source\Scripts\ScriptStream.cpp" />
-    <ClCompile Include="Source\Python\SmsTextingControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />
     <ClCompile Include="Source\Scripts\SyntaxHighlighter.cpp" />
@@ -673,16 +659,6 @@
     <None Include="Source\GeneralFlumes\ftdiStructures.h" />
     <None Include="Source\GeneralUtilityFunctions\my_str.h" />
     <None Include="Old_Intensity_Calibrations.txt" />
-    <QtMoc Include="Source\Plotting\ScopeViewer.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Plotting\ScopeViewer.h -o MOC\moc_ScopeViewer.cpp</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Plotting\ScopeViewer.h -o MOC\moc_ScopeViewer.cpp</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC ScopeViewer.h</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC ScopeViewer.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_ScopeViewer.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC\moc_ScopeViewer.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Plotting\ScopeViewer.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Plotting\ScopeViewer.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-    </QtMoc>
     <QtMoc Include="Source\Plotting\PlotCtrl.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Plotting\PlotCtrl.h -o MOC\moc_PlotCtrl.cpp</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\Plotting\PlotCtrl.h -o MOC\moc_PlotCtrl.cpp</Command>
