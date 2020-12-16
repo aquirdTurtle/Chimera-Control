@@ -23,11 +23,11 @@ def gsbc():
   pulseon: topPulseTrig 0.01
   pulseon: axialmicropulsetrig 0.01
   repeat: 100
-    call axialRamanPulse(axsbcpulselen)
+    call axialRamanPulse(0.085)
     call opPulse(0.015)
-    call topRamanPulse(tbSbcPulseLen)
+    call topRamanPulse(0.04)
     call opPulse(0.015) 
-    call botRamanPulse(tbSbcPulseLen)
+    call botRamanPulse(0.04)
     call opPulse(0.015) 
   end	
   %var afterSbcOpTime 0.02

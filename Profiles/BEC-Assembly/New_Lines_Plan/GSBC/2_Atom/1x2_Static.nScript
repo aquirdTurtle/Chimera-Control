@@ -1,0 +1,18 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+var ldumpBias 0.75
+
+var_v 2 freqs  [ 75 87 ] 
+var_v 2 amps   [ 0.6 0.4 ]
+var_v 2 phases [ 0 0 ] 
+
+repeatForever
+gen2const_v Horizontal
+freqs amps phases #  
+gen2const Vertical
+81		(1-ldumpBias) 	0
+117 	ldumpBias		0 % the dump tweezer
+#
+0.01 0
+endRepeat

@@ -1,8 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-<Qt_DEFINES_>WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_UITOOLS_LIB;QT_CHARTS_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB</Qt_DEFINES_>
+<Qt_DEFINES_>WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;NDEBUG;QT_NO_DEBUG;QT_UITOOLS_LIB;QT_CHARTS_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB</Qt_DEFINES_>
 <Qt_INCLUDEPATH_>C:\ProgramData\Qt\5.15.0\msvc2019_64\include;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtUiTools;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtCharts;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtWidgets;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtGui;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtANGLE;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtCore;/include;C:\ProgramData\Qt\5.15.0\msvc2019_64\mkspecs\win32-msvc</Qt_INCLUDEPATH_>
-<Qt_LIBS_>C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5UiToolsd.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Chartsd.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Widgetsd.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Guid.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Cored.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\qtmaind.lib;shell32.lib</Qt_LIBS_>
+<Qt_LIBS_>C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5UiTools.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Charts.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Widgets.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Gui.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Core.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\qtmain.lib;shell32.lib</Qt_LIBS_>
 <Qt_LIBPATH_>C:\openssl\lib;C:\Utils\my_sql\mysql-5.7.25-winx64\lib;C:\Utils\postgresql\pgsql\lib</Qt_LIBPATH_>
 <QMake_QT_SYSROOT_></QMake_QT_SYSROOT_>
 <QMake_QT_INSTALL_PREFIX_>C:/ProgramData/Qt/5.15.0/msvc2019_64</QMake_QT_INSTALL_PREFIX_>
@@ -48,7 +48,7 @@
     <QtBkup_QMakeCodeLines
       ></QtBkup_QMakeCodeLines>
     <QtBkup_QtBuildConfig
-      >debug</QtBkup_QtBuildConfig>
+      >release</QtBkup_QtBuildConfig>
     <QtVersion>5.15.0</QtVersion>
     <QtVersionMajor>5</QtVersionMajor>
     <QtVersionMinor>15</QtVersionMinor>

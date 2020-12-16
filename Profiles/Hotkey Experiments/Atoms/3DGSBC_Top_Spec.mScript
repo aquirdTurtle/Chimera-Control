@@ -21,7 +21,6 @@ pulseon: tweezerIntensityTrig 0.1
 off: sidemotShutter  
 off: diagmotShutter 
 off: repumpShutter
-
 t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
@@ -46,14 +45,12 @@ dac: topPulseLev 0
 dac: eoPulseLev 0
 off: axialRamanShutter  
 off: axialRamanShutter2  
-% t += 20
 t += 0.1 
 call pushout()
 pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1
-%call zeroFields() 
 pulseon: rsTrig 0.1
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1

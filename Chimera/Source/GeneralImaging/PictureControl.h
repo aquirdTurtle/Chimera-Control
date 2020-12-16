@@ -9,7 +9,7 @@
 #include "QPixmap.h"
 #include <qlabel.h>
 #include "ImageLabel.h"
-
+#include <GeneralObjects/Matrix.h>
 /*
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
  * picture. Unlike many classes in my program, this is /not/ built to be a singleton. Instead, there should be one 
@@ -55,7 +55,7 @@ class PictureControl : public QWidget{
 		Ui::PictureControl* ui;
 		int picScaleFactor;
 		softwareAccumulationOption saOption;
-		std::vector<double> accumPicData;
+		Matrix<double> accumPicData;
 		unsigned accumNum;
 		const bool histOption;
 		std::vector<plotDataVec> horData, vertData;

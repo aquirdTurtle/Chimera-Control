@@ -1534,10 +1534,14 @@ void NiawgCore::readVectorizedSimpleWaveParams ( ScriptStream& script, std::vect
 				if ( cv.name == powers.name ) { powers = cv; }
 				if ( cv.name == phases.name ) { phases = cv; }
 			}
+			auto numSigs = wave.chan[axis].waveSigs.size ();
 			if ( freqs.vals.size ( ) == 0) { thrower ( "Failed to find constant vector named " + freqs.name ); }
 			if ( powers.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + powers.name ); }
 			if ( phases.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + phases.name ); }
-			for ( auto signal : range( wave.chan[ axis ].waveSigs.size ( ) ) ){
+			if (freqs.vals.size () != numSigs) { thrower ("constant vector " + freqs.name + " size doesn't match wave size!"); }
+			if (powers.vals.size () != numSigs) { thrower ("constant vector " + powers.name + " size doesn't match wave size!"); }
+			if (phases.vals.size () != numSigs) { thrower ("constant vector " + phases.name + " size doesn't match wave size!"); }
+			for ( auto signal : range(numSigs) ){
 				auto& sig = wave.chan[ axis ].waveSigs[ signal ];
 				sig.freqInit = sig.freqFin = freqs.vals[ signal ];
 				sig.initPower = sig.finPower = powers.vals[ signal ];

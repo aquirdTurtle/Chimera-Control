@@ -1,0 +1,54 @@
+% Master-Script See the "?" for info on commands.
+t = 0.1
+off: eoramanrf
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: shutter795
+pulseon: windfreakTrig 0.05
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadMotTime
+pulseon: scoutTrig 0.1
+t += 2
+call D1GreyLambdaLoading()
+pulseon: windfreakTrig 0.05
+t += 20
+pulseon: tweezerIntensityTrig 0.1 % to imagingDepth 
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+t += 1.1
+pulseon: tweezerIntensityTrig 0.1 % to intraplgmDepth
+t += 1.1
+call intrapgreymolasses()
+pulseon: windfreakTrig 0.05
+pulseon: tweezerIntensityTrig 0.1 % to RamanDepth 
+on: totalRamanRf
+t += 1
+call pump2stretch()
+t += 1
+dac: eopulselev { 0.255 eo_raman } % eo_raman__sv
+call send_uw_to_raman_eom() 
+on: topRamanrf
+on: eoramanrf
+pulseon: topPulseTrig 0.01
+t += tbSbcPulseLen
+off: topRamanRf
+off: eoramanRF
+off: eoswitch
+off: eoswitch2
+off: totalRamanRf
+%pulseon: tweezerIntensityTrig 0.1
+call pushout()
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pgcAtomFlashingImage()
+pulseon: rsTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+on: eoramanrf
+t += 0.2
+
+off: tweezerRf

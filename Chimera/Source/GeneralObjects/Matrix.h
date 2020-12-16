@@ -28,64 +28,63 @@ class Matrix {
 		// typename tells the compiler that std::vector<type>::iterator will be a type.
 		typename boost::container::vector<type>::iterator begin( ) { return data.begin( ); }
 		typename boost::container::vector<type>::iterator end( ) { return data.end( ); }
-		// need to use the boost version because the std version doesn't do std::vector<bool> properly. vector<bool>
-		// was specialized in the standard library, a decision most consider to be a mistake.
+		// need to use the boost version because the std vector notoriously doesn't do std::vector<bool> properly. 
+		// vector<bool> was specialized in the standard library, a decision I think most consider to be a mistake.
 		boost::container::vector<type> data;
 	private:
 		unsigned rows, cols;
 		// the following string is only updated if in debug mode.
 		std::string currMatrix;
-}
-;
+};
 
 template <class type>
-void loadBools( Matrix<type>& matrix, std::vector<bool> init ){
-	if ( matrix.data.size( ) != init.size( ) )	{
-		thrower ( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
+void loadBools (Matrix<type>& matrix, std::vector<bool> init) {
+	if (matrix.data.size () != init.size ()) {
+		thrower ("ERROR: loadBools: bool vector not same size as underlying matrix data!");
 	}
 	unsigned count = 0;
-	for ( auto val : init ){
+	for (auto val : init) {
 		matrix.data[count++] = val;
 	}
-}
+};
 
 
 template <class type>
-void Matrix<type>::updateString( ){
-	currMatrix = print( );
+void Matrix<type>::updateString () {
+	currMatrix = print ();
 	return;
-}
+};
 
 
 template <class type>
-Matrix<type> Matrix<type>::submatrix( unsigned rowOffset, unsigned rowSubSpan, unsigned colOffset, unsigned colSubSpan ){
-	if ( rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols ){
-		thrower ( "ERROR: submatrix extends beyond matrix bounds!" );
+Matrix<type> Matrix<type>::submatrix (unsigned rowOffset, unsigned rowSubSpan, unsigned colOffset, unsigned colSubSpan) {
+	if (rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols) {
+		thrower ("ERROR: submatrix extends beyond matrix bounds!");
 	}
-	Matrix<type> subM( 0, 0 );
+	Matrix<type> subM (0, 0);
 	// might be faster to use insert.
-	for ( auto rowInc : range( rowSubSpan ) ){
-		subM.data.insert( subM.data.end( ), data.begin( ) + (rowOffset + rowInc) * cols + colOffset,
-						  data.begin( ) + (rowOffset + rowInc) * cols + colOffset + colSubSpan );
+	for (auto rowInc : range (rowSubSpan)) {
+		subM.data.insert (subM.data.end (), data.begin () + (rowOffset + rowInc) * cols + colOffset,
+			data.begin () + (rowOffset + rowInc) * cols + colOffset + colSubSpan);
 	}
 	subM.rows = rowSubSpan;
 	subM.cols = colSubSpan;
 	return subM;
-}
+};
 
 
 template <class type>
-std::string Matrix<type>::print( ){
+std::string Matrix<type>::print () {
 	std::string printStr;
 	unsigned counter = 0;
-	for ( auto rowInc : range(getRows ( )) ){
-		for ( auto colInc : range(getCols ( )) ){
-			printStr += str ( (*this)(getRows() - rowInc - 1, colInc) ) + ", ";
+	for (auto rowInc : range (getRows ())) {
+		for (auto colInc : range (getCols ())) {
+			printStr += str ((*this)(getRows () - rowInc - 1, colInc)) + ", ";
 		}
 		printStr += ";\n";
 	}
 	return printStr;
-}
+};
 
 
 // the array gets sized only once in the constructor.

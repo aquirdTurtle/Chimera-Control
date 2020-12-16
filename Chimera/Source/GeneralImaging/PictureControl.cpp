@@ -335,7 +335,7 @@ void PictureControl::resetStorage(){
 
 void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption opt ){
 	saOption = opt;
-	accumPicData.clear ( );
+	accumPicData = Matrix<double> ();
 	accumNum = 0;
 }
 
@@ -348,6 +348,8 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	mostRecentImage_m = picData;
 	mostRecentPicNum = pictureNumber;
 	mostRecentGrids = grids;
+
+	Matrix<long> drawData;
 
 	auto minColor = sliderMin.getValue ( );
 	auto maxColor = sliderMax.getValue ( );
@@ -366,13 +368,43 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );
 		minColor = sliderMin.getValue ( );
 	}
+	if (saOption.accumAll){
+		if (accumPicData.size () == 0)	{
+			accumPicData = Matrix<double> (picData.getRows (), picData.getCols ());
+			accumNum = 0;
+		}
+		accumNum++;
+		if (accumPicData.size () != picData.size ()){
+			thrower ("Size mismatch between software accumulated picture and picture input!");
+		}
+		Matrix<long> accumPicLongData (picData.getRows (), picData.getCols());
+		for (auto rowInc : range (accumPicLongData.getRows ())) {
+			for (auto colInc : range (accumPicLongData.getCols ())) {
+				accumPicData (rowInc, colInc) = ((accumNum - 1) * accumPicData (rowInc, colInc) + picData (rowInc, colInc)) / accumNum;
+				accumPicLongData (rowInc, colInc) = long (accumPicData (rowInc, colInc));
+			}
+		}
+		//std::vector<long> accumPicLongData (picData.size ());
+		//for (auto pixelInc : range (accumPicData.size ())){
+		//	// suppose 16th image. accumNum = 16. new data = 15/16 * old data + new data / 16.
+		//	accumPicData[pixelInc] = ((accumNum - 1) * accumPicData[pixelInc] + picData.data[pixelInc]) / accumNum;
+		//	accumPicLongData[pixelInc] = long (accumPicData[pixelInc]);
+		//}
+		drawData = accumPicLongData;
+	}
+	else if (saOption.accumNum == 1){
+		drawData = picData;
+	}
+	else {
+		drawData = picData;
+	}
 	// assumes non-zero size...
 	if ( grid.size ( ) == 0 ){
 		thrower  ( "Tried to draw bitmap without setting grid size!" );
 	}
 	int dataHeight = grid[ 0 ].size ( );
 	int totalGridSize = dataWidth * dataHeight;
-	if ( picData.size ( ) != totalGridSize ){
+	if (drawData.size ( ) != totalGridSize ){
 		thrower  ( "Picture data didn't match grid size!" );
 	}
 	
@@ -383,7 +415,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	const int picPaletteSize = 256;
 	for (int heightInc = 0; heightInc < dataHeight; heightInc++){
 		for (int widthInc = 0; widthInc < dataWidth; widthInc++){
-			dTemp = ceil (yscale * double(picData (heightInc, widthInc) - minColor));
+			dTemp = ceil (yscale * double(drawData (heightInc, widthInc) - minColor));
 			if (dTemp <= 0)	{
 				// raise value to zero which is the floor of values this parameter can take.
 				iTemp = 1;

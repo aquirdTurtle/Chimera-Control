@@ -106,6 +106,7 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 		softwareAccumulateNum[picInc]->setGeometry (px + 165 + 95 * picInc, py, 30, 20);
 		parent->connect (softwareAccumulateNum[picInc], &QLineEdit::textChanged, handleChange);
 	}
+	py += 25;
 	setPictureControlEnabled (0, true);
 	setPictureControlEnabled (1, false);
 	setPictureControlEnabled (2, false);
@@ -208,7 +209,7 @@ std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAcc
 	std::array<softwareAccumulationOption, 4> opts;
 	for ( auto picInc : range(4)){
 		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ]->isChecked ( );
-		CString numTxt;
+		
 		try{
 			opts[ picInc ].accumNum  = boost::lexical_cast<unsigned>( str(softwareAccumulateNum[picInc]->text ()) );
 		}
