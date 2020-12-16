@@ -12,7 +12,6 @@
 struct mainOptions{
 	bool dontActuallyGenerate=false;
 	bool randomizeVariations=false;
-	bool randomizeReps=false;
 	bool delayAutoCal = false;
 	unsigned atomSkipThreshold=UINT_MAX;
 };
@@ -30,7 +29,6 @@ class MainOptionsControl{
 		QLabel* header;
 		QCheckBox* randomizeVariationsButton;
 		QCheckBox* delayAutoCal;
-		QCheckBox* randomizeRepsButton;
 		QLabel* atomThresholdForSkipText;
 		QLineEdit* atomThresholdForSkipEdit;
 		mainOptions currentOptions;

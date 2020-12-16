@@ -31,13 +31,6 @@ void DoSystem::handleSaveConfig(ConfigStream& saveFile){
 }
 
 void DoSystem::handleOpenConfig(ConfigStream& openFile){
-	if ( openFile.ver < Version ( "3.7" ) ){
-		for ( auto i : range ( 64 ) ){
-			// used to store an initial ttl config in the config file.
-			std::string trash;
-			openFile >> trash;
-		}
-	}
 }
 
 

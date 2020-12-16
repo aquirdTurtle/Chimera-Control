@@ -351,13 +351,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 ddsExpSettings DdsCore::getSettingsFromConfig ( ConfigStream& file ){
 	ddsExpSettings settings;
 	unsigned numRamps = 0;
-	if (file.ver < Version ("5.1")) {
-		settings.control = true;
-	}
-	else {
-		file >> settings.control;
-	}
-
+	file >> settings.control;
 	file >> numRamps;
 	settings.ramplist = std::vector<ddsIndvRampListInfo> ( numRamps );
 

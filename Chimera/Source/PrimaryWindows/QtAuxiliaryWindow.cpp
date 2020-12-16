@@ -151,11 +151,11 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 
 void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 	try{
-		ConfigSystem::standardOpenConfig (configFile, configParamCtrl.configDelim, &configParamCtrl, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, configParamCtrl.configDelim, &configParamCtrl);
 		ConfigSystem::standardOpenConfig (configFile, "TTLS", &ttlBoard);
 		ConfigSystem::standardOpenConfig (configFile, "DACS", &aoSys);
 		aoSys.updateEdits ();
-		ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
+		ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds);
 	}
 	catch (ChimeraError&){
 		throwNested ("Auxiliary Window failed to read parameters from the configuration file.");
@@ -324,35 +324,24 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 		std::string name, defaultValueString, minString, maxString;
 		double defaultValue, min, max;
 		configStream >> name;
-		if (configStream.ver >= Version ("1.2")){
-			std::string trash;
-			configStream >> minString >> trash;
-			if (trash != "-"){
-				thrower (str ("Expected \"-\" in master config file between min and max values for variable ")
-					+ name + ", dac" + str (dacInc) + ".");
-			}
-			configStream >> maxString;
+		std::string trash;
+		configStream >> minString >> trash;
+		if (trash != "-"){
+			thrower (str ("Expected \"-\" in master config file between min and max values for variable ")
+				+ name + ", dac" + str (dacInc) + ".");
 		}
+		configStream >> maxString;
 		configStream >> defaultValueString;
 		try{
 			defaultValue = boost::lexical_cast<double>(defaultValueString);
-			if (configStream.ver >= Version ("1.2")){
-				min = boost::lexical_cast<double>(minString);
-				max = boost::lexical_cast<double>(maxString);
-			}
-			else{
-				min = -10;
-				max = 10;
-			}
+			min = boost::lexical_cast<double>(minString);
+			max = boost::lexical_cast<double>(maxString);
 		}
 		catch (boost::bad_lexical_cast&){
 			throwNested ("Failed to load one of the default DAC values!");
 		}
 		std::string noteString = "";
-		if (configStream.ver >= Version ("2.3")){
-			noteString = configStream.getline ();
-			//configStream >> noteString;
-		}
+		noteString = configStream.getline ();
 		aoSys.setName (dacInc, name);
 		aoSys.setNote (dacInc, noteString);
 		aoSys.setMinMax (dacInc, min, max);
@@ -361,34 +350,32 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 		aoSys.setDefaultValue (dacInc, defaultValue);
 	}
 	// variables.
-	if (configStream.ver >= Version ("1.1")){
-		int varNum;
-		configStream >> varNum;
-		if (varNum < 0 || varNum > 1000){
-			auto answer = QMessageBox::question (NULL, qstr ("Suspicious?"), qstr ("Variable number retrieved from "
-				"file appears suspicious. The number is " + str (varNum) + ". Is this accurate?"), QMessageBox::Yes
-				| QMessageBox::No);
-			if (answer == QMessageBox::No){
-				// don't try to load anything.
-				varNum = 0;
-				return;
-			}
+	int varNum;
+	configStream >> varNum;
+	if (varNum < 0 || varNum > 1000){
+		auto answer = QMessageBox::question (NULL, qstr ("Suspicious?"), qstr ("Variable number retrieved from "
+			"file appears suspicious. The number is " + str (varNum) + ". Is this accurate?"), QMessageBox::Yes
+			| QMessageBox::No);
+		if (answer == QMessageBox::No){
+			// don't try to load anything.
+			varNum = 0;
+			return;
 		}
-		// Number of Variables
-		globalParamCtrl.clearParameters ();
-		for (int varInc = 0; varInc < varNum; varInc++){
-			parameterType tempVar;
-			tempVar.constant = true;
-			tempVar.overwritten = false;
-			tempVar.active = false;
-			double value;
-			configStream >> tempVar.name >> value;
-			tempVar.constantValue = value;
-			tempVar.ranges.push_back ({ value, value });
-			globalParamCtrl.addParameter (tempVar);
-		}
-		globalParamCtrl.setTableviewColumnSize ();
 	}
+	// Number of Variables
+	globalParamCtrl.clearParameters ();
+	for (int varInc = 0; varInc < varNum; varInc++){
+		parameterType tempVar;
+		tempVar.constant = true;
+		tempVar.overwritten = false;
+		tempVar.active = false;
+		double value;
+		configStream >> tempVar.name >> value;
+		tempVar.constantValue = value;
+		tempVar.ranges.push_back ({ value, value });
+		globalParamCtrl.addParameter (tempVar);
+	}
+	globalParamCtrl.setTableviewColumnSize ();
 }
 
 void QtAuxiliaryWindow::updateExpActiveInfo (std::vector<parameterType> expParams) {

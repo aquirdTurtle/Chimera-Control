@@ -24,21 +24,11 @@ void DebugOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 
 void DebugOptionsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "DEBUGGING_OPTIONS"
-			 << "\n/*Output Agilent Script?*/\t\t\t" << currentOptions.outputAgilentScript
-			 << "\n/*Output Excess Info?*/\t\t\t\t" << currentOptions.outputExcessInfo
-			 << "\n/*Show Correction Times?*/\t\t\t" << currentOptions.showCorrectionTimes
-			 << "\n/*Show Dacs?*/\t\t\t\t\t\t" << currentOptions.showDacs
-			 << "\n/*Show Ttls?*/\t\t\t\t\t\t" << currentOptions.showTtls
-			 << "\n/*Show Read Progress?*/\t\t\t\t" << currentOptions.showReadProgress
-			 << "\n/*Show Write Progress?*/\t\t\t" << currentOptions.showWriteProgress
 			 << "\n/*Sleep Time:*/\t\t\t\t\t\t" << currentOptions.sleepTime
 			 << "\nEND_DEBUGGING_OPTIONS\n";
 }
 
 void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile ){
-	bool trashOptions;
-	openFile >> trashOptions >> trashOptions >> trashOptions >> trashOptions >> trashOptions >> trashOptions
-		>> trashOptions >> trashOptions >> trashOptions;
 	std::string sleep;
 	openFile >> sleep;
 	try{
@@ -46,9 +36,6 @@ void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile ){
 	}
 	catch ( boost::bad_lexical_cast&){
 		currentOptions.sleepTime = 0;
-	}
-	if (openFile.ver > Version("2.8" ) ){
-		openFile >> trashOptions;
 	}
 	setOptions( currentOptions );
 }

@@ -30,7 +30,6 @@ void MainOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 	parent->connect (atomThresholdForSkipEdit, &QLineEdit::textChanged, configUpdate);
 
 	py += 25;
-	currentOptions.randomizeReps = false;
 	currentOptions.randomizeVariations = true;
 }
 
@@ -43,40 +42,27 @@ void MainOptionsControl::handleSaveConfig(ConfigStream& saveFile){
 
 mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile ){
 	mainOptions options;
-	if ( openFile.ver < Version ( "2.1" ) ){
-		// rearrange option used to be stored here.
-		std::string garbage;
-		openFile >> garbage;
-	}
-	openFile >> options.randomizeReps;
 	openFile >> options.randomizeVariations;
-	if (openFile.ver > Version ( "2.9" ) ){
-		std::string txt;
-		openFile >> txt;
-		try{
-			options.atomSkipThreshold = boost::lexical_cast<unsigned long>( txt );
-		}
-		catch ( boost::bad_lexical_cast& ){
-			errBox ( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
-					 "the threshold to the maximum threshold." );
-			options.atomSkipThreshold = -1;
-		}
+	std::string txt;
+	openFile >> txt;
+	try{
+		options.atomSkipThreshold = boost::lexical_cast<unsigned long>( txt );
 	}
-	else{
-		options.atomSkipThreshold = UINT_MAX;
+	catch ( boost::bad_lexical_cast& ){
+		errBox ( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
+					"the threshold to the maximum threshold." );
+		options.atomSkipThreshold = -1;
 	}
 	return options;
 }
 
 void MainOptionsControl::setOptions ( mainOptions opts ){
 	currentOptions = opts;
-	randomizeRepsButton->setChecked (currentOptions.randomizeReps);
 	randomizeVariationsButton->setChecked( currentOptions.randomizeVariations );
 	atomThresholdForSkipEdit->setText( cstr ( currentOptions.atomSkipThreshold ) );
 }
 
 mainOptions MainOptionsControl::getOptions(){
-	currentOptions.randomizeReps = randomizeRepsButton->isChecked();
 	currentOptions.randomizeVariations = randomizeVariationsButton->isChecked();
 	currentOptions.delayAutoCal = delayAutoCal->isChecked ();
 	try{

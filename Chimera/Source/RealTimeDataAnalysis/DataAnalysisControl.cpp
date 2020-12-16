@@ -329,12 +329,8 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file ){
 analysisSettings DataAnalysisControl::getAnalysisSettingsFromFile (ConfigStream& file) {
 	analysisSettings settings;
 	unsigned numGrids=1;
-	if (file.ver > Version ("4.0")) {
-		file >> settings.autoThresholdAnalysisOption;
-	}
-	if (file.ver > Version ("3.0")) {
-		file >> numGrids;
-	}
+	file >> settings.autoThresholdAnalysisOption;
+	file >> numGrids;
 	if (numGrids <= 0) {
 		numGrids = 1;
 	}
@@ -343,34 +339,24 @@ analysisSettings DataAnalysisControl::getAnalysisSettingsFromFile (ConfigStream&
 		file >> grid.topLeftCorner.row >> grid.topLeftCorner.column >> grid.width >> grid.height >> grid.pixelSpacing;
 	}
 	// load the grid parameters for that selection.
-	if (file.ver > Version ("2.7")) {
-		ConfigSystem::checkDelimiterLine (file, "BEGIN_ACTIVE_PLOTS");
-		unsigned numPlots = 0;
-		file >> numPlots;
+	ConfigSystem::checkDelimiterLine (file, "BEGIN_ACTIVE_PLOTS");
+	unsigned numPlots = 0;
+	file >> numPlots;
+	file.get ();
+	for (auto pltInc : range (numPlots)) {
+		std::string tmp = file.getline ();
+		settings.activePlotNames.push_back (tmp);
+		unsigned which;
+		file >> which;
 		file.get ();
-		for (auto pltInc : range (numPlots)) {
-			std::string tmp = file.getline ();
-			settings.activePlotNames.push_back (tmp);
-			if (file.ver > Version ("3.0")) {
-				unsigned which;
-				file >> which;
-				file.get ();
-				settings.whichGrids.push_back (which);
-			}
-			else {
-				settings.whichGrids.push_back (0);
-			}
-		}
-		ConfigSystem::checkDelimiterLine (file, "END_ACTIVE_PLOTS");
+		settings.whichGrids.push_back (which);
 	}
-	if (file.ver >= Version ("4.7")) {
-		file.get ();
-		file >> settings.displayGridOption;
-	}
-	if (file.ver >= Version ("5.4")) {
-		file >> settings.autoBumpOption;
-		file >> settings.bumpParam;
-	}
+	ConfigSystem::checkDelimiterLine (file, "END_ACTIVE_PLOTS");
+	file.get ();
+	file >> settings.displayGridOption;
+
+	file >> settings.autoBumpOption;
+	file >> settings.bumpParam;
 	return settings;
 }
 

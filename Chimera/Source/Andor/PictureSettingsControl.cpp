@@ -159,33 +159,16 @@ void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 
 andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile ){
 	andorPicSettingsGroup fileSettings;
-	if (configFile.ver >= Version ("5.5")) {
-		std::string transformationMode;
-		configFile >> fileSettings.tMode;
-	}
-	else {
-		fileSettings.tMode = "Fast";
-	}
-	if ( configFile.ver <= Version ( "4.7" ) ){
-		int oldPicsPerRepTrash = 0;
-		configFile >> oldPicsPerRepTrash;
-	}
+	std::string transformationMode;
+	configFile >> fileSettings.tMode;
 	for ( auto& color : fileSettings.colors ){
 		configFile >> color;
-	}
-	if (configFile.ver <= Version ( "4.7" ) ){
-		std::vector<float> oldExposureTimeTrash(4);
-		for ( auto& exposure : oldExposureTimeTrash ){
-			configFile >> exposure;
-		}
 	}
 	for ( auto& threshold : fileSettings.thresholdStrs ){
 		configFile >> threshold;
 	}
-	if (configFile.ver > Version ( "4.3" ) ){
-		for ( auto& opt : fileSettings.saOpts ){
-			configFile >> opt.accumAll >> opt.accumNum;
-		}
+	for ( auto& opt : fileSettings.saOpts ){
+		configFile >> opt.accumAll >> opt.accumNum;
 	}
 	return fileSettings;
 }
