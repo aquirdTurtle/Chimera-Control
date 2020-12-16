@@ -114,12 +114,6 @@ void AoSystem::setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSna
 
 void AoSystem::handleOpenConfig(ConfigStream& openFile){
 	unsigned dacInc = 0;
-	if ( openFile.ver < Version ( "3.7" ) ){
-		for ( auto i : range ( 24 ) ){
-			std::string trash;
-			openFile >> trash;
-		}
-	}
 	emit notification ("AO system finished opening config.\n", 2);
 }
 

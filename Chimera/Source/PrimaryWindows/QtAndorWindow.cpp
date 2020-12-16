@@ -177,13 +177,13 @@ void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 		reportErr (qstr ("Failed to get Andor Camera Picture settings from file! " + err.trace ()));
 	}
 	try	{
-		ConfigSystem::standardOpenConfig (configFile, pics.configDelim, &pics, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, pics.configDelim, &pics);
 	}
 	catch (ChimeraError&)	{
 		reportErr ("Failed to load picture settings from config!");
 	}
 	try	{
-		ConfigSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler);
 	}
 	catch (ChimeraError&){
 		reportErr ("Failed to load Data Analysis settings from config!");

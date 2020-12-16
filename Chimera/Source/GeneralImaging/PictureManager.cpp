@@ -102,9 +102,6 @@ void PictureManager::handleSaveConfig(ConfigStream& saveFile){
 }
 
 void PictureManager::handleOpenConfig( ConfigStream& configFile ){
-	if ( configFile.ver < Version ( "4.0" ) ){
-		thrower ( "Picture Manager requires configuration file version 4.0+." );
-	}
 	std::array<int, 4> maxes, mins;
 	for (int sliderInc = 0; sliderInc < 4; sliderInc++)	{
 		configFile >> mins[sliderInc];

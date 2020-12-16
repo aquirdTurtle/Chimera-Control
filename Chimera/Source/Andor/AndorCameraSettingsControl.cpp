@@ -581,12 +581,9 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( ConfigStream& configSt
 				  "to load camera dimensions!" );
 	}
 	bool autoCal, useCal;
-	if ( configStream.ver > Version ( "2.1" ) ){
-		configStream >> autoCal >> useCal;
-		calControl.setAutoCal ( autoCal );
-		calControl.setUse ( useCal );
-	}
-
+	configStream >> autoCal >> useCal;
+	calControl.setAutoCal ( autoCal );
+	calControl.setUse ( useCal );
 }
 
 

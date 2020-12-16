@@ -35,12 +35,7 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 	tempSettings.imageSettings = ConfigSystem::stdConfigGetter ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
 																  ImageDimsControl::getImageDimSettingsFromConfig);
 	ConfigSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS");
-	if (configFile.ver >= Version ("5.6")) {
-		configFile >> tempSettings.controlCamera;
-	}
-	else {
-		tempSettings.controlCamera = true;
-	}
+	configFile >> tempSettings.controlCamera;
 	configFile.get ();
 	std::string txt = configFile.getline ();
 	tempSettings.triggerMode = AndorTriggerMode::fromStr (txt);
@@ -64,29 +59,15 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
-	if (configFile.ver > Version ("4.7")){
-		unsigned numExposures = 0;
-		configFile >> numExposures;
-		tempSettings.exposureTimes.resize (numExposures);
-		for (auto& exp : tempSettings.exposureTimes)
-		{
-			configFile >> exp;
-		}
-		configFile >> tempSettings.picsPerRepetition;
+	unsigned numExposures = 0;
+	configFile >> numExposures;
+	tempSettings.exposureTimes.resize (numExposures);
+	for (auto& exp : tempSettings.exposureTimes)	{
+		configFile >> exp;
 	}
-	else { 
-		tempSettings.picsPerRepetition = 1;
-		tempSettings.exposureTimes.clear ();
-		tempSettings.exposureTimes.push_back (1e-3);
-	} 
-	if (configFile.ver >= Version ("5.8")) {
-		configFile >> tempSettings.horShiftSpeedSetting;
-		configFile >> tempSettings.vertShiftSpeedSetting;
-	} 
-	else { 
-		tempSettings.horShiftSpeedSetting = 0;
-		tempSettings.vertShiftSpeedSetting = 0;
-	} 
+	configFile >> tempSettings.picsPerRepetition;
+	configFile >> tempSettings.horShiftSpeedSetting;
+	configFile >> tempSettings.vertShiftSpeedSetting;
 	return tempSettings;
 } 
 

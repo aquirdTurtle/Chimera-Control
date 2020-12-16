@@ -52,12 +52,7 @@ function to get a different version of getline depending on which version the fi
 std::getline version while new versions will use the comment-eating version.
 */
 std::function<void (ScriptStream&, std::string&)> ConfigSystem::getGetlineFunc (Version& ver){
-	if (ver >= Version ("5.0")){
-		return [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
-	}
-	else{
-		return [](ScriptStream& fid, std::string& expr) {std::getline (fid, expr); };
-	}
+	return [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
 }
 
 void ConfigSystem::getVersionFromFile( ConfigStream& file ){
@@ -356,9 +351,6 @@ std::string ConfigSystem::getMasterAddressFromConfig(profileSettings profile){
 	ConfigStream stream (configF);
 	std::string line, word, address;
 	getVersionFromFile(stream );
-	if ( stream.ver.versionMajor < 3 ){
-		line = stream.getline ();
-	}
 	line = stream.getline (); 
 	line = stream.getline ();
 	std::string newPath = stream.getline ();

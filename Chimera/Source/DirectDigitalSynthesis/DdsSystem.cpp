@@ -116,11 +116,9 @@ void DdsSystem::handleSaveConfig (ConfigStream& file ){
 
 
 void DdsSystem::handleOpenConfig ( ConfigStream& file ){
-	if ( file.ver >= Version ( "4.5" ) ){
-		auto res = core.getSettingsFromConfig (file);
-		currentRamps = res.ramplist;
-		controlCheck->setChecked (res.control);
-	}
+	auto res = core.getSettingsFromConfig (file);
+	currentRamps = res.ramplist;
+	controlCheck->setChecked (res.control);
 	redrawListview ( );
 }
 

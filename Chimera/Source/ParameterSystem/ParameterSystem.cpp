@@ -161,27 +161,16 @@ void ParameterSystem::setTableviewColumnSize () {
 ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile ){
 	ScanRangeInfo rInfo;
 	unsigned numRanges;
-	if ( configFile.ver > Version ( "3.4" ) ){
-		ConfigSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
-		unsigned numDimensions;
-		if (configFile.ver > Version ( "4.2" ) ){
-			configFile >> numDimensions;
+	ConfigSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
+	unsigned numDimensions;
+	configFile >> numDimensions;
+	rInfo.setNumScanDimensions ( numDimensions );
+	for ( auto dim : range( numDimensions )){
+		configFile >> numRanges;
+		rInfo.setNumRanges ( dim, numRanges );
+		for ( auto& range : rInfo.dimensionInfo(dim) ){	
+			configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
 		}
-		else{
-			numDimensions = 1;
-		}
-		rInfo.setNumScanDimensions ( numDimensions );
-		for ( auto dim : range( numDimensions )){
-			configFile >> numRanges;
-			rInfo.setNumRanges ( dim, numRanges );
-			for ( auto& range : rInfo.dimensionInfo(dim) ){	
-				configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
-			}
-		}
-	}
-	else{
-		rInfo.reset ( );
-		rInfo.defaultInit ( );
 	}
 	return rInfo;
 }
@@ -286,37 +275,13 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Sca
 		thrower ( "unknown parameter type option: \"" + typeText + "\" for parameter \"" + paramName 
 				 + "\". Check the formatting of the configuration file." );
 	}
-	if (openFile.ver > Version("2.7" ) ){
-		openFile >> tempParam.scanDimension;
-		if (openFile.ver < Version ( "4.2" ) ){
-			if ( tempParam.scanDimension > 0 ){
-				tempParam.scanDimension--;
-			}
-		}
-	}
-	else {
-		tempParam.scanDimension = 0;
-	}
-	
-	if (openFile.ver <= Version ( "3.4" ) ){
-		unsigned rangeNumber = 1;
-		openFile >> rangeNumber;
-		// I think it's unlikely to ever need more than 2 or 3 ranges.
-		if ( rangeNumber < 1 || rangeNumber > 100 )	{
-			errBox ( "Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
-			rangeNumber = 1;
-		}
-		rangeInfo.setNumRanges ( tempParam.scanDimension, rangeNumber );
-	}
+	openFile >> tempParam.scanDimension;
 	unsigned totalVariations = 0;
 	for ( auto rangeInc : range( rangeInfo.numRanges(tempParam.scanDimension ) )){
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
 		bool leftInclusive = 0, rightInclusive = 0;
 		openFile >> initValue >> finValue;
-		if (openFile.ver <= Version ( "3.4" ) )	{
-			openFile >> variations >> leftInclusive >> rightInclusive;
-		}		
 		totalVariations += variations;
 		tempParam.ranges.push_back ( { initValue, finValue } );
 	}
@@ -325,18 +290,8 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Sca
 		// make sure it has at least one entry.
 		tempParam.ranges.push_back ( { 0,0 } );
 	}
-	if (openFile.ver >= Version("2.14") ){
-		openFile >> tempParam.constantValue;
-	}
-	else{
-		tempParam.constantValue = tempParam.ranges[0].initialValue;
-	}
-	if (openFile.ver > Version("3.2")){
-		openFile >> tempParam.parameterScope;
-	}
-	else{
-		tempParam.parameterScope = GLOBAL_PARAMETER_SCOPE;
-	}
+	openFile >> tempParam.constantValue;
+	openFile >> tempParam.parameterScope;
 	return tempParam;
 }
 
@@ -526,7 +481,7 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 	ConfigStream stream (file);
 	std::vector<parameterType> configParams;
 	try{
-		ConfigSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
+		ConfigSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS");
 		auto rInfo = getRangeInfoFromFile (stream);
 		configParams = getParametersFromFile (stream, rInfo );
 		ConfigSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
@@ -542,7 +497,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 	ConfigStream stream (configFileName, true);
 	ScanRangeInfo rInfo;
 	try{
-		ConfigSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
+		ConfigSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS");
 		rInfo = getRangeInfoFromFile (stream);
 		auto configVariables = getParametersFromFile (stream, rInfo );
 		ConfigSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
