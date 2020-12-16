@@ -15,16 +15,16 @@
 #define MASTER_COMPUTER
 
 #ifdef MASTER_COMPUTER
-	constexpr bool DOFTDI_SAFEMODE = false;
-	constexpr bool DDS_SAFEMODE = false;
-	constexpr bool ANDOR_SAFEMODE = false;
+	constexpr bool DOFTDI_SAFEMODE = true;
+	constexpr bool DDS_SAFEMODE = true;
+	constexpr bool ANDOR_SAFEMODE = true;
 	#ifdef _DEBUG
 		constexpr bool PYTHON_SAFEMODE = true;
 	#else
 		constexpr bool  PYTHON_SAFEMODE = true;
 	#endif
-	constexpr bool DAQMX_SAFEMODE = false;
-	constexpr bool ANALOG_OUT_SAFEMODE = false;
+	constexpr bool DAQMX_SAFEMODE = true;
+	constexpr bool ANALOG_OUT_SAFEMODE = true;
 
 	constexpr auto CODE_ROOT = "C:\\Users\\Regal-Lab\\Code\\Chimera-Control";
 	const std::string PLOT_FILES_SAVE_LOCATION = str (CODE_ROOT) + "\\Plotting";

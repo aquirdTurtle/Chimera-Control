@@ -1,0 +1,60 @@
+-ID:/Qt/5.15.2/msvc2019_64/mkspecs/win32-msvc
+-ID:/Chimera/Chimera-Control-Mark-Trim/Chimera/qmake/temp
+-ID:/Qt/5.15.2/msvc2019_64/include
+-ID:/Qt/5.15.2/msvc2019_64/include/QtUiTools
+-ID:/Qt/5.15.2/msvc2019_64/include/QtCharts
+-ID:/Qt/5.15.2/msvc2019_64/include/QtWidgets
+-ID:/Qt/5.15.2/msvc2019_64/include/QtGui
+-ID:/Qt/5.15.2/msvc2019_64/include/QtANGLE
+-ID:/Qt/5.15.2/msvc2019_64/include/QtCore
+-IC:\Program Files (x86)\IVI Foundation\VISA\WinNt\include
+-IC:\Program Files (x86)\IVI Foundation\IVI\Include
+-IC:\Program Files\Agilent\IO Libraries Suite\include
+-IC:\Program Files (x86)\IVI Foundation\VISA\WinNT\include
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29333\include
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29333\atlmfc\include
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\VS\include
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\VS\UnitTest\include
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\winrt
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\cppwinrt
+-IInclude\um
+-IC:\ProgramData\Miniconda3\include
+-IC:\ProgramData\Anaconda3\include
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29333\include
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29333\atlmfc\include
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\VS\include
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt
+-IC:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\VS\UnitTest\include
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\winrt
+-IC:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\cppwinrt
+-IInclude\um
+-IC:\Program Files\Basler\pylon 5\Development\include
+-IC:\ProgramData\Basler\pylon 5\Development\include
+-ID:\Chimera\Chimera-Control-Mark-Trim\Chimera\3rd_Party\myBoost
+-ID:\Chimera\Chimera-Control-Mark-Trim\Chimera\3rd_Party\HDF5\HDF5-1.10.1-win64-Debug\include
+-ID:\Chimera\Chimera-Control-Mark-Trim\Chimera\3rd_Party\Andor\include
+-ID:\Chimera\Chimera-Control-Mark-Trim\Chimera\3rd_Party\NI\include
+-ID:\Chimera\Chimera-Control-Mark-Trim\Chimera\3rd_Party\FTDI\include
+-ID:\Chimera\Chimera-Control-Mark-Trim\Chimera\Source
+-ID:\Qt\5.15.2\msvc2019_64\include
+-ID:\Qt\5.15.2\msvc2019_64\include\QtWidgets
+-ID:\Qt\5.15.2\msvc2019_64\include\QtGui\5.15.0
+-ID:\Qt\5.15.2\msvc2019_64\include\QtGui\5.15.0\QtGui
+-ID:\Qt\5.15.2\msvc2019_64\include\QtGui
+-ID:\Qt\5.15.2\msvc2019_64\include\QtANGLE
+-ID:\Qt\5.15.2\msvc2019_64\include\QtCore\5.15.0
+-ID:\Qt\5.15.2\msvc2019_64\include\QtCore\5.15.0\QtCore
+-ID:\Qt\5.15.2\msvc2019_64\include\QtCore
+-Idebug
+-ID:\Qt\5.15.2\msvc2019_64\mkspecs\win32-msvc
+-ID:\Qt\5.15.2\msvc2019_64\include\QtCharts
+-ID:\Qt\5.15.2\msvc2019_64\include\QtCharts\5.15.0
+-ID:\Qt\5.15.2\msvc2019_64\include\QtCharts\5.15.0\QtCharts
+-IC:\ProgramData\Python37\include
+-ID:\Qt\5.15.2\msvc2019_64\include\QtSerialPort
+-ID:\Qt\5.15.2\msvc2019_64\include\QtSerialPort\5.15.0
