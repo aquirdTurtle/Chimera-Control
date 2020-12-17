@@ -36,11 +36,11 @@ Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
 struct plotMinMax { 
 	double min_x, min_y, max_x, max_y;
 };
+
 /*
-* This is a custom object that I use for plotting. All of the drawing is done manually by standard win32 / MFC
-* functionality. Plotting used to be done by gnuplot, an external program which my program would send data to in
-* real-time, but this custom plotter, while it took some work (it was fun though) allows me to embed plots in the
-* main windows and have a little more direct control over the data being plotted.
+* This is a custom object that I use for plotting. 
+* All the plotting is now done using QtCharts. It used to be done manually by standard win32 / MFC
+* functionality. Plotting used to be done by gnuplot.
 */
 class PlotCtrl : public QObject {
 	Q_OBJECT;

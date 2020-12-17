@@ -73,7 +73,7 @@ void ExpThreadWorker::experimentThreadProcedure () {
 			emit notification ("Running Experiment.\n");
 			for (const auto& repInc : range (expRuntime.repetitions)) {
 				handlePause (isPaused, isAborting);
-				startRep (repInc, variationInc, input->skipNext == NULL ? false : input->skipNext->load ());
+				startRep (repInc, variationInc, input->skipNext == nullptr ? false : input->skipNext->load ());
 			}
 		}
 		waitForAndorFinish ();
@@ -917,7 +917,7 @@ void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameter
 		}
 	}
 	waitForAndorFinish ();
-	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
+	bool skipOption = input->skipNext == nullptr ? false : input->skipNext->load ();
 	if (true /*runMaster*/) { input->ttls.ftdi_write (variationInc, skipOption); }
 	handleDebugPlots ( input->ttls, input->aoSys, variationInc );
 }

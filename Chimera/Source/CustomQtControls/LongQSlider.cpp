@@ -26,7 +26,7 @@ void LongQSlider::hide ( int hideornot ) {
 }
 
 unsigned LongQSlider::getEditId ( ){
-	return NULL;
+	return 0;
 }
 
 void LongQSlider::initialize ( QPoint& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText ){
@@ -61,7 +61,7 @@ void LongQSlider::initialize ( QPoint& loc, IChimeraQtWindow* parent, int width,
 }
 
 int LongQSlider::getSliderId ( ){
-	return NULL;
+	return 0;
 }
 
 double LongQSlider::getValue ( ){

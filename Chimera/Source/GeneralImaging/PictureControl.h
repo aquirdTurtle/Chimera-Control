@@ -52,15 +52,15 @@ class PictureControl : public QWidget{
 		void setTransformationMode (Qt::TransformationMode);
 	private:
 		Qt::TransformationMode transformationMode;
-		Ui::PictureControl* ui;
+		Ui::PictureControl* ui = nullptr;
 		int picScaleFactor;
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
 		unsigned accumNum;
 		const bool histOption;
 		std::vector<plotDataVec> horData, vertData;
-		PlotCtrl* horGraph;
-		PlotCtrl* vertGraph;
+		PlotCtrl* horGraph = nullptr;
+		PlotCtrl* vertGraph = nullptr;
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
@@ -86,15 +86,15 @@ class PictureControl : public QWidget{
 		QVector<QRgb> imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<QRect>> grid;
-		ImageLabel* pictureObject;
-		QPixmap* pixmap;
+		ImageLabel* pictureObject = nullptr;
+		QPixmap* pixmap = nullptr;
 
 		LongQSlider sliderMax;
 		LongQSlider sliderMin;
 
 		//Control<CPushButton> myButton;
-		QLabel* coordinatesText;
-		QLabel* coordinatesDisp;
-		QLabel* valueText;
-		QLabel* valueDisp;
+		QLabel* coordinatesText = nullptr;
+		QLabel* coordinatesDisp = nullptr;
+		QLabel* valueText = nullptr;
+		QLabel* valueDisp = nullptr;
 };

@@ -15,7 +15,7 @@ unsigned ftdiFlume::getNumDevices( )
 //#ifdef _WIN64
 		numDevs = 0;
 		FT_STATUS ftStatus;
-		ftStatus = FT_ListDevices( &numDevs, NULL, FT_LIST_NUMBER_ONLY );
+		ftStatus = FT_ListDevices( &numDevs, nullptr, FT_LIST_NUMBER_ONLY );
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "ERROR: Error listing devices ftdi using FT_ListDevices! Status was \"" + getErrorText( ftStatus ) 
@@ -160,7 +160,7 @@ DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWri
 	{
 //#ifdef _WIN64
 		FT_STATUS ftStatus;
-		if ( amountToWrite == NULL )
+		if ( amountToWrite == 0 )
 		{
 			amountToWrite = sizeof( dataBuffer );
 		}

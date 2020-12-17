@@ -102,7 +102,7 @@ void QtMainWindow::setStyleSheets (){
 }
 
 void QtMainWindow::pauseExperiment () {
-	if (expWorker != NULL) {
+	if (expWorker != nullptr) {
 		expWorker->pause ();
 	}
 }
@@ -141,7 +141,7 @@ void QtMainWindow::onAutoCalFin (QString msg, profileSettings finishedConfig){
 }
 
 void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
-	input->skipNext = NULL;
+	input->skipNext = nullptr;
 	input->expType = ExperimentType::CameraCal;
 }
 
@@ -250,7 +250,7 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
-	input->skipNext = NULL;
+	input->skipNext = nullptr;
 }
 
 bool QtMainWindow::masterIsRunning () { return experimentIsRunning; }

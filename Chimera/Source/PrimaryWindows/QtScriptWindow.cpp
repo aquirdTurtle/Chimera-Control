@@ -125,7 +125,7 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 			auto answer = QMessageBox::question (this, "Open Failed", "ERROR: Failed to open master script file: " 
 				+ qstr(masterName) + ", with error \r\n" + err.qtrace () + "\r\nAttempt to find file yourself?");
 			if (answer == QMessageBox::Yes){
-				openMasterScript (openWithExplorer (NULL, "mScript"));
+				openMasterScript (openWithExplorer (nullptr, "mScript"));
 			}
 		}
 	}

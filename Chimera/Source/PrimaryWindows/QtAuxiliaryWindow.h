@@ -30,7 +30,7 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
-        explicit QtAuxiliaryWindow (QWidget* parent=NULL);
+        explicit QtAuxiliaryWindow (QWidget* parent= nullptr);
         ~QtAuxiliaryWindow ();
 
 		void initializeWidgets ();

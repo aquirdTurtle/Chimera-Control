@@ -419,7 +419,7 @@ void AndorCameraCore::checkAcquisitionTimings(float& kinetic, float& accumulatio
 		return;
 	}
 	float tempExposure, tempAccumTime, tempKineticTime;
-	float * timesArray = NULL;
+	float * timesArray = nullptr;
 	std::string errMsg;
 	if (safemode)
 	{

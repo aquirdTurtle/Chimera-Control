@@ -256,7 +256,7 @@ void Script::saveScriptAs(std::string location){
 	char fileChars[_MAX_FNAME];
 	char dirChars[_MAX_FNAME];
 	char pathChars[_MAX_FNAME];
-	int myError = _splitpath_s(cstr(location), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, NULL, 0);
+	int myError = _splitpath_s(cstr(location), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, nullptr, 0);
 	scriptName = str(fileChars);
 	scriptPath = str(fileChars) + str(pathChars);
 	saveFile.close();
@@ -312,7 +312,7 @@ void Script::checkSave(std::string configPath){
 		}
 	}
 	else{
-		auto answer = QMessageBox::question (NULL, qstr ("Save Script?"),
+		auto answer = QMessageBox::question (nullptr, qstr ("Save Script?"),
 			qstr ("The " + deviceType + " script file is unsaved. Save it as " + scriptName + extension + "?"), 
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
 		if (answer == QMessageBox::Cancel) {
@@ -354,7 +354,7 @@ void Script::deleteScript(std::string configPath){
 		return;
 	}
 	// check to make sure:
-	auto answer = QMessageBox::question (NULL, qstr ("Delete Script?"), 
+	auto answer = QMessageBox::question (nullptr, qstr ("Delete Script?"),
 		qstr ("Are you sure you want to delete the script file " + scriptName + "?"), QMessageBox::Yes | QMessageBox::No);
 	if (answer == QMessageBox::No) {
 		return;
@@ -435,7 +435,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	int sPos = scriptLocation.find_last_of ('/');
 	scriptLocation = scriptLocation.substr(0, sPos);	
 	if (scriptLocation + "/" != configPath && configPath != ""){
-		auto answer = QMessageBox::question (NULL, qstr ("Location?"), qstr ("The requested " + deviceType 
+		auto answer = QMessageBox::question (nullptr, qstr ("Location?"), qstr ("The requested " + deviceType
 			+ " script: " + parentScriptFileAndPath + " is not "
 			"currently located in the current configuration folder. This is recommended so that "
 			"scripts related to a particular configuration are reserved to that configuration "
@@ -514,7 +514,7 @@ void Script::considerCurrentLocation(std::string configPath){
 		scriptLocation = scriptLocation.substr (0, sPos);
 
 		if (scriptLocation + "/" != configPath){
-			auto answer = QMessageBox::question (NULL, qstr ("Location?"), qstr ("The requested " + deviceType 
+			auto answer = QMessageBox::question (nullptr, qstr ("Location?"), qstr ("The requested " + deviceType
 				+ " script location: \"" + scriptLocation + "\" "
 				"is not currently located in the current configuration folder. This is recommended"
 				" so that scripts related to a particular configuration are reserved to that "

@@ -3,7 +3,7 @@
 
 struct AllExperimentInput
 {
-	AllExperimentInput::AllExperimentInput () : masterInput (NULL), cruncherInput (NULL) { }
+	AllExperimentInput::AllExperimentInput () : masterInput (nullptr), cruncherInput (nullptr) { }
 	ExperimentThreadInput* masterInput;
 	atomCruncherInput* cruncherInput;
 };

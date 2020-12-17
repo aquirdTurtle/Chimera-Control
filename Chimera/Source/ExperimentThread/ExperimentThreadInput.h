@@ -45,7 +45,7 @@ struct ExperimentThreadInput{
 	bool quiet = false;
 	unsigned numAiMeasurements=0;
 	bool updatePlotterXVals = false;
-	std::atomic<bool>* skipNext = NULL;
+	std::atomic<bool>* skipNext = nullptr;
 	atomGrid analysisGrid;
 	ExperimentType expType = ExperimentType::Normal;
 	// only for rearrangement.

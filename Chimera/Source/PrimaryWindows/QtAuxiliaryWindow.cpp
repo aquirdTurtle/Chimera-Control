@@ -242,7 +242,7 @@ AoSystem& QtAuxiliaryWindow::getAoSys () {
 
 void QtAuxiliaryWindow::handleAbort (){
 	if (optimizer.isInMiddleOfOptimizing ()){
-		auto answer = QMessageBox::question (NULL, qstr ("Save Opt?"), qstr ("Save Optimization Data?"), 
+		auto answer = QMessageBox::question (nullptr, qstr ("Save Opt?"), qstr ("Save Optimization Data?"), 
 			QMessageBox::Yes | QMessageBox::No);
 		if (answer == QMessageBox::Yes){
 			optimizer.onFinOpt ();
@@ -353,7 +353,7 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 	int varNum;
 	configStream >> varNum;
 	if (varNum < 0 || varNum > 1000){
-		auto answer = QMessageBox::question (NULL, qstr ("Suspicious?"), qstr ("Variable number retrieved from "
+		auto answer = QMessageBox::question (nullptr, qstr ("Suspicious?"), qstr ("Variable number retrieved from "
 			"file appears suspicious. The number is " + str (varNum) + ". Is this accurate?"), QMessageBox::Yes
 			| QMessageBox::No);
 		if (answer == QMessageBox::No){

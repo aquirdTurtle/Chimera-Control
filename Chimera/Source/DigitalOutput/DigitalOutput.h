@@ -23,7 +23,7 @@ class DigitalOutput
 		
 		bool holdStatus;
 		void setHoldStatus ( bool stat );
-		CQCheckBox* check;
+		CQCheckBox* check = nullptr;
 
 	private:
 		DoRows::which row;

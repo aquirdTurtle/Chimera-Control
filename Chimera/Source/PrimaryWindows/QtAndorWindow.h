@@ -33,7 +33,7 @@ class QtAndorWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
-        explicit QtAndorWindow (QWidget* parent=NULL);
+        explicit QtAndorWindow (QWidget* parent= nullptr);
         ~QtAndorWindow ();
 
 		void initializeWidgets ();

@@ -14,7 +14,7 @@ class ftdiFlume
 		ftdiFlume (const ftdiFlume&) = delete;
 
 		ftdiFlume( bool safemode_option );
-		DWORD write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=NULL );
+		DWORD write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=0 );
 		unsigned getNumDevices( );
 		std::vector<UINT8> read ( DWORD readSize );
 		void close( );

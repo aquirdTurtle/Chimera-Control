@@ -3,12 +3,10 @@
 
 
 void DigitalOutput::updateStatus ( ){
-	if ( check == NULL )
-	{
+	if ( check == nullptr )	{
 		return;
 	}
-	if (check->isChecked () != status)
-	{
+	if (check->isChecked () != status){
 		check->setChecked (status);
 	}
 }
