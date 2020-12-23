@@ -38,23 +38,21 @@ off: axialRamanShutter
 off: axialRamanShutter2  
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to the move stuff.
-var dumpTime 13
+var dumpTime 3
 t += dumpTime
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to the move stuff.
-t += 1
-t += 5
+t += 2
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
-t += 0.4
+t += 0.2
 pulseon: aceTrig 0.01 
 var tunnelTime 3
 t += tunnelTime 
 pulseon: tweezerIntensityTrig 0.1 % to move depth
-t += 2
 pulseon: niawgTrig 0.1 % separate tweezers
-t += 6
+t += 2
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
-t += 3
+t += 1
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
 pulseon: niawgTrig 0.1

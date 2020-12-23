@@ -23,6 +23,7 @@ call intrapgreymolasses()
 pulseon: tweezerIntensityTrig 0.1 % to TOF depth
 
 call freespaceprobeimage()
+%call pgcAtomFlashingImage()
 
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
 

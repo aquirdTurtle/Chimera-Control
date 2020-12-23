@@ -46,6 +46,9 @@ def freeSpaceProbeImage():
   on: SideMotRf
   on: diagMotRf
   on: repumpRf
+	
+  on: andorTrig
+
   t += freeSpaceImageTime
   off: a15
   off: SideMotRf
@@ -55,7 +58,7 @@ def freeSpaceProbeImage():
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
 
   %t += ( - 0.745 )
-  on: andorTrig
+  %on: andorTrig
   %t += 0.745
   t += 1
   off: andorTrig

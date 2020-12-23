@@ -1,0 +1,5 @@
+%% Very simple.
+
+t = 1
+call turnOnMot()
+% end of script

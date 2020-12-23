@@ -420,20 +420,25 @@ void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5
 		}
 		// the combination of the name and scope should be enough to make a unique name for the group.
 		//H5::Group indvParam = paramGroup.createGroup (param.name + "; " + param.parameterScope);
-		H5::Group indvParam = paramGroup.createGroup (param.name + ";" + param.parameterScope);
-		writeDataSet (param.name, "Name", indvParam);
-		writeDataSet (param.parameterScope, "Scope", indvParam);
-		writeDataSet (param.constantValue, "Constant Value", indvParam);
-		writeDataSet (param.keyValues, "Key Values", indvParam);
-		writeDataSet (param.constant, "Is Constant", indvParam);
-		writeDataSet (param.active, "Is Active", indvParam);
-		writeDataSet (param.overwritten, "Is Overwritten", indvParam);
-		writeDataSet (param.scanDimension, "Scan Dimension", indvParam);
-		int rangeCount = 0;
-		for (auto& range : param.ranges) {
-			H5::Group rangeGroup = indvParam.createGroup ("Range " + str(rangeCount++));
-			writeDataSet (range.initialValue, "Initial Value", rangeGroup);
-			writeDataSet (range.finalValue, "Final Value", rangeGroup);
+		try {
+			H5::Group indvParam = paramGroup.createGroup (param.name + ";" + param.parameterScope);
+			writeDataSet (param.name, "Name", indvParam);
+			writeDataSet (param.parameterScope, "Scope", indvParam);
+			writeDataSet (param.constantValue, "Constant Value", indvParam);
+			writeDataSet (param.keyValues, "Key Values", indvParam);
+			writeDataSet (param.constant, "Is Constant", indvParam);
+			writeDataSet (param.active, "Is Active", indvParam);
+			writeDataSet (param.overwritten, "Is Overwritten", indvParam);
+			writeDataSet (param.scanDimension, "Scan Dimension", indvParam);
+			int rangeCount = 0;
+			for (auto& range : param.ranges) {
+				H5::Group rangeGroup = indvParam.createGroup ("Range " + str (rangeCount++));
+				writeDataSet (range.initialValue, "Initial Value", rangeGroup);
+				writeDataSet (range.finalValue, "Final Value", rangeGroup);
+			}
+		}
+		catch (H5::Exception&) {
+			throwNested ("Failed to write parameter info! usually this means that somehow there are redundant parameters...");
 		}
 	} 
 }

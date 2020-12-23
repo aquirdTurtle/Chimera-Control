@@ -30,79 +30,77 @@ QVariant ParameterModel::data (const QModelIndex& index, int role) const{
     auto param = parameters[row];
     try {
         switch (role) {
-			case Qt::FontRole:{
-				if (param.overwritten) {
-					QFont font;
-					font.setBold (true);
-					return QVariant(font);
-				}
-				return QVariant (); // default
+		case Qt::FontRole:{
+			if (param.overwritten) {
+				QFont font;
+				font.setBold (true);
+				return QVariant(font);
 			}
-			case Qt::ForegroundRole: { // text color
-				if (param.overwritten) {
-					return QVariant (QBrush (QColor (255, 0, 0)));
-				}
-				return QVariant (); // default
+			return QVariant (); // default
+		}
+		case Qt::ForegroundRole: { // text color
+			if (param.overwritten) {
+				return QVariant (QBrush (QColor (255, 0, 0)));
 			}
-			case Qt::BackgroundRole: { // background color
-				if (param.active) {
-					return QVariant (QBrush (QColor (40,40,80)));
-				}
-				return QVariant (); // default
+			return QVariant (); // default
+		}
+		case Qt::BackgroundRole: { // background color
+			if (param.active) {
+				return QVariant (QBrush (QColor (40,40,80)));
 			}
-			case Qt::EditRole: {
-				if (!isGlobal && col >= 5) {
-					auto rangeNum = int (col - 5) / 3;
-					switch ((col - 5) % 3) {
+			return QVariant (); // default
+		}
+        case Qt::EditRole: 
+            if (!isGlobal && col >= 5) {
+                auto rangeNum = int (col - 5) / 3;
+                switch ((col - 5) % 3) {
 					case 0:
 						return qstr (param.ranges[rangeNum].initialValue, 9, true);
 					case 1:
 						return qstr (param.ranges[rangeNum].finalValue, 9, true);
-					}
-				} // purposely don't break as this is only different for these two. 
-			}
-			case Qt::DisplayRole: {
-				if (isGlobal) {
-					switch (col) {
-					case 0:
-						return qstr(param.name);
-					case 1:
-						return qstr (param.constantValue, 9, true);
-					default:
-						return QVariant ();
-					}
-				}
-				else {
-					switch (col) {
-					case 0:
-						return qstr (param.name);
-					case 1:
-						return qstr (param.constant ? "Const." : "Var.");
-					case 2:
-						return qstr (param.scanDimension);
-					case 3:
-						return param.constant ? qstr (param.constantValue, 9, true) : "---";
-					case 4:
-						return qstr (param.parameterScope);
-					default:
-						if (param.constant) {
-							return QString ("---");
-						}
-						auto rangeNum = int (col - 5) / 3;
-						std::string lEnd = rangeInfo (param.scanDimension, rangeNum).leftInclusive ? "[" : "(";
-						std::string rEnd = rangeInfo (param.scanDimension, rangeNum).rightInclusive ? "]" : ")";
-						switch ((col - 5) % 3) {
-							case 0:
-								return qstr(lEnd + str (param.ranges[rangeNum].initialValue,9,true));
-							case 1:
-								return qstr (str(param.ranges[rangeNum].finalValue, 9, true) + rEnd);
-							case 2:
-								return qstr (rangeInfo (param.scanDimension, rangeNum).variations);
-						}
-						return QVariant ();
-					}
-				}
-			}
+                }
+            } // purposely don't break as this is only different for these two. 
+        case Qt::DisplayRole:
+            if (isGlobal) {
+                switch (col) {
+                case 0:
+                    return qstr(param.name);
+                case 1:
+                    return qstr (param.constantValue, 9, true);
+                default:
+                    return QVariant ();
+                }
+            }
+            else {
+                switch (col) {
+                case 0:
+                    return qstr (param.name);
+                case 1:
+                    return qstr (param.constant ? "Const." : "Var.");
+                case 2:
+                    return qstr (param.scanDimension);
+                case 3:
+                    return param.constant ? qstr (param.constantValue, 9, true) : "---";
+                case 4:
+                    return qstr (param.parameterScope);
+                default:
+                    if (param.constant) {
+                        return QString ("---");
+                    }
+                    auto rangeNum = int (col - 5) / 3;
+                    std::string lEnd = rangeInfo (param.scanDimension, rangeNum).leftInclusive ? "[" : "(";
+                    std::string rEnd = rangeInfo (param.scanDimension, rangeNum).rightInclusive ? "]" : ")";
+                    switch ((col - 5) % 3) {
+						case 0:
+							return qstr(lEnd + str (param.ranges[rangeNum].initialValue,9,true));
+						case 1:
+							return qstr (str(param.ranges[rangeNum].finalValue, 9, true) + rEnd);
+						case 2:
+							return qstr (rangeInfo (param.scanDimension, rangeNum).variations);
+                    }
+                    return QVariant ();
+                }
+            }
         }
     }
     catch (ChimeraError& err){
@@ -247,7 +245,8 @@ void ParameterModel::checkVariationRangeConsistency () {
     }
 }
 
-void ParameterModel::setVariationRangeNumber (int num, unsigned short dimNumber){
+
+void ParameterModel::setVariationRangeNumber (int num, USHORT dimNumber){
     // -2 for the two +- columns
     int currentVariableRangeNumber = (columnCount () - preRangeColumns) / 3;
     checkScanDimensionConsistency ();

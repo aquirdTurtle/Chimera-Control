@@ -21,46 +21,7 @@ ParameterSystem::ParameterSystem (IChimeraQtWindow* parent, std::string configur
 	IChimeraSystem(parent), configDelim ( configurationFileDelimiter ),
 paramModel(configurationFileDelimiter=="GLOBAL_PARAMETERS"){ }
 
-void ParameterSystem::initialize (QPoint& pos, IChimeraQtWindow* parent, std::string title, ParameterSysType type, 
-								  unsigned width, unsigned height ){
-
-	auto& px = pos.rx (), & py = pos.ry ();
-	paramSysType = type;
-
-	parametersHeader = new QLabel (cstr (title), parent);
-	parametersHeader->setGeometry (px, py, width, 25);
-	parametersView = new QTableView (parent);
-	parametersView->setGeometry (px, py += 25, width, height);
-	parametersView->setModel (&paramModel);
-	parametersView->show ();
-	
-	parametersView->horizontalHeader ()->setFixedHeight (25);
-	parametersView->verticalHeader ()->setFixedWidth (40);
-	parametersView->verticalHeader ()->setDefaultSectionSize (22);
-	parametersView->horizontalHeader ()->setStretchLastSection (true); 
-	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
-	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::Interactive);	
-	parametersView->setContextMenuPolicy (Qt::CustomContextMenu);
-	parent->connect (parametersView, &QTableView::doubleClicked, parent, &IChimeraQtWindow::configUpdated);
-	parent->connect (parametersView, &QTableView::customContextMenuRequested,
-		[this](const QPoint& pos) {handleContextMenu (pos); });
-	parametersView->setShowGrid (true);
-
-	if ( paramSysType == ParameterSysType::config ){
-		parametersView->connect (parametersView, &QTableView::doubleClicked, [this](const QModelIndex& index) {
-			if (index.column() == 1) {
-				auto params = paramModel.getParams ();
-				params[index.row ()].constant = !params[index.row ()].constant;
-				paramModel.setParams (params);
-			}});
-	}
-	parametersView->connect (&paramModel, &ParameterModel::paramsChanged, 
-							 parent->scriptWin, &QtScriptWindow::updateVarNames);
-	py += height;
-	setTableviewColumnSize ();
-}
-
-void ParameterSystem::handleContextMenu (const QPoint& pos) {
+void ParameterSystem::handleContextMenu (const QPoint& pos){
 	auto index = parametersView->indexAt (pos);
 	QMenu menu;
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
@@ -108,14 +69,14 @@ void ParameterSystem::handleContextMenu (const QPoint& pos) {
 		auto scanDim = paramModel.getParams ()[index.row ()].scanDimension;
 		paramModel.setVariationRangeNumber (rangeInfo.numRanges (scanDim) - 1, scanDim);
 		});
-	for (auto* action : { addRange, rmRange, deleteAction, toggleInclusivity, newParam }) {
-		parametersView->connect (action, &QAction::triggered,
-			(IChimeraQtWindow*)parametersView->parentWidget (), &IChimeraQtWindow::configUpdated);
+	for (auto* action : {addRange, rmRange, deleteAction, toggleInclusivity, newParam}){
+		parametersView->connect (action, &QAction::triggered, 
+								 (IChimeraQtWindow*)parametersView->parentWidget(), &IChimeraQtWindow::configUpdated);
 	}
 
-	if (index.row () < paramModel.getParams ().size ()) {
+	if (index.row() < paramModel.getParams().size()) { 
 		menu.addAction (deleteAction);
-		if (!paramModel.isGlobal) {
+		if (!paramModel.isGlobal){
 			menu.addAction (addRange);
 			menu.addAction (rmRange);
 			if (index.column () >= paramModel.preRangeColumns && (index.column () - paramModel.preRangeColumns) % 3 != 2) {
@@ -124,7 +85,49 @@ void ParameterSystem::handleContextMenu (const QPoint& pos) {
 		}
 	}
 	menu.addAction (newParam);
-	menu.exec (parametersView->mapToGlobal (pos));
+	menu.exec (parametersView->mapToGlobal (pos));	
+}
+
+void ParameterSystem::initialize (QPoint& pos, IChimeraQtWindow* parent, std::string title, ParameterSysType type, 
+								  unsigned width, unsigned height ){
+
+	auto& px = pos.rx (), & py = pos.ry ();
+	paramSysType = type;
+
+	parametersHeader = new QLabel (cstr (title), parent);
+	parametersHeader->setGeometry (px, py, width, 25);
+	parametersView = new QTableView (parent);
+	parametersView->setGeometry (px, py += 25, width, height);
+	parametersView->setModel (&paramModel);
+	parametersView->show ();
+	
+	parametersView->horizontalHeader ()->setFixedHeight (25);
+	parametersView->verticalHeader ()->setFixedWidth (40);
+	parametersView->verticalHeader ()->setDefaultSectionSize (22);
+	parametersView->horizontalHeader ()->setStretchLastSection (true); 
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::Interactive);	
+
+	parametersView->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (parametersView, &QTableView::doubleClicked, parent, &IChimeraQtWindow::configUpdated);
+	parent->connect (parametersView, &QTableView::customContextMenuRequested,
+		[this](const QPoint& pos) {handleContextMenu (pos); });
+	parametersView->setShowGrid (true);
+
+	if ( paramSysType == ParameterSysType::global ){
+	}
+	else {
+		parametersView->connect (parametersView, &QTableView::doubleClicked, [this](const QModelIndex& index) {
+			if (index.column() == 1) {
+				auto params = paramModel.getParams ();
+				params[index.row ()].constant = !params[index.row ()].constant;
+				paramModel.setParams (params);
+			}});
+	}
+	parametersView->connect (&paramModel, &ParameterModel::paramsChanged, 
+							 parent->scriptWin, &QtScriptWindow::updateVarNames);
+	py += height;
+	setTableviewColumnSize ();
 }
 
 /*
