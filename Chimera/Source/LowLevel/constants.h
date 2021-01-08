@@ -83,9 +83,9 @@
 	const std::string FUNCTIONS_FOLDER_LOCATION = str (CODE_ROOT) + "\\Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS (str (CODE_ROOT) + "\\Master-Configuration.txt");
 	const std::string LOGGING_FILE_ADDRESS = str (CODE_ROOT) + "\\Master-Log.txt";
-	const std::string MOT_ROUTINES_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT";
-	const std::string PGC_ROUTINES_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\PGC";
-	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\Camera";
+	const std::string MOT_ROUTINES_ADDRESS = PROFILES_PATH + "Standard_Calibrations\\MOT";
+	const std::string PGC_ROUTINES_ADDRESS = PROFILES_PATH + "Standard_Calibrations\\PGC";
+	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROFILES_PATH + "Standard_Calibrations\\Camera";
 	const std::string DEBUG_OUTPUT_LOCATION = str (CODE_ROOT) + "\\Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.

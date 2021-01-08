@@ -317,7 +317,9 @@ void AgilentCore::convertInputToFinalSettings (unsigned chan, deviceOutputInfo& 
 			channel.square.offset.internalEvaluate (params, totalVariations);
 			break;
 		case AgilentChannelMode::which::Preloaded:
+			break;
 		case AgilentChannelMode::which::Script:
+			channel.scriptedArb.wave.calculateAllSegmentVariations (totalVariations, params);		
 			break;
 		default:
 			thrower ("Unrecognized Agilent Setting: " + AgilentChannelMode::toStr (channel.option));
@@ -383,15 +385,14 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 	programSetupCommands ();
 	if (scriptInfo.wave.isVaried () || variation == 0){
 		unsigned totalSegmentNumber = scriptInfo.wave.getSegmentNumber ();
-		scriptInfo.wave.replaceVarValues (variation, params);
 		// Loop through all segments
 		for (auto segNumInc : range(totalSegmentNumber)){
 			// Use that information to writebtn the data.
 			try{
-				scriptInfo.wave.writeData (segNumInc, sampleRate);
+				scriptInfo.wave.calSegmentData (segNumInc, sampleRate, variation);
 			}
 			catch (ChimeraError&){
-				throwNested ("IntensityWaveform.writeData threw an error! Error occurred in segment #"
+				throwNested ("IntensityWaveform.calSegmentData threw an error! Error occurred in segment #"
 					+ str (totalSegmentNumber));
 			}
 		}
@@ -412,7 +413,7 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 			visaFlume.write ("MMEM:STORE:DATA" + str (channel) + " \"" + memoryLoc + ":\\segment"
 				+ str (segNumInc + totalSegmentNumber * variation) + ".arb\"");
 		}
-		scriptInfo.wave.compileSequenceString (totalSegmentNumber, variation, channel);
+		scriptInfo.wave.compileSequenceString (totalSegmentNumber, variation, channel, variation);
 		// submit the sequence
 		visaFlume.write (scriptInfo.wave.returnSequenceString ());
 		// Save the sequence

@@ -1,7 +1,7 @@
 %%---------------------------------------------------------%%
 %%---------------------------------------------------------%%
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
-var ldumpBias 0.75
+var ldumpBias 0.8
 
 var_v 2 freqs  [ 75 87 ] 
 var_v 2 amps   [ 0.6 0.4 ]

@@ -149,12 +149,8 @@ std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum,
 	return tempSendString;
 }
 
-
-/*
- *
- */
-void ScriptedAgilentWaveform::writeData( int segNum, unsigned long sampleRate ){
-	waveformSegments[segNum].calcData(sampleRate);
+void ScriptedAgilentWaveform::calSegmentData( int segNum, unsigned long sampleRate, unsigned varNum ){
+	waveformSegments[segNum].calcData(sampleRate, varNum);
 }
 
 unsigned long ScriptedAgilentWaveform::getSegmentNumber(){
@@ -166,7 +162,7 @@ unsigned long ScriptedAgilentWaveform::getSegmentNumber(){
 * This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 * as a part of the class.
 */
-void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel ){
+void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel, unsigned varNum ){
 	std::string tempSequenceString, tempSegmentInfoString;
 	// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
 	// <play control2>, <marker mode2>, <marker point2>, and so on.
@@ -177,8 +173,8 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	}
 	for (int segNumInc = 0; segNumInc < totalSegNum; segNumInc++){
 		tempSegmentInfoString += "segment" + str ( segNumInc + totalSegNum * sequenceNum ) + ",";
-		tempSegmentInfoString += str ( waveformSegments[ segNumInc ].getFinalSettings ( ).repeatNum ) + ",";
-		tempSegmentInfoString += SegmentEnd::toStr ( waveformSegments[ segNumInc ].getFinalSettings ( ).continuationType ) + ",";
+		tempSegmentInfoString += str ( waveformSegments[ segNumInc ].getInput ( ).repeatNum.getValue(varNum) ) + ",";
+		tempSegmentInfoString += SegmentEnd::toStr ( waveformSegments[ segNumInc ].getInput( ).continuationType ) + ",";
 		tempSegmentInfoString += "highAtStart,4,";
 	}
 	// remove final comma.
@@ -234,20 +230,12 @@ bool ScriptedAgilentWaveform::isVaried( ){
 	return false;
 }
 
-
-void ScriptedAgilentWaveform::replaceVarValues(){
-	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++){
-		waveformSegments[segNumInc].convertInputToFinal();
-	}
-}
-
-
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( unsigned variation, std::vector<parameterType>& variables ){
+void ScriptedAgilentWaveform::calculateAllSegmentVariations( unsigned totalNumVariations, std::vector<parameterType>& variables ){
 	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++){
-		waveformSegments[segNumInc].convertInputToFinal( variation, variables );
+		waveformSegments[segNumInc].calculateSegVariations(totalNumVariations, variables );
 	}
 }
 

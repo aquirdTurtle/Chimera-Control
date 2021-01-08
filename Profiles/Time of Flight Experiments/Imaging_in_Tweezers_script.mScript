@@ -19,10 +19,12 @@ t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 
 call intrapgreymolasses()
-
+off: tweezerrf
+t+= 20
 pulseon: tweezerIntensityTrig 0.1 % to TOF depth
 
-call freespaceprobeimage()
+call freespaceimage()
+%call freespaceprobeimage()
 %call pgcAtomFlashingImage()
 
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth

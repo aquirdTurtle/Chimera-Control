@@ -31,13 +31,13 @@ struct modFormat{
 };
 
 
-struct modData{
-	bool modulationIsOn = false;
-	// in MHz
-	double frequency = 0;
-	// in radians
-	double phase = 0;
-};
+//struct modData{
+//	bool modulationIsOn = false;
+//	// in MHz
+//	double frequency = 0;
+//	// in radians
+//	double phase = 0;
+//};
 
 
 struct pulseFormat {
@@ -51,17 +51,17 @@ struct pulseFormat {
 	Expression tOffset;
 
 };
-
-struct pulseData {
-	bool isPulse;
-	// as of October 6th, can be "sech", "gaussian", or "lorentzian"
-	std::string type;
-	double amplitude;
-	double width;
-	// if time !>> pulseWidth, there will be a cutoff in the shape of the pulse.
-	double vOffset;
-	double tOffset;
-};
+//
+//struct pulseData {
+//	bool isPulse;
+//	// as of October 6th, can be "sech", "gaussian", or "lorentzian"
+//	std::string type;
+//	double amplitude;
+//	double width;
+//	// if time !>> pulseWidth, there will be a cutoff in the shape of the pulse.
+//	double vOffset;
+//	double tOffset;
+//};
 
 
 struct segmentInfoInput {
@@ -79,15 +79,15 @@ struct segmentInfoInput {
 
 
 
-struct segmentInfoFinal{
-	pulseData pulse;
-	modData mod;
-	rampData ramp;
-	double holdVal = 0;
-	// 
-	unsigned repeatNum = 0;
-	// in ms
-	double time = 0;
-	// values such as repeat, repeat until trigger, no repeat, etc.
-	SegmentEnd::type continuationType = SegmentEnd::type::once;
-};
+//struct segmentInfoFinal{
+//	pulseData pulse;
+//	modData mod;
+//	rampData ramp;
+//	double holdVal = 0;
+//	// 
+//	unsigned repeatNum = 0;
+//	// in ms
+//	double time = 0;
+//	// values such as repeat, repeat until trigger, no repeat, etc.
+//	SegmentEnd::type continuationType = SegmentEnd::type::once;
+//};

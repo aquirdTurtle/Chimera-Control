@@ -17,13 +17,12 @@ class ScriptedAgilentWaveform {
 		ScriptedAgilentWaveform();
 		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script, std::vector<parameterType>& params,
 			std::string& warnings);
-		void writeData( int SegNum, unsigned long sampleRate );
+		void calSegmentData( int SegNum, unsigned long sampleRate, unsigned varNum);
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, unsigned chan );
-		void compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel );
+		void compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel, unsigned varNum);
 		std::string returnSequenceString();
 		bool isVaried();
-		void replaceVarValues();
-		void replaceVarValues( unsigned variation, std::vector<parameterType>& variables);
+		void calculateAllSegmentVariations( unsigned totalNumVariations, std::vector<parameterType>& variables);
 		void convertPowersToVoltages (bool useCal, calResult calibration);
 		void normalizeVoltages();
 		void calcMinMax();

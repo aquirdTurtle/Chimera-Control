@@ -31,15 +31,16 @@ off: shutter795
 pulseon: tweezerIntensityTrig 0.1
 call send_uw_to_raman_eom()
 t += 1
-call pump2stretch() 
+call pump2stretch()
 call gsbc()
 pulseon: windfreakTrig 0.05
-t += 1
+t += waitTime
 on: a15
-dac: eoPulseLev { 0.255 eo_raman } 
-pulseon: axialmicropulsetrig 0.01
-call axialRamanPulse(axsbcpulselen)
+pulseon: topPulseTrig 0.01
+dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
+call topRamanPulse(tbsbcpulselen)
 off: a15
+dac: topPulseLev 0
 dac: eoPulseLev 0
 off: axialRamanShutter  
 off: axialRamanShutter2  
@@ -50,8 +51,6 @@ pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1
-%call zeroFields() 
-pulseon: rsTrig 0.1
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 1

@@ -571,13 +571,18 @@ void DataLogger::logAndorPiezos (piezoChan<double> cameraPiezoVals) {
 
 
 void DataLogger::assertClosed () {
-	AndorPicureSetDataSpace.close ();
-	AndorPictureDataset.close ();
-	BaslerPictureDataset.close ();
-	BaslerPicureSetDataSpace.close ();
-	voltsDataSpace.close ();
-	voltsDataSet.close ();
-	file.close ();
+	try {
+		AndorPicureSetDataSpace.close ();
+		AndorPictureDataset.close ();
+		BaslerPictureDataset.close ();
+		BaslerPicureSetDataSpace.close ();
+		voltsDataSpace.close ();
+		voltsDataSet.close ();
+		file.close ();
+	}
+	catch (H5::Exception &err) {
+		throwNested ("Failed to assert closed! H5 Exception thrown!");
+	}
 	andorDataSetShouldBeValid = false;
 	fileIsOpen = false;
 	emit notification ("Closing HDF5 File and associated structures.\n", 0);

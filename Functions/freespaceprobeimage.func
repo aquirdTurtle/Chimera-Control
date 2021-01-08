@@ -2,43 +2,36 @@
 def freeSpaceProbeImage():
   % give the shutter some time to open.
   off: diagMotRf
+  t += -5
+  on: repumpShutter
+  on: sidemotShutter
+  on: diagmotShutter
+  t += 5
   off: SideMotRf
-  off: diagMotRf
   off: repumpRf
+
   on: andorShutter
+
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning -0.111 %0.3
+  var image_detuning -2.4 %0.3
   var motPower 0.3 % 0.2
-  dacLinSpace: MotFreq defaultMotFreq image_detuning 1 10
+  dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
-  t += 1
-  var freespacePower 0.2
+  t += 5
+  var freespacePower 9
   dac: SideMotPower { freespacePower sidemot }
   dac: probePower 0
   dac: RepumpPower { 0.6 repump }
   dac: DiagMotPower 0
-  %on: repumpRf
-  %t += 1
+
   off: repumpRf
   var waitTime 0.000
   var freeSpaceImageTime 15
   off: tweezerRf
   t += waitTime
-  % the Andor has about a 20 us delay between 
-  % when you send the trig
-  % and when the camera actually starts exposing. 
-  % This puts the trigger
-  % always 25 us before the imaging light turns on 
-  % to make sure the 
-  % camera is exposed during the full imaging time. 
-  % at waitTime = 0, this is equivalent to 
-  % 
-  % on: andorTrig
-  % t += 0.025
-  % off: tweezerRf
-  % on: sidemotRf etc.
+ 
 
   on: a15
   off: rf795

@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "SerialPiezoFlume.h"
-#include <qdebug.h>
 #include <boost/lexical_cast.hpp>
 
 SerialPiezoFlume::SerialPiezoFlume ( bool sMode, std::string addr ) : safemode(sMode), flumeCore( sMode, addr ){
@@ -18,14 +17,11 @@ void SerialPiezoFlume::close (){
 
 void SerialPiezoFlume::setXAxisVoltage (double val){
 	auto echo = flumeCore.query("XV" + str (val) + "\r");
-	qDebug() << qstr(echo);
 }
 
 double SerialPiezoFlume::getXAxisVoltage (){
 	auto echo = flumeCore.query ("XR?\r");
 	auto ans = flumeCore.read ();
-	qDebug () << qstr(ans);
-	qDebug () << qstr (echo);
 	double dres = 0;
 	try{
 		if (ans.find ('[') == std::string::npos || ans.find (']') == std::string::npos) {
@@ -34,7 +30,6 @@ double SerialPiezoFlume::getXAxisVoltage (){
 		else { // annoying formatting issues
 			auto numStr = ans.substr (ans.find ('[')+1, ans.find (']') - ans.find ('[')-1);
 			numStr = numStr.substr (numStr.find_first_not_of (' '));
-			qDebug () << qstr(numStr);
 			dres = boost::lexical_cast<double>(numStr);
 		}
 	}
@@ -46,14 +41,11 @@ double SerialPiezoFlume::getXAxisVoltage (){
 
 void SerialPiezoFlume::setYAxisVoltage (double val) {
 	auto echo = flumeCore.query ("YV" + str (val) + "\r");
-	qDebug () << qstr (echo);
 }
 
 double SerialPiezoFlume::getYAxisVoltage () {
 	auto echo = flumeCore.query ("YR?\r");
 	auto ans = flumeCore.read ();
-	qDebug () << qstr (ans);
-	qDebug () << qstr (echo);
 	double dres = 0;
 	try {
 		if (ans.find ('[') == std::string::npos || ans.find (']') == std::string::npos) {
@@ -62,7 +54,6 @@ double SerialPiezoFlume::getYAxisVoltage () {
 		else {
 			auto numStr = ans.substr (ans.find ('[') + 1, ans.find (']') - ans.find ('[') - 1);
 			numStr = numStr.substr (numStr.find_first_not_of (' '));
-			qDebug () << qstr (numStr);
 			dres = boost::lexical_cast<double>(numStr);
 		}
 	}
@@ -74,14 +65,11 @@ double SerialPiezoFlume::getYAxisVoltage () {
 
 void SerialPiezoFlume::setZAxisVoltage (double val){
 	auto echo = flumeCore.query ("ZV" + str (val) + "\r");
-	qDebug () << qstr (echo);
 }
 
 double SerialPiezoFlume::getZAxisVoltage (){
 	auto echo = flumeCore.query ("ZR?\r");
 	auto ans = flumeCore.read ();
-	qDebug () << qstr (ans);
-	qDebug () << qstr (echo);
 	double dres = 0;
 	try {
 		if (ans.find ('[') == std::string::npos || ans.find (']') == std::string::npos) {
@@ -90,7 +78,6 @@ double SerialPiezoFlume::getZAxisVoltage (){
 		else {
 			auto numStr = ans.substr (ans.find ('[') + 1, ans.find (']') - ans.find ('[') - 1);
 			numStr = numStr.substr (numStr.find_first_not_of (' '));
-			qDebug () << qstr (numStr);
 			dres = boost::lexical_cast<double>(numStr);
 		}
 	}

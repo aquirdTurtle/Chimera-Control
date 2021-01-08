@@ -1,8 +1,7 @@
 %var loadingDepth 11 % 13.4 
-var loadingDepth 7
-var imagingDepth 12.25
+var loadingDepth 17.5
 var intraplgmdepth 20.4
-var TOFDepth 10
+var TOFDepth 0.5
 
 hold loadingDepth 1 onceWaitTrig #   
 ramp lin loadingDepth intrapLGMDepth 1 onceWaitTrig #
