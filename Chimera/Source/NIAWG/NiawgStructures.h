@@ -71,26 +71,29 @@ struct waveSignalForm{
 	std::string powerRampType="";
 
 	Expression initPhase;
-};;
+	// only stores the most recent variation...
+	double finPhase;
+};
 
 
 /* * * * *
 * A "Signal" structure contains all of the information for a single signal. Vectors of these are included in a 
 * "waveInfo" structure.
-* */
-struct waveSignal{
-	double freqInit;
-	double freqFin;
-	std::string freqRampType;
-
-	double initPower;
-	double finPower;
-	std::string powerRampType;
-
-	double initPhase;
-	// Asssigned only after a waveform is calculated or readbtn.
-	double finPhase;
-};;
+//* */
+//struct waveSignal{
+//	double freqInit;
+//	double freqFin;
+//	std::string freqRampType;
+//
+//	//rampInfo ampRampInfo;
+//	double initPower;
+//	double finPower;
+//	std::string powerRampType;
+//
+//	double initPhase;
+//	// Asssigned only after a waveform is calculated or readbtn.
+//	double finPhase;
+//};
 
 
 struct channelWaveForm{
@@ -102,7 +105,7 @@ struct channelWaveForm{
 	std::string delim;
 	// the actual waveform data.
 	std::vector<ViReal64> wave;
-};;
+};
 
 
 /* * * * * * *
@@ -112,7 +115,7 @@ struct channelWaveForm{
 * copies in each channel.
 * */
 struct channelWave{
-	std::vector<waveSignal> waveSigs;
+	std::vector<waveSignalForm> waveSigs;
 	// should be 0 until this option is re-implemented!
 	int phaseOption = 0;
 	int initType = 0;
@@ -120,16 +123,8 @@ struct channelWave{
 	std::string delim;
 	// the actual waveform data.
 	std::vector<ViReal64> wave;
-};;
+};
 
-
-struct simpleWaveForm{
-	niawgPair<channelWaveForm> chan;
-	Expression time;
-	// whether the whole thing varies. This is true if any expression varies in the wave.
-	bool varies = false;
-	std::string name="";
-};;
 
 class NiawgCore;
 
@@ -151,21 +146,37 @@ namespace NiawgConstants {
 };
 
 
-// used for flashing, rearrangement waves, etc.
-struct simpleWave {
-	niawgPair<channelWave> chan;
-	double time = 0;
-	long int sampleNum () {
-		double waveSize = time * NiawgConstants::NIAWG_SAMPLE_RATE;
+struct simpleWaveForm {
+	niawgPair<channelWaveForm> chan;
+	Expression time;
+	// whether the whole thing varies. This is true if any expression varies in the wave.
+	bool varies = false;
+	std::string name = "";
+
+	long int sampleNum (unsigned varnum) {
+		double waveSize = time.getValue(varnum) * NiawgConstants::NIAWG_SAMPLE_RATE;
 		// round to an integer.
 		return (long)(waveSize + 0.5);
-		// return waveformSizeCalc ( time );
 	}
-	//long int sampleNum = 0;
-	bool varies = false;
-	std::string name;
+
 	std::vector<ViReal64> waveVals;
-};;
+};
+
+//// used for flashing, rearrangement waves, etc.
+//struct simpleWave {
+//	niawgPair<channelWave> chan;
+//	double time = 0;
+//	long int sampleNum () {
+//		double waveSize = time * NiawgConstants::NIAWG_SAMPLE_RATE;
+//		// round to an integer.
+//		return (long)(waveSize + 0.5);
+//		// return waveformSizeCalc ( time );
+//	}
+//	//long int sampleNum = 0;
+//	bool varies = false;
+//	std::string name;
+//	std::vector<ViReal64> waveVals;
+//};
 
 struct flashInfoForm {
 	bool isFlashing = false;
@@ -179,16 +190,16 @@ struct flashInfoForm {
 	Expression flashCycleFreq;
 	Expression deadTime;
 	unsigned flashNumber = 0;
-};;
+};
 
-
-struct flashInfo {
-	bool isFlashing = false;
-	std::vector<simpleWave> flashWaves;
-	double deadTime = 0;
-	double flashCycleFreq = 0;
-	unsigned flashNumber = 0;
-};;
+//
+//struct flashInfo {
+//	bool isFlashing = false;
+//	std::vector<simpleWave> flashWaves;
+//	double deadTime = 0;
+//	double flashCycleFreq = 0;
+//	unsigned flashNumber = 0;
+//};
 
 // rerng = rearrange
 struct rerngScriptInfoForm {
@@ -210,31 +221,30 @@ struct rerngScriptInfoForm {
 	niawgPair<std::vector<double>> staticBiases;
 	// this is the frequency difference per pixel
 	double freqPerPixel = 0;
-};;
-
-// rerng = rearrange
-struct rerngScriptInfo
-{
-	bool isRearrangement = false;
-	// the target picture
-	Matrix<bool> target = Matrix<bool> (0, 0);
-	niawgPair<unsigned long> finalPosition = { 0,0 };
-	// hard-coded currently. Should probably add some control for this.
-	double timePerMove = 60e-6;
-	double flashingFreq = 1e6;
-	// the maixmum number of moves the rearrangement should take.
-	unsigned moveLimit = 0;
-	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
-	// the picture.
-	niawgPair<double> lowestFreqs = { 0,0 };
-	// this is the frequency difference per pixel
-	double freqPerPixel = 0;
-	niawgPair<std::vector<double>> staticPhases;
-	niawgPair<std::vector<double>> staticBiases;
-	// the wave that gets flashed with the moving tweezer
-	simpleWave staticWave;
-	simpleWave fillerWave;
-};;
+};
+//
+//// rerng = rearrange
+//struct rerngScriptInfo{
+//	bool isRearrangement = false;
+//	// the target picture
+//	Matrix<bool> target = Matrix<bool> (0, 0);
+//	niawgPair<unsigned long> finalPosition = { 0,0 };
+//	// hard-coded currently. Should probably add some control for this.
+//	double timePerMove = 60e-6;
+//	double flashingFreq = 1e6;
+//	// the maixmum number of moves the rearrangement should take.
+//	unsigned moveLimit = 0;
+//	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
+//	// the picture.
+//	niawgPair<double> lowestFreqs = { 0,0 };
+//	// this is the frequency difference per pixel
+//	double freqPerPixel = 0;
+//	niawgPair<std::vector<double>> staticPhases;
+//	niawgPair<std::vector<double>> staticBiases;
+//	// the wave that gets flashed with the moving tweezer
+//	simpleWave staticWave;
+//	simpleWave fillerWave;
+//};
 
 
 struct waveInfoForm {
@@ -242,16 +252,16 @@ struct waveInfoForm {
 	flashInfoForm flash;
 	rerngScriptInfoForm rearrange;
 	bool isStreamed = false;
-};;
+};
 
-
-// contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
-struct waveInfo {
-	simpleWave core;
-	flashInfo flash;
-	rerngScriptInfo rearrange;
-	bool isStreamed = false;
-};;
+//
+//// contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
+//struct waveInfo {
+//	simpleWave core;
+//	flashInfo flash;
+//	rerngScriptInfo rearrange;
+//	bool isStreamed = false;
+//};
 
 
 struct NiawgOutput {
@@ -259,5 +269,5 @@ struct NiawgOutput {
 	std::string niawgLanguageScript;
 	// information directly out of the 
 	std::vector<waveInfoForm> waveFormInfo;
-	std::vector<waveInfo> waves;
-};;
+	//std::vector<waveInfo> waves;
+};

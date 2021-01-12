@@ -168,3 +168,20 @@ void Segment::assignDataVal( int dataNum, double val ){
 	dataArray[dataNum] = val;
 }
 
+void Segment::analyzeRampFile (rampInfo& ramp) {
+	std::ifstream rampFile (RAMP_LOCATION + ramp.type + ".txt");
+	if (!rampFile.is_open ()) {
+		thrower ("ERROR: ramp type " + ramp.type + " is unrecognized.\r\n");
+	}
+	ramp.rampFileName = ramp.type;
+	std::string word;
+	while (rampFile >> word) {
+		try {
+			ramp.rampFileVals.push_back (boost::lexical_cast<double>(word));
+		}
+		catch (boost::bad_lexical_cast & err) {
+			thrower ("Failed to convert ramp file to doubles!");
+		}
+	}
+	ramp.isFileRamp = true;
+}

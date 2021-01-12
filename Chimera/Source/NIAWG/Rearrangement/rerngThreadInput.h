@@ -27,7 +27,7 @@ struct rerngThreadInput{
 	atomQueue* atomsQueue;
 	// contains info from Niawg script about rearrangement, including the static wave. This is a pointer to avoid
 	// making an extra copy of the static waveform, which is in general pretty large.
-	waveInfo* rerngWave;
+	waveInfoForm* rerngWave;
 	NiawgCore* niawg;
 	// stuff from the rearrangement input
 	rerngGuiOptions guiOptions;
