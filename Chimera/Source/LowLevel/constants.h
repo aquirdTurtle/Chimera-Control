@@ -88,6 +88,7 @@
 	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROFILES_PATH + "Standard_Calibrations\\Camera";
 	const std::string DEBUG_OUTPUT_LOCATION = str (CODE_ROOT) + "\\Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
+	const std::string RAMP_LOCATION = str (CODE_ROOT) + "\\Ramp_Files\\";
 	// location where wave data can be outputted for analyzing with another computer.
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1", true, false };

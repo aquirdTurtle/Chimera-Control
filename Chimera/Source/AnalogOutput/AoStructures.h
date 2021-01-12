@@ -6,8 +6,7 @@
 #include <array>
 
 
-struct AoInfo
-{
+struct AoInfo{
 	double currVal=0;
 	std::string name="";
 	double minVal=-10;
@@ -21,8 +20,7 @@ struct AoInfo
 };
 
 
-struct AoCommandForm
-{
+struct AoCommandForm{
 	// can either be "dac", "dacarange", or "daclinspace"
 	std::string commandName;
 	unsigned short line=0;
@@ -35,8 +33,7 @@ struct AoCommandForm
 };
 
 
-struct AoCommand
-{
+struct AoCommand{
 	unsigned short line;
 	double time;
 	double value;

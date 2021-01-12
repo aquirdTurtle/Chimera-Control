@@ -24,7 +24,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 														   std::vector<parameterType>& params,
 															std::string& warnings ){
 	std::string scope = AGILENT_PARAMETER_SCOPE;
-	segmentInfoInput workingInput;
+	segmentInfo workingInput;
 	std::string word;
 	if (script.peek() == EOF)	{
 		return true;
@@ -49,6 +49,23 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			workingInput.pulse.isPulse = false;
 			workingInput.mod.modulationIsOn = false;
 			script >> workingInput.ramp.type;
+			if (workingInput.ramp.type != "lin" && workingInput.ramp.type != "tanh" && workingInput.ramp.type != "nr") {
+				std::ifstream rampFile (RAMP_LOCATION + workingInput.ramp.type + ".txt");
+				if (!rampFile.is_open ()) {
+					thrower ("ERROR: ramp type " + workingInput.ramp.type + " is unrecognized.\r\n");
+				}
+				workingInput.ramp.rampFileName = workingInput.ramp.type;
+				std::string word;
+				while (rampFile >> word) {
+					try {
+						workingInput.ramp.rampFileVals.push_back (boost::lexical_cast<double>(word));
+					}
+					catch (boost::bad_lexical_cast & err) {
+						thrower ("Failed to convert ramp file to doubles!");
+					}
+				}
+				workingInput.ramp.isFileRamp = true;
+			}
 			script >> workingInput.ramp.start;
 			workingInput.ramp.start.assertValid ( params, scope );
 			script >> workingInput.ramp.end;

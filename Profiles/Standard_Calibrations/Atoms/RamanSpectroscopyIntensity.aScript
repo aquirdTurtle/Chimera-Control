@@ -5,12 +5,12 @@ var ramanDepth 19
 var dropDepth 3.2
 
 hold loadingDepth 1 onceWaitTrig #   
-ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
-ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
-ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
-ramp lin ramanDepth dropDepth 1 onceWaitTrig #
-ramp lin dropDepth imagingDepth 1 onceWaitTrig #
-ramp lin imagingDepth loadingDepth 1 once #   
+ramp linRamp loadingDepth imagingDepth 1 onceWaitTrig # 
+ramp linRamp imagingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp linRamp intrapLGMDepth ramanDepth 1 onceWaitTrig #
+ramp linRamp ramanDepth dropDepth 1 onceWaitTrig #
+ramp linRamp dropDepth imagingDepth 1 onceWaitTrig #
+ramp linRamp imagingDepth loadingDepth 1 once #   
  
   
   

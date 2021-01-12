@@ -1,6 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "Segment.h"
+#include <boost/lexical_cast.hpp>
 
 void Segment::calculateSegVariations( unsigned totalNumVariations, std::vector<parameterType>& variables ){	
 	// handle more complicated things.
@@ -34,89 +35,43 @@ void Segment::calculateSegVariations( unsigned totalNumVariations, std::vector<p
 	//	input.repeatNum.internalEvaluate( variables, totalNumVariations );
 	//}
 }
-//
-//void Segment::convertInputToFinal (unsigned variation, std::vector<parameterType>& variables) {
-//	// first transfer things that can't be varied.
-//	finalSettings.continuationType = input.continuationType;
-//	// handle more complicated things.
-//	finalSettings.ramp.isRamp = input.ramp.isRamp;
-//	finalSettings.pulse.isPulse = input.pulse.isPulse;
-//	finalSettings.mod.modulationIsOn = input.mod.modulationIsOn;
-//	if (input.ramp.isRamp) {
-//		finalSettings.ramp.type = input.ramp.type;
-//		finalSettings.ramp.start = input.ramp.start.evaluate( variables, variation );
-//		finalSettings.ramp.end = finalSettings.ramp.type == "nr" ? finalSettings.ramp.start
-//			: input.ramp.end.evaluate ( variables, variation );
-//	}
-//	else if (input.pulse.isPulse) {
-//		finalSettings.pulse.type = input.pulse.type;
-//		finalSettings.pulse.vOffset = input.pulse.vOffset.evaluate (variables, variation);
-//		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate (variables, variation);
-//		finalSettings.pulse.tOffset = input.pulse.tOffset.evaluate (variables, variation) / 1000.0;
-//		finalSettings.pulse.width = input.pulse.width.evaluate (variables, variation) / 1000.0;
-//	}
-//	else {
-//		finalSettings.holdVal = input.holdVal.evaluate (variables, variation);
-//	}
-//
-//	if (input.mod.modulationIsOn) {
-//		finalSettings.mod.frequency = input.mod.frequency.evaluate (variables, variation);
-//		finalSettings.mod.phase = input.mod.phase.evaluate (variables, variation);
-//	}
-//	finalSettings.time = input.time.evaluate (variables, variation) / 1000.0;
-//	if (finalSettings.time < 1e-9) {
-//		thrower ("ERROR: agilent segment set to have zero time! Agilent can't handle zero-length segments.");
-//	}
-//	if (finalSettings.continuationType == SegmentEnd::type::repeat) {
-//		// in which case you need a number of times to repeat.);
-//		finalSettings.repeatNum = unsigned (input.repeatNum.evaluate (variables, variation));
-//	}
-//}
-//
 
-void Segment::storeInput( segmentInfoInput inputToSet ){
+void Segment::storeInput( segmentInfo inputToSet ){
 	input = inputToSet;
 }
 
-segmentInfoInput Segment::getInput(){
+segmentInfo Segment::getInput(){
 	return input;
 }
 
-//segmentInfoFinal Segment::getFinalSettings(){
-//	return finalSettings;
-//}
-
 /**
-* This function takes ramp-related information as an input and returns the "position" in the ramp (i.e. the amount to add to the initial value due to ramping)
-* that the waveform should be at.
-*
-* @return double is the ramp position.
-*
-* @param size is the total size of the waveform, in numbers of samples
-* @param iteration is the sample number that the waveform is currently at.
-* @param initPos is the initial frequency or amplitude of the waveform.
-* @param finPos is the final frequency or amplitude of the waveform.
-* @param type is the type of ramp being executed, as specified by the reader.
+* This function takes ramp-related information as an input and returns the "position" in the ramp 
+* (i.e. the amount to add to the initial value due to ramping) that the waveform should be at.
 */
-double Segment::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType ){
-	if (rampType == "lin"){
-		return iteration * (finPos - initPos) / size;
+double Segment::rampCalc( int totalSamples, int sample, rampInfo ramp, unsigned varnum){
+	auto rampSize = ramp.end.getValue (varnum) - ramp.start.getValue (varnum);
+	if (ramp.type == "lin"){
+		return sample * rampSize / totalSamples;
 	}
-	// for no ramp
-	else if (rampType == "nr"){
+	else if (ramp.type == "nr"){
 		return 0;
 	}
-	else if (rampType == "tanh"){
-		return (finPos - initPos) * (tanh( -4 + 8 * (double)iteration / size ) + 1) / 2;
+	else if (ramp.type == "tanh"){
+		return rampSize * (tanh( -4 + 8 * (double)sample / totalSamples ) + 1) / 2;
 	}
 	else{
-		// error message. I've already checked (outside this function) whether the ramp-type is a filename.
-		thrower ( "ERROR: ramp type " + rampType + " is unrecognized.\r\n" );
+		if (ramp.isFileRamp) {
+			if (ramp.rampFileVals.size () != totalSamples) {
+				thrower ("ramp file vals not same size as total samples in agilent waveform! ramp size was "
+					+ str (ramp.rampFileVals.size ()) + ", total sample number was " + str(totalSamples));
+			}
+			return ramp.rampFileVals[sample] * rampSize;
+		}
 		return 0;
 	}
 }
 
-double Segment::modCalc( modFormat mod, int iteration, long size, double pulseLength, unsigned varNum ){
+double Segment::modCalc( segModInfo mod, int iteration, long size, double pulseLength, unsigned varNum ){
 	if ( !mod.modulationIsOn ){
 		return 1.0;
 	}
@@ -128,7 +83,7 @@ double Segment::modCalc( modFormat mod, int iteration, long size, double pulseLe
 }
 
 
-double Segment::pulseCalc( pulseFormat pulse, int iteration, long size, double pulseLength, double center,
+double Segment::pulseCalc( segPulseInfo pulse, int iteration, long size, double pulseLength, double center,
 	unsigned varNum){
 	auto widthV = pulse.width.getValue (varNum) / 1000.0;
 	auto ampV = pulse.amplitude.getValue (varNum);
@@ -187,8 +142,7 @@ void Segment::calcData( unsigned long sampleRate, unsigned varNum){
 	for ( int dataInc = 0; dataInc < numDataPoints; dataInc++ ){
 		double point;
 		if ( input.ramp.isRamp ){
-			point = input.ramp.start.getValue (varNum) + rampCalc( numDataPoints, dataInc, 
-				input.ramp.start.getValue (varNum), input.ramp.end.getValue (varNum), input.ramp.type );
+			point = input.ramp.start.getValue (varNum) + rampCalc( numDataPoints, dataInc, input.ramp, varNum );
 		}
 		else if (input.pulse.isPulse ){
 			point = input.pulse.vOffset.getValue (varNum) + pulseCalc(input.pulse, dataInc, numDataPoints,
