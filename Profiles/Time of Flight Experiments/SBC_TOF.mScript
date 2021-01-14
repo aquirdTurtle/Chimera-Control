@@ -16,19 +16,31 @@ call D1GreyLambdaLoading()
 pulseon: windfreakTrig 0.05
 pulseon: dds_step 5
 t += 20
-pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 
+%Begin SBC
+pulseon: tweezerIntensityTrig 0.1 % to intrapLGMDepth
+t += 0.1
+off: diagmotshutter
+off: sidemotshutter
+on: totalramanrf
+on: axialRamanShutter 
+on: axialRamanShutter2 
 call intrapgreymolasses()
+pulseon: windfreakTrig 0.05 
+off: shutter795
+pulseon: tweezerIntensityTrig 0.1 % to Raman depth
+call send_uw_to_raman_eom()
+t += 1
+call pump2stretch() 
+call gsbc()
+%End SBC
+
 %off: tweezerrf
 %t+= 20
 pulseon: tweezerIntensityTrig 0.1 % to TOF depth
-
 call freespaceimage()
-%call freespaceprobeimage()
-%call pgcAtomFlashingImage()
-
+% call pgcatomflashingimage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
-
 t += 1
 off: tweezerRf
 t += 0.2

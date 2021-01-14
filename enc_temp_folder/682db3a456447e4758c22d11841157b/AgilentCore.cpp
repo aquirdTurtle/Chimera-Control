@@ -19,8 +19,8 @@ AgilentCore::AgilentCore (const agilentSettings& settings) :
 	calibrations[0].includesSqrt = false;
 	calibrations[0].calibrationCoefficients = settings.calibrationCoeff;
 	// could probably set these properly but in general wasn't doing this when was doing manual calibrations.
-	calibrations[0].calmax = 1e6;
-	calibrations[0].calmin = -1e6;
+	calibrations[0].maxval = 1e6;
+	calibrations[0].minval = -1e6;
 	calibrations[1].includesSqrt = false;
 	calibrations[1].calibrationCoefficients = settings.calibrationCoeff;
 
@@ -578,7 +578,7 @@ void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadW
 	}
 }
 
-void AgilentCore::setAgCalibration (calResult newCal, unsigned chan) {
+void AgilentCore::setCalibration (calResult newCal, unsigned chan) {
 	if (chan != 1 && chan != 2) {
 		thrower ("ERROR: Agilent channel must be 1 or 2!");
 	}

@@ -346,7 +346,6 @@ calSettings CalibrationManager::handleOpenMasterConfigIndvCal (ConfigStream& con
 				configStream >> val;
 			}
 		}
-		determineCalMinMax (tmpInfo);
 	}
 	catch (ChimeraError&) {
 		throwNested ("Failed to load Calibration named " + tmpInfo.result.calibrationName + "!");
@@ -372,7 +371,7 @@ void CalibrationManager::handleOpenMasterConfig (ConfigStream& configStream) {
 	for (auto& cal : calibrations) {
 		if (cal.useAg) {
 			auto& ag = agilents[(int)cal.whichAg].get ();
-			ag.setAgCalibration (cal.result, cal.agChannel);
+			ag.setCalibration (cal.result, cal.agChannel);
 		}
 	}
 	refreshListview ();
@@ -483,6 +482,7 @@ void CalibrationManager::standardStartThread (std::vector<std::reference_wrapper
 	connect (threadWorker, &CalibrationThreadWorker::startingNewCalibration, this, [this](calSettings cal) {
 			calibrationViewer.removeData ();
 			calibrationViewer.initializeCalData (cal);
+
 		});
 	connect (threadWorker, &CalibrationThreadWorker::newCalibrationDataPoint, this, [this](QPointF pt) {
 			auto chartData = calibrationViewer.getCalData ();
@@ -505,20 +505,6 @@ void CalibrationManager::calibrateThreaded (calSettings& cal, unsigned which) {
 	standardStartThread (calInput);
 }
 
-void CalibrationManager::determineCalMinMax (calSettings& cal) {
-	auto maxy = -DBL_MAX;
-	auto miny = DBL_MAX;
-	for (auto yp : cal.result.resVals) {
-		miny = (yp < miny ? yp : miny);
-		maxy = (yp > maxy ? yp : maxy);
-	}
-	// create fit data. the input to the fit function should be the voltage wanted, and the function should return the
-	// control value which gives that voltage, so this is reversed from the control configuration, where you give
-	// a control and get a result. 
-	cal.result.calmin = miny;
-	cal.result.calmax = maxy;
-}
-
 void CalibrationManager::updateCalibrationView (calSettings& cal) {
 	std::vector<plotDataVec> plotData;
 	plotData.resize (2);
@@ -527,19 +513,28 @@ void CalibrationManager::updateCalibrationView (calSettings& cal) {
 		thrower ("Result vector doesn't match control vector size?!");
 		return;
 	}
-	determineCalMinMax (cal);
+	auto maxy = -DBL_MAX;
+	auto miny = DBL_MAX;
 	for (auto num : range (cal.result.ctrlVals.size ())) {
-		dataPoint dp{ cal.result.ctrlVals[num] , cal.result.resVals[num] };
+		dataPoint dp;
+		dp.x = cal.result.ctrlVals[num];
+		dp.y = cal.result.resVals[num];
 		plotData[0].push_back (dp);
+		miny = (dp.y < miny ? dp.y : miny);
+		maxy = (dp.y > maxy ? dp.y : maxy);
 	}
+	// create fit data. the input to the fit function should be the voltage wanted, and the function should return the
+	// control value which gives that voltage, so this is reversed from the control configuration, where you give
+	// a control and get a result. 
 	int numfitpts = 30;
 	plotData[1].resize (numfitpts);
-
-	double runningVal= cal.result.calmin;
+	double runningVal=miny;
+	cal.result.minval = miny;
+	cal.result.maxval = maxy;
 	for (auto pnum : range (plotData[1].size ())) {
 		plotData[1][pnum].y = runningVal;
 		plotData[1][pnum].x = calibrationFunction (plotData[1][pnum].y, cal.result, this);
-		runningVal += (cal.result.calmax - cal.result.calmin) / (numfitpts - 1);
+		runningVal += (maxy - miny) / (numfitpts - 1);
 	}
 	calibrationViewer.resetChart ();
 	calibrationViewer.setTitle ("Calibration View: " + cal.result.calibrationName);
@@ -547,16 +542,16 @@ void CalibrationManager::updateCalibrationView (calSettings& cal) {
 }
 
 double CalibrationManager::calibrationFunction (double val, calResult calibration, IChimeraSystem* parent) {
-	if (val < calibration.calmin - 1e-6) {
+	if (val < calibration.minval - 1e-6) {
 		if (parent != nullptr) {
 			emit parent->warning ("Warning: Tried to set calibrated value below calibration range. Assuming that you want the "
 								  "minimum value the calibration can provide.");
 		}
-		val = calibration.calmin;
+		val = calibration.minval;
 	}
-	if (val > calibration.calmax+1e-6) {
+	if (val > calibration.maxval+1e-6) {
 		thrower ("Tried to use calibration above calibration range! Not Allowed! Value was " + str(val) + ", Max is " 
-				 + str(calibration.calmax));
+				 + str(calibration.maxval));
 	}
 	double ctrl = 0;
 	auto& cc = calibration.calibrationCoefficients;

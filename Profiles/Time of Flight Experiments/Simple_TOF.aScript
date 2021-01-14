@@ -4,7 +4,7 @@ var intraplgmdepth 20.4
 var TOFDepth 0.5
 
 hold loadingDepth 1 onceWaitTrig #   
-ramp lin loadingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp linRamp loadingDepth intrapLGMDepth 1 onceWaitTrig #
 ramp lin intrapLGMDepth TOFDepth 1 onceWaitTrig #
 ramp lin TOFDepth loadingDepth 1 once # 
   

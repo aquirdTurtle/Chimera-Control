@@ -69,8 +69,13 @@ void Agilent::initialize( QPoint& loc, std::string headerText, unsigned editHeig
 	channel1Button->setGeometry (px, py+=20, wi / 2, 20);
 	channel1Button->setChecked( true );
 	win->connect (channel1Button, &QRadioButton::toggled, [win, this]() {
-		auto channel = (channel2Button->isChecked () ? 2 : 1);
-		handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+		try {
+			auto channel = (channel2Button->isChecked () ? 2 : 1);
+			handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+		}
+		catch (ChimeraError & err) {
+			win->reportErr (err.qtrace ());
+		}
 		});
 	channelButtonsGroup->addButton (channel1Button);
 
@@ -78,8 +83,13 @@ void Agilent::initialize( QPoint& loc, std::string headerText, unsigned editHeig
 	channel2Button->setGeometry (px+wi/2, py, wi / 2, 20);
 	channel2Button->setChecked (false);
 	win->connect (channel2Button, &QRadioButton::toggled, [win, this]() {
-		auto channel = (channel2Button->isChecked () ? 2 : 1);
-		handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+		try {
+			auto channel = (channel2Button->isChecked () ? 2 : 1);
+			handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+		}
+		catch (ChimeraError & err) {
+			win->reportErr (err.qtrace ());
+		}
 	});
 	channelButtonsGroup->addButton (channel2Button);
 

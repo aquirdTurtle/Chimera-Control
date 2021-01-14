@@ -20,7 +20,7 @@ def intrappgc():
 
 	var diagmot_power 0.3
 
-	dac: SideMotPower sidemot_intrappgc__sv
+	dac: SideMotPower { 4.8 sidemot } 
 	
 	dac: RepumpPower repump_pow
 

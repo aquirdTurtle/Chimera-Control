@@ -65,9 +65,9 @@ class NiawgCore : public IDeviceCore {
 		///
 		bool getSettingsFromConfig (ConfigStream& openfile);
 		void rerngScriptInfoFormToOutput( waveInfoForm& waveForm, std::vector<parameterType>& varibles,
-								unsigned totalVarNum);
+										  unsigned totalVarNum);
 		std::string configDelim = "NIAWG_INFORMATION";
-		void writeStaticNiawg( NiawgOutput& output, std::vector<parameterType>& variables, unsigned varnum,
+		void writeStaticNiawg( NiawgOutput& output, std::vector<parameterType>& variables, unsigned varnum, unsigned totalVarNum, 
 							   bool deleteWaveAfterWrite=true, niawgLibOption::mode libOption = niawgLibOption::defaultMode );
 		void deleteWaveData( simpleWaveForm& core );
 		bool isVectorizedCmd ( std::string cmd );
@@ -211,7 +211,7 @@ class NiawgCore : public IDeviceCore {
 		void mixWaveforms( simpleWaveForm& waveCore, bool writeThisToFile, unsigned varnum);
 		void calcWaveData( channelWaveForm& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
 						   double time, unsigned varNum, niawgWavePower::mode powerMode = niawgWavePower::defaultMode );
-		void handleMinus1Phase( simpleWaveForm& waveCore, simpleWaveForm& prevWave, unsigned varNum );
+		void handleMinus1Phase( simpleWaveForm& waveCore, simpleWaveForm& prevWave, unsigned varNum, unsigned totalVarNum);
 		void createFlashingWave( waveInfoForm& wave, unsigned varnum);
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void openWaveformFiles( );

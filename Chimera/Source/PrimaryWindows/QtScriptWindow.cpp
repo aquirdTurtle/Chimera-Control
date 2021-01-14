@@ -66,10 +66,13 @@ void QtScriptWindow::updateVarNames() {
 	auto params = auxWin->getAllParams ();
 	masterScript.highlighter->setOtherParams (params);
 	masterScript.highlighter->setLocalParams (masterScript.getLocalParams ());
+	masterScript.highlighter->rehighlight ();
 	intensityAgilent.agilentScript.highlighter->setOtherParams (params);
 	intensityAgilent.agilentScript.highlighter->setLocalParams (intensityAgilent.agilentScript.getLocalParams ());
+	intensityAgilent.agilentScript.highlighter->rehighlight ();
 	niawg.niawgScript.highlighter->setOtherParams (params);
 	niawg.niawgScript.highlighter->setLocalParams (niawg.niawgScript.getLocalParams ());
+	niawg.niawgScript.highlighter->rehighlight ();
 }
 
 void QtScriptWindow::updateDoAoNames () {

@@ -58,10 +58,11 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 		outputs (ttl.second, ttl.first).set (1);
 		input.ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, input.ttls->getCurrentStatus ());
 	}
-	Sleep (100); // give some time for the lasers to settle..
+	Sleep (200); // give some time for the lasers to settle..
 	result.resVals.clear ();
 	unsigned aiNum = cal.aiInChan;
 	unsigned aoNum = cal.aoControlChannel;
+	double miny = DBL_MAX, maxy = -DBL_MAX;
 	result.ctrlVals = CalibrationManager::calPtTextToVals (cal.ctrlPtString);
 	for (auto calPoint : result.ctrlVals) {
 		try {
@@ -81,9 +82,12 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 		}
 		result.resVals.push_back (input.ai->getSingleChannelValue (aiNum, cal.avgNum));
 		emit newCalibrationDataPoint (QPointF (calPoint, result.resVals.back ()));
+		miny = (result.resVals.back() < miny ? result.resVals.back () : miny);
+		maxy = (result.resVals.back () > maxy ? result.resVals.back () : maxy);
 		Sleep (20);
 	}
-	CalibrationManager::determineCalMinMax (cal);
+	result.minval = miny;
+	result.maxval = maxy;
 
 	cal.currentlyCalibrating = false;
 	std::ofstream file ("C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationValuesFile.txt");
@@ -100,7 +104,7 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 	cal.calibrated = true;
 	if (cal.useAg) {
 		auto& ag = input.agilents[int (cal.whichAg)].get ();
-		ag.setAgCalibration (result, cal.agChannel);
+		ag.setCalibration (result, cal.agChannel);
 	}
 	emit calibrationChanged ();
 	emit finishedCalibration (cal);

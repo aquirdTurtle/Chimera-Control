@@ -2,7 +2,7 @@
 
 def freeSpaceImage():
   % give the shutter some time to open.
-  var FSImageTime 0.02
+  var FSImageTime 0.04
   var offsetTime 0.05
   var sideMotScan 9
   var repumpscan 0.2
@@ -43,7 +43,7 @@ def freeSpaceImage():
 
   %drop atoms (off tweezerrf), then delay
 
-  off: tweezerrf
+  %off: tweezerrf
   t += toftimescan
 
   t += offsetTime

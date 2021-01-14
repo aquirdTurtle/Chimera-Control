@@ -1,0 +1,15 @@
+var loadingDepth 13.4 
+var intraplgmdepth 20.4 
+var ramanDepth 19 
+var TOFDepth 0.5
+
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth intrapLGMDepth 1 onceWaitTrig # 
+ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
+ramp lin ramanDepth TOFDepth 1 onceWaitTrig #
+ramp lin TOFDepth loadingDepth 1 once #   
+ 
+  
+  
+ 
+ 

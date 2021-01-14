@@ -2,6 +2,7 @@
 #include <Scripts/SyntaxHighlighter.h>
 #include <NIAWG/NiawgStructures.h>
 #include <GeneralUtilityFunctions/my_str.h>
+#include <qdebug.h>
 
 SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* parent) : 
 	QSyntaxHighlighter (parent), 
@@ -24,6 +25,13 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
     rule.pattern = QRegularExpression (QStringLiteral ("\\b[A-Za-z0-9_]+(?=\\()"));
     rule.format = functionFormat;
     mainRules.append (rule);
+	
+	QTextCharFormat localVarFormat;
+	localVarFormat.setForeground (QColor (200, 200, 255));
+	// this regex uses a "lookbehind" to match the *word* after the var declaration.
+	rule.pattern = QRegularExpression (QStringLiteral ("(?<=\\bvar\\s)(\\w+)"));
+	rule.format = localVarFormat;
+	mainRules.append (rule);
 
     commentStartExpression = QRegularExpression (QStringLiteral ("/\\*"));
     commentEndExpression = QRegularExpression (QStringLiteral ("\\*/"));
@@ -122,7 +130,7 @@ void SyntaxHighlighter::setLocalParams (std::vector<parameterType> localParams) 
 	for (auto param : localParams) {
 		names.push_back (param.name.c_str());
 	}
-	addRules (names, QColor (0, 255, 0), true, true, localParamRules);
+	addRules (names, QColor (200, 200, 255), true, true, localParamRules);
 }
 
 void SyntaxHighlighter::setOtherParams (std::vector<parameterType> otherParams) {
@@ -169,6 +177,9 @@ void SyntaxHighlighter::highlightBlock (const QString& text){
 		while (matchIterator.hasNext ()) {
 			auto match = matchIterator.next ();
 			setFormat (match.capturedStart (), match.capturedLength (), rule.format);
+			//qDebug () << rule;
+			qDebug () << rule.pattern;
+			qDebug () << rule.format;
 		}
 	}
     setCurrentBlockState (0);

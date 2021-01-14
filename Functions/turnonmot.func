@@ -13,8 +13,9 @@ def turnOnMot():
   %% % DACS 
   var repump_pow 0.1 
   var repump_freq 0.08
-  var mot_freq -0.7
-  dac: DiagMotPower { 4.6 diagmot }
+  var mot_freq -0.832
+  var diagmot_power 4.6
+  dac: DiagMotPower { diagmot_power diagmot }
   dac: RepumpPower repump_pow
   dac: MotFreq mot_freq 
   dac: RepumpFreq repump_freq
@@ -25,7 +26,7 @@ def turnOnMot():
   var fbField 0.561 
   var tbField 0.1325
 
-  dac: MotGradientCurrent motStrength
+  dac: MotGradientCurrent motStrength 
   dac: RightCoilCurrent rlField
   dac: LeftCoilCurrent (-rlField)
   dac: FrontCoilCurrent (-fbField)

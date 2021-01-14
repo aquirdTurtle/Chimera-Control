@@ -338,7 +338,7 @@ void Expression::internalEvaluate ( std::vector<parameterType>& params, unsigned
 double Expression::getValue ( unsigned variation ){
 	if ( variation >= values.size ( ) ){
 		thrower ( "Tried to get expression value for variation that doesn't seem to exist! Variation index requested was " 
-			+ str(variation) + " while values size is " + str(values.size()) );
+			+ str(variation) + " while values size is " + str(values.size()) + ". Expression is:" + expressionStr );
 	}
 	return values[variation];
 }

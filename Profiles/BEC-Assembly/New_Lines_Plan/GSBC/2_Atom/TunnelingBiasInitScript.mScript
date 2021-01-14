@@ -39,18 +39,18 @@ off: axialRamanShutter2
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to the move stuff.
 var dumpTime 8
-t += dumpTime
+t += dumpTime 
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to the move stuff.
 t += 2
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
 t += 0.4
-t += 100
+t += 0.2 % bias ramp time
 pulseon: aceTrig 0.01 
-var tunnelTime 3
-t += tunnelTime 
+var tunnelTime 3 
+t += tunnelTime  
 pulseon: niawgTrig 0.1 % stop tunneling
-t += 100
+t += 0.2
 t += 0.1
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 t += 1.4

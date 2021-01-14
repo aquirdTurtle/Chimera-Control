@@ -26,7 +26,6 @@ class CalibrationManager : public IChimeraSystem {
 		CalibrationManager (const CalibrationManager&) = delete;
 		CalibrationManager (IChimeraQtWindow* parent);
 
-		static void determineCalMinMax (calSettings& cal);
 		void handleContextMenu (const QPoint& pos);
 		static std::string calTtlConfigToString (std::vector<std::pair<DoRows::which, unsigned> > ttlConfig);
 		static std::string calDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig);
@@ -37,6 +36,7 @@ class CalibrationManager : public IChimeraSystem {
 		bool wantsExpAutoCal ();
 		void handleSaveMasterConfig (std::stringstream& configStream);
 		void handleOpenMasterConfig (ConfigStream& configStream);
+		//void setControlDisplay (unsigned which, double value);
 		std::vector<calResult> getCalibrationInfo ();
 		void standardStartThread (std::vector<std::reference_wrapper<calSettings>> calibrations);
 		void refreshListview ();

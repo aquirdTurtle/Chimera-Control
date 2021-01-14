@@ -36,6 +36,10 @@ gen2const_v Horizontal freqs loadB zPhases #
 gen2const_v Vertical vFreqs vLoadB zPhases #
 0.01 0 endRepeat
 
+gen2ampRamp_v Horizontal freqs linR loadB bias zPhases #  
+gen2ampRamp_v Vertical vFreqs linR vLoadB vStdB zPhases #
+0.01 0 
+
 repeatTilTrig % imaging -> sbc cooling settings
 gen2const_v Horizontal freqs bias zPhases #  
 gen2const_v Vertical vFreqs vStdB zPhases #
@@ -66,7 +70,7 @@ gen2AmpRamp_v Vertical vFreqs linR vStdB vTunB zPhases #
 
 gen2AmpRamp_v Horizontal finFreqs linR prepB tunB zPhases # 
 gen2const_v Vertical vFreqs vTunB zPhases #
-100 0
+10 0
 
 gen2Freq&AmpRamp_v Horizontal linR finFreqs freqs 
 							  linR tunB bias cphases #   

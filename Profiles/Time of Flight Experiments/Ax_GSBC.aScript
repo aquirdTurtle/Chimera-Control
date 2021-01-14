@@ -1,0 +1,4 @@
+% AXIAL GSBC
+hold 0 0.01 onceWaitTrig # 
+pulse gaussian 0 axSbcAmp axsbcw (axSbcPulseLen/2) (2*tbSbcPulseLen+axSbcPulseLen
+  +3*opSbcPulseLen) repeat 100 #

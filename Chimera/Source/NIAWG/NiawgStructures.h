@@ -66,9 +66,11 @@ struct waveSignalForm{
 	Expression freqFin;
 	std::string freqRampType="";
 
-	Expression initPower;
+
+	rampInfo powerRamp;
+	/*Expression initPower;
 	Expression finPower;
-	std::string powerRampType="";
+	std::string powerRampType="";*/
 
 	Expression initPhase;
 	// only stores the most recent variation...
@@ -154,7 +156,7 @@ struct simpleWaveForm {
 	std::string name = "";
 
 	long int sampleNum (unsigned varnum) {
-		double waveSize = time.getValue(varnum) * NiawgConstants::NIAWG_SAMPLE_RATE;
+		double waveSize = time.getValue(varnum) * 1e-3 * NiawgConstants::NIAWG_SAMPLE_RATE;
 		// round to an integer.
 		return (long)(waveSize + 0.5);
 	}

@@ -37,18 +37,23 @@ call gsbc()
 off: axialRamanShutter  
 off: axialRamanShutter2  
 pulseon: tweezerIntensityTrig 0.1 % to move depth
-pulseon: niawgTrig 0.1 % to the dump stuff.
-var dumpTime 6
-t += dumpTime
-pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
 pulseon: niawgTrig 0.1 % to the move stuff.
-t += 1.4
-pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
-t += 1
-t += 10
-% tweezers start separating here.
+var dumpTime 8
+t += dumpTime
 pulseon: tweezerIntensityTrig 0.1 % to move depth
-t += 3.2
+pulseon: niawgTrig 0.1 % to the move stuff.
+t += 2
+pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+t += 0.4
+t += 100
+pulseon: aceTrig 0.01 
+var tunnelTime 3
+t += tunnelTime 
+pulseon: niawgTrig 0.1 % stop tunneling
+t += 100
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+t += 1.4
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 t += 1
 call pgcAtomFlashingImage()
