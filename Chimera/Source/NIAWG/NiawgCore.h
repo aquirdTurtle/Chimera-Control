@@ -39,6 +39,11 @@ struct seqInfo;
   * One of the biggest & most complicated classes in the code.
   * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
   */
+struct niawgConfigSettings {
+	bool control = true;
+	int debugLvl=0;
+};
+
 class NiawgCore : public IDeviceCore {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -63,7 +68,7 @@ class NiawgCore : public IDeviceCore {
 								  std::vector<parameterType>& variables);
 		void flashVaries( waveInfoForm& wave );
 		///
-		bool getSettingsFromConfig (ConfigStream& openfile);
+		niawgConfigSettings getSettingsFromConfig (ConfigStream& openfile);
 		void rerngScriptInfoFormToOutput( waveInfoForm& waveForm, std::vector<parameterType>& varibles,
 										  unsigned totalVarNum);
 		std::string configDelim = "NIAWG_INFORMATION";
@@ -71,7 +76,7 @@ class NiawgCore : public IDeviceCore {
 							   bool deleteWaveAfterWrite=true, niawgLibOption::mode libOption = niawgLibOption::defaultMode );
 		void deleteWaveData( simpleWaveForm& core );
 		bool isVectorizedCmd ( std::string cmd );
-		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave );
+		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave, std::vector<parameterType>& params );
 		void handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script,
 									 std::vector<parameterType>& variables,
 									 std::vector<vectorizedNiawgVals>& vectorizedVals );
@@ -86,9 +91,9 @@ class NiawgCore : public IDeviceCore {
 		void assertAllValid ( waveSignalForm& signal, std::vector<parameterType>& parameters );
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<parameterType>& variables, simpleWaveForm& wave,
-						   std::vector<vectorizedNiawgVals>& vectorizedVals );
+						   std::vector<vectorizedNiawgVals>& vectorizedVals);
 		//static long waveformSizeCalc( double time );
-		static double rampCalc(int totalSamples, int iteration, rampInfo ramp, unsigned varNum);
+		static double rampCalc(int totalSamples, int iteration, const rampInfo& ramp, unsigned varNum);
 		// programming the device
 		void restartDefault();
 		void setDefaultWaveformScript ();
@@ -143,6 +148,7 @@ class NiawgCore : public IDeviceCore {
 		void errorFinish ();
 
 	private:
+		int debugLevel = 0;
 		/// a couple points taken on Friday, Sep 11th 2020, fairly low power coming from the Ti-Saph at the moment.
 		/// 1.64: ~71 mW
 		/// 0.82: ~9 mW

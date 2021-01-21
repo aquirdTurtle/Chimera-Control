@@ -584,7 +584,6 @@
     <ClInclude Include="Source\NIAWG\Fgen.h" />
     <ClInclude Include="Source\GeneralFlumes\GpibFlume.h" />
     <ClInclude Include="Source\GeneralImaging\imageParameters.h" />
-    <ClInclude Include="longnam.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h" />
     <ClInclude Include="Source\Andor\AndorCameraCore.h" />
     <ClInclude Include="Source\ConfigurationSystems\MasterConfiguration.h" />
@@ -786,9 +785,6 @@
     <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Atom.ico" />
-    <Image Include="icon1.ico" />
-    <Image Include="Icon2.ico" />
     <Image Include="Source\LowLevel\Atom.ico" />
     <Image Include="Source\LowLevel\JILA.bmp" />
     <Image Include="Source\LowLevel\Shades_Of_Infrared.bmp" />

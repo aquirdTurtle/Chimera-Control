@@ -60,6 +60,18 @@ void ParameterSystem::initialize (QPoint& pos, IChimeraQtWindow* parent, std::st
 	setTableviewColumnSize ();
 }
 
+
+std::vector<std::reference_wrapper<parameterType>> ParameterSystem::getConstParamsFromList (std::vector<parameterType>& variables) {
+	std::vector<std::reference_wrapper<parameterType>> constParams;
+	for (auto& var : variables) {
+		if (var.constant) {
+			constParams.push_back (var);
+		}
+	}
+	return constParams;
+}
+
+
 void ParameterSystem::handleContextMenu (const QPoint& pos) {
 	auto index = parametersView->indexAt (pos);
 	QMenu menu;

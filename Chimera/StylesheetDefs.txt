@@ -1,0 +1,2 @@
+/*This file is read using configstream and so should support comments like this.*/
+MainTextColor rgba( 191, 97, 106, 255 )

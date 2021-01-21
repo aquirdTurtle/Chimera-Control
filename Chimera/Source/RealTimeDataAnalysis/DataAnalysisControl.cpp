@@ -135,11 +135,13 @@ void DataAnalysisControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 				parent->reportErr (err.qtrace ());
 			}
 		});
-	tlRowLabel = new QLabel("T.L. Row:", parent);
+	tlRowLabel = new QLabel("Row:", parent);
+	tlRowLabel->setToolTip ("The row of the top-left pixel in the atom grid. (0 indexed)");
 	tlRowLabel->setGeometry (px + 100, py, 50, 25);
 	tlRowEdit = new CQLineEdit("0", parent);
 	tlRowEdit->setGeometry (px + 150, py, 50, 25);
-	tlColLabel = new QLabel ("T.L. Col:", parent);
+	tlColLabel = new QLabel ("Col:", parent);
+	tlColLabel->setToolTip ("The Column of the top-left pixel in the atom grid. (0 indexed)");
 	tlColLabel->setGeometry (px + 200, py, 50, 25);
 	tlColEdit = new CQLineEdit ("0", parent);
 	tlColEdit->setGeometry (px + 250, py, 50, 25);
@@ -160,7 +162,7 @@ void DataAnalysisControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	gridHeightText->setGeometry (px, py+=25, 80, 25);
 
 	gridHeight = new CQLineEdit ("0", parent);
-	gridHeight->setGeometry (px + 120, py, 40, 25);
+	gridHeight->setGeometry (px + 80, py, 40, 25);
 	// 
 	displayGridBtn = new CQCheckBox ("Display Grid?", parent);
 	displayGridBtn->setGeometry (px+120, py, 120, 25);

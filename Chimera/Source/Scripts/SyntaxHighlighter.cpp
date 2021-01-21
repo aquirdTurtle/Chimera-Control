@@ -66,6 +66,7 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
 		addRules ({ "#" }, QColor (100, 100, 100), true, false);
 	}
 	else if (device == ScriptableDevice::Agilent) {
+		addRules ({ "var" }, QColor (42, 161, 152), true, false);
 		addRules ({"ramp", "hold", "pulse"}, QColor(108, 113, 196), true, true);
 		addRules ({ "once", "oncewaittrig", "lin", "tanh", "repeatuntiltrig" ,"repeat", "sech" , "gaussian", "lorentzian" }, 
 					QColor (181, 137, 0), true, true);

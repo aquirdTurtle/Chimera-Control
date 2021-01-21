@@ -14,7 +14,7 @@ class IChimeraSystem : public QObject {
 	public Q_SLOTS:
 
 	Q_SIGNALS:
-		void notification (QString msg, unsigned notificationLevel=0);
+		void notification (QString msg, unsigned notificationLevel=0, int debugLvl=0);
 		void warning (QString msg, unsigned errorLevel = 1);
 		void error (QString msg, unsigned errorLevel = 0);
 };

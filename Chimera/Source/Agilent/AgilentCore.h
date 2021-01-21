@@ -51,7 +51,7 @@ class AgilentCore : public IDeviceCore {
 		void checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker);
 		void normalFinish () {};
 		void errorFinish () {};
-		void setCalibration (calResult newCal, unsigned chan);
+		void setAgCalibration (calResult newCal, unsigned chan);
 		void setRunSettings (deviceOutputInfo newSettings);
 	private:
 		const int AGILENT_DEFAULT_POWER = 10;

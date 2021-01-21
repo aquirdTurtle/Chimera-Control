@@ -68,8 +68,7 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 		unsigned numExposures = 0;
 		configFile >> numExposures;
 		tempSettings.exposureTimes.resize (numExposures);
-		for (auto& exp : tempSettings.exposureTimes)
-		{
+		for (auto& exp : tempSettings.exposureTimes){
 			configFile >> exp;
 		}
 		configFile >> tempSettings.picsPerRepetition;
@@ -87,6 +86,12 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 		tempSettings.horShiftSpeedSetting = 0;
 		tempSettings.vertShiftSpeedSetting = 0;
 	} 
+	if (configFile.ver > Version ("5.10")) {
+		configFile >> tempSettings.frameTransferMode;
+	}
+	else {
+		tempSettings.frameTransferMode = 0;
+	}
 	return tempSettings;
 } 
 

@@ -17,7 +17,7 @@ void ImageDimsControl::initialize( QPoint& pos, IChimeraQtWindow* parent, int nu
 	leftText = new QLabel ("Left", parent);
 	leftText->setGeometry (px, py, wi, 25);
 
-	rightText = new QLabel ("Right (/512)", parent);
+	rightText = new QLabel ("R. (/512)", parent);
 	rightText->setGeometry (px+ wi, py, wi, 25);
 
 	horBinningText = new QLabel ("H. Bin", parent);
@@ -28,10 +28,10 @@ void ImageDimsControl::initialize( QPoint& pos, IChimeraQtWindow* parent, int nu
 	else {
 		py += 50;
 	}
-	bottomLabel = new QLabel ("Bottom (/512)", parent);
+	bottomLabel = new QLabel ("Bottom", parent);
 	bottomLabel->setGeometry (px, py, wi, 25);
 
-	topLabel = new QLabel ("Top", parent);
+	topLabel = new QLabel ("Top (/512)", parent);
 	topLabel->setGeometry (px + wi, py, wi, 25);
 
 	vertBinningText = new QLabel ("V. Bin", parent);

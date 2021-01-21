@@ -10,7 +10,7 @@
 #include <qapplication.h>
 
 CalibrationManager::CalibrationManager (IChimeraQtWindow* parent) : IChimeraSystem (parent), 
-calibrationViewer(1, plotStyle::GeneralErrorPlot,std::vector<int>(),"Calibration View",false,false) {}
+calibrationViewer(1, plotStyle::CalibrationPlot,std::vector<int>(),"Calibration View",false,false) {}
 
 
 void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai_in, AoSystem* ao_in,
@@ -63,7 +63,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 			calibrationTable->setItem (clRow, clCol, item);
 		}});
 	calibrationTable->connect (calibrationTable, &QTableWidget::currentCellChanged,
-		[this, parent](int row, int col) {if (unsigned(row) < calibrations.size() && calibrations[row].calibrated) {
+		[this, parent](int row, int col) {if (unsigned(row) < calibrations.size()) {
 		try {
 			updateCalibrationView (calibrations[row]);
 		}
@@ -164,7 +164,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 				}
 				case 10: {
 					try {
-						cal.polynomialOrder = boost::lexical_cast<unsigned>(str(qtxt));
+						cal.result.polynomialOrder = boost::lexical_cast<unsigned>(str(qtxt));
 					}
 					catch (boost::bad_lexical_cast&) {
 						errBox ("Error In trying to set the fit polynomial order!");
@@ -231,6 +231,22 @@ void CalibrationManager::handleContextMenu (const QPoint& pos) {
 		catch (ChimeraError & err) {
 			errBox (err.trace ());
 		}; });
+
+	auto* setHistorical = new QAction ("Set Historical Fit", calibrationTable);
+	calibrationTable->connect (setHistorical, &QAction::triggered, [this, item]() {
+		try {
+			auto answer = QMessageBox::question (NULL, qstr ("Are You Sure?"), qstr ("Are You Sure?"), QMessageBox::Yes
+				| QMessageBox::No);
+			if (answer == QMessageBox::Yes) {
+				calibrations[item->row ()].historicalResult = calibrations[item->row ()].result;
+			}
+		}
+		catch (ChimeraError & err) {
+			errBox (err.trace ());
+		}; });
+
+
+	menu.addAction (setHistorical);
 	menu.addAction (deleteAction);
 	menu.addAction (newcal);
 	menu.addAction (calibrateThis);
@@ -270,15 +286,62 @@ void CalibrationManager::handleSaveMasterConfigIndvCal(std::stringstream& config
 		<< "\n/*Use Agilent: */" << cal.useAg
 		<< "\n/*Which Agilent: */" << AgilentEnum::toStr (cal.whichAg)
 		<< "\n/*Which Agilent Channel: */" << cal.agChannel
-		<< "\n/*Include Sqrt on Next Cal: */" << cal.includeSqrt
-		<< "\n/*Number of Calibration Coefficients: */ " << cal.result.calibrationCoefficients.size ()
-		<< "\n/*Calibration Coefficients: */ " << cal.dblVecToString (cal.result.calibrationCoefficients)
-		<< "\n/*Calibration Includes Sqrt: */ " << cal.result.includesSqrt
-		<< "\n/*Polynomial Order: */ " << cal.polynomialOrder 
-		<< "\n/*Number of Control Vals: */" << cal.result.ctrlVals.size()
-		<< "\n/*Control Vals: */" << cal.dblVecToString(cal.result.ctrlVals)
-		<< "\n/*Number of Result Vals: */" << cal.result.resVals.size ()
-		<< "\n/*Result Vals: */" << cal.dblVecToString (cal.result.resVals);
+		<< "\n/*Include Sqrt on Next Cal: */" << cal.includeSqrt;
+	configStream << "\n/*Recent Calibration Result:*/"; 
+	handleSaveMasterConfigIndvResult (configStream, cal.result);
+	configStream << "\n/*Historical Calibration Result:*/";
+	handleSaveMasterConfigIndvResult (configStream, cal.historicalResult);
+}
+void CalibrationManager::handleSaveMasterConfigIndvResult (std::stringstream& configStream, calResult& result) {
+	configStream << "\n/*Number of Calibration Coefficients: */ " << result.calibrationCoefficients.size ()
+		<< "\n/*Calibration Coefficients: */ " << calBase::dblVecToString (result.calibrationCoefficients)
+		<< "\n/*Calibration Includes Sqrt: */ " << result.includesSqrt
+		<< "\n/*Polynomial Order: */ " << result.polynomialOrder
+		<< "\n/*Number of Control Vals: */" << result.ctrlVals.size ()
+		<< "\n/*Control Vals: */" << calBase::dblVecToString (result.ctrlVals)
+		<< "\n/*Number of Result Vals: */" << result.resVals.size ()
+		<< "\n/*Result Vals: */" << calBase::dblVecToString (result.resVals);
+}
+
+void CalibrationManager::handleOpenMasterConfigIndvResult (ConfigStream& configStream, calResult& result) {
+	if (configStream.ver > Version ("2.11")) {
+		unsigned numCoef;
+		configStream >> numCoef;
+		if (numCoef > 50) {
+			// catch weird bad values...
+			thrower ("Suspicious Number of coefficients! Number was " + str (numCoef));
+		}
+		result.calibrationCoefficients.resize (numCoef);
+		for (auto& coef : result.calibrationCoefficients) {
+			configStream >> coef;
+		}
+		configStream >> result.includesSqrt;
+		configStream >> result.polynomialOrder;
+	}
+	if (configStream.ver > Version ("2.12")) {
+		unsigned numCtrlVals;
+		configStream >> numCtrlVals;
+		if (numCtrlVals > 500) {
+			// catch weird bad values...
+			thrower ("Suspicious Number of control vals! Number was " + str (numCtrlVals));
+		}
+		result.ctrlVals.resize (numCtrlVals);
+		for (auto& val : result.ctrlVals) {
+			configStream >> val;
+		}
+
+		unsigned numResVals;
+		configStream >> numResVals;
+		if (numResVals > 500) {
+			// catch weird bad values...
+			thrower ("Suspicious Number of result vals! Number was " + str (numResVals));
+		}
+		result.resVals.resize (numResVals);
+		for (auto& val : result.resVals) {
+			configStream >> val;
+		}
+	}
+	determineCalMinMax (result);
 }
 
 calSettings CalibrationManager::handleOpenMasterConfigIndvCal (ConfigStream& configStream) {
@@ -310,43 +373,12 @@ calSettings CalibrationManager::handleOpenMasterConfigIndvCal (ConfigStream& con
 			tmpInfo.whichAg = AgilentEnum::fromStr (whichAgString);
 		}
 		if (configStream.ver > Version ("2.11")) {
-			unsigned numCoef;
-			configStream >> tmpInfo.includeSqrt >> numCoef;
-			if (numCoef > 50) {
-				// catch weird bad values...
-				thrower ("Suspicious Number of coefficients! Number was " + str (numCoef));
-			}
-			tmpInfo.result.calibrationCoefficients.resize (numCoef);
-			for (auto& coef : tmpInfo.result.calibrationCoefficients) {
-				configStream >> coef;
-			}
-			configStream >> tmpInfo.result.includesSqrt;
-			configStream >> tmpInfo.polynomialOrder;
+			configStream >> tmpInfo.includeSqrt;
 		}
-		if (configStream.ver > Version ("2.12")) {
-			unsigned numCtrlVals;
-			configStream >> numCtrlVals;
-			if (numCtrlVals > 500) {
-				// catch weird bad values...
-				thrower ("Suspicious Number of control vals! Number was " + str (numCtrlVals));
-			}
-			tmpInfo.result.ctrlVals.resize (numCtrlVals);
-			for (auto& val : tmpInfo.result.ctrlVals) {
-				configStream >> val;
-			}
-
-			unsigned numResVals;
-			configStream >> numResVals;
-			if (numResVals > 500) {
-				// catch weird bad values...
-				thrower ("Suspicious Number of result vals! Number was " + str (numResVals));
-			}
-			tmpInfo.result.resVals.resize (numResVals);
-			for (auto& val : tmpInfo.result.resVals) {
-				configStream >> val;
-			}
+		handleOpenMasterConfigIndvResult (configStream, tmpInfo.result);
+		if (configStream.ver > Version ("3.0")) {
+			handleOpenMasterConfigIndvResult (configStream, tmpInfo.historicalResult);
 		}
-		determineCalMinMax (tmpInfo);
 	}
 	catch (ChimeraError&) {
 		throwNested ("Failed to load Calibration named " + tmpInfo.result.calibrationName + "!");
@@ -427,7 +459,7 @@ void CalibrationManager::addCalToListview (calSettings& cal) {
 	setItemExtra (8);
 	calibrationTable->setItem (row, 9, new QTableWidgetItem (cal.includeSqrt ? "True" : "False"));
 	setItemExtra (9);
-	calibrationTable->setItem (row, 10, new QTableWidgetItem (qstr(cal.polynomialOrder)));
+	calibrationTable->setItem (row, 10, new QTableWidgetItem (qstr(cal.result.polynomialOrder)));
 	setItemExtra (10);
 }
 
@@ -505,29 +537,29 @@ void CalibrationManager::calibrateThreaded (calSettings& cal, unsigned which) {
 	standardStartThread (calInput);
 }
 
-void CalibrationManager::determineCalMinMax (calSettings& cal) {
+void CalibrationManager::determineCalMinMax (calResult& res) {
 	auto maxy = -DBL_MAX;
 	auto miny = DBL_MAX;
-	for (auto yp : cal.result.resVals) {
+	for (auto yp : res.resVals) {
 		miny = (yp < miny ? yp : miny);
 		maxy = (yp > maxy ? yp : maxy);
 	}
 	// create fit data. the input to the fit function should be the voltage wanted, and the function should return the
 	// control value which gives that voltage, so this is reversed from the control configuration, where you give
 	// a control and get a result. 
-	cal.result.calmin = miny;
-	cal.result.calmax = maxy;
+	res.calmin = miny;
+	res.calmax = maxy;
 }
 
 void CalibrationManager::updateCalibrationView (calSettings& cal) {
 	std::vector<plotDataVec> plotData;
-	plotData.resize (2);
+	plotData.resize (3);
 	cal.result.ctrlVals = calPtTextToVals (cal.ctrlPtString);
 	if (cal.result.resVals.size () != cal.result.ctrlVals.size ()) {
 		thrower ("Result vector doesn't match control vector size?!");
 		return;
 	}
-	determineCalMinMax (cal);
+	determineCalMinMax (cal.result);
 	for (auto num : range (cal.result.ctrlVals.size ())) {
 		dataPoint dp{ cal.result.ctrlVals[num] , cal.result.resVals[num] };
 		plotData[0].push_back (dp);
@@ -541,26 +573,40 @@ void CalibrationManager::updateCalibrationView (calSettings& cal) {
 		plotData[1][pnum].x = calibrationFunction (plotData[1][pnum].y, cal.result, this);
 		runningVal += (cal.result.calmax - cal.result.calmin) / (numfitpts - 1);
 	}
+
+	numfitpts = 30;
+	plotData[2].resize (numfitpts);
+	determineCalMinMax (cal.historicalResult);
+	runningVal = cal.historicalResult.calmin;
+	for (auto pnum : range (plotData[2].size ())) {
+		plotData[2][pnum].y = runningVal;
+		plotData[2][pnum].x = calibrationFunction (plotData[2][pnum].y, cal.historicalResult, this);
+		runningVal += (cal.historicalResult.calmax - cal.historicalResult.calmin) / (numfitpts - 1);
+	}
+	
 	calibrationViewer.resetChart ();
 	calibrationViewer.setTitle ("Calibration View: " + cal.result.calibrationName);
 	calibrationViewer.setData (plotData);
 }
 
-double CalibrationManager::calibrationFunction (double val, calResult calibration, IChimeraSystem* parent) {
-	if (val < calibration.calmin - 1e-6) {
+double CalibrationManager::calibrationFunction (double val, calResult res, IChimeraSystem* parent) {
+	if (val < res.calmin - 1e-6) {
 		if (parent != nullptr) {
 			emit parent->warning ("Warning: Tried to set calibrated value below calibration range. Assuming that you want the "
 								  "minimum value the calibration can provide.");
 		}
-		val = calibration.calmin;
+		val = res.calmin;
 	}
-	if (val > calibration.calmax+1e-6) {
-		thrower ("Tried to use calibration above calibration range! Not Allowed! Value was " + str(val) + ", Max is " 
-				 + str(calibration.calmax));
+	if (val > res.calmax+1e-6) {
+		thrower ("Tried to use calibration \""+ res.calibrationName + "\"above calibration range! Not Allowed! Value "
+				 "was " + str(val) + ", Max is " + str(res.calmax));
 	}
 	double ctrl = 0;
-	auto& cc = calibration.calibrationCoefficients;
-	if (calibration.includesSqrt) {
+	auto& cc = res.calibrationCoefficients;
+	if (cc.size () != res.polynomialOrder + 2 * res.includesSqrt) {
+		thrower ("calibration constants size doesn't match fit polynomial order!");
+	}
+	if (res.includesSqrt) {
 		ctrl += cc[0] * std::pow (val + cc[1], 0.5);
 		if (cc.size () > 2) {
 			for (auto coefnum : range (cc.size () - 2)) {

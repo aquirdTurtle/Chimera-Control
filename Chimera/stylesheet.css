@@ -12,7 +12,7 @@ QLabel {
 
 QTextEdit[readOnly="true"], QTextEdit:disabled, QPlainTextEdit, QPlainTextEdit[readOnly="true"], QPlainTextEdit:disabled {
     background: rgb( 25, 25, 25 );
-    color: rgba( 191, 97, 106, 255 );
+    color: MainTextColor;
 }
 
 QTextEdit {
@@ -23,7 +23,7 @@ QTextEdit {
 QLineEdit {
     background: rgb( 40, 40, 40 );
     font: normal 11pt;
-    color: rgba( 191, 97, 106, 255 );
+    color: MainTextColor;
 }
 
 QLineEdit:disabled, QCheckBox:disabled, QComboBox:disabled, QRadioButton:disabled {
@@ -34,13 +34,13 @@ QLineEdit:disabled, QCheckBox:disabled, QComboBox:disabled, QRadioButton:disable
 
 QChartView, QComboBox, QRadioButton, QCheckBox, QPushButton, QListView {
     background: rgb( 40, 40, 40 );
-    color: rgba( 191, 97, 106, 255 );
+    color: MainTextColor;
     font: bold 11pt;
 }
 
 QTableView::item:selected:!active, QTableView {
     background: rgb( 40, 40, 40 );
-    color: rgba( 191, 97, 106, 255 );
+    color: MainTextColor;
     font: normal 8pt "Courier New";
 }
 
@@ -69,7 +69,7 @@ QMenuBar {
 
 QMenu, QMenu::item {
     background-color: rgb( 40, 40, 40 );
-    color: rgba( 191, 97, 106, 255 );
+    color: MainTextColor;
     font: 10pt;
 }
 

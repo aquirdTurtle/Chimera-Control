@@ -24,9 +24,10 @@ class MasterConfiguration{
 		// version 2.11: added agilent options to calibration manager.
 		// version 2.12: added more fitting options and the calibrations to the calibration manager
 		// version 2.13: added raw calibration results, so should be more possible to recover results
-		// Version 3.0: stopped saving servo manager info. Didn't really want to keep this backwards compatible and 
+		// Version 2.14: stopped saving servo manager info. Didn't really want to keep this backwards compatible and 
 		//				keep an excessive amount of code to eat the old servo info, so manually changed config file
 		//				to allow jump to config to work with the config manager. 
-		const Version version = Version("2.14");
+		// version 3.1: meant to jump to 3.0 at 2.14... but here I added the historical servo info
+		const Version version = Version("3.1");
 };
 

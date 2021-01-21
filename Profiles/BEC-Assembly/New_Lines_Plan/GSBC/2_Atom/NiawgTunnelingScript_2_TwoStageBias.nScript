@@ -15,7 +15,7 @@ var_v 2 tanhR [ tanh tanh ]
 var_v 2 freqs [ 75 87 ] 
 var_v 2 finFreqs [ (81-spacing/2) (81+spacing/2) ] 
 var_v 2 bias [ 0.6 0.4 ] 
-var_v 2 loadB [ 0.6 0.4 ] 
+var_v 2 loadB [ 0.601 0.399 ] 
 var_v 2 finB [ tunbias1 (1-tunBias1) ]  
 var_v 2 zPhases [ 0 0 ]  
 var_v 2 cphases [ -1 -1 ]  
@@ -31,6 +31,10 @@ repeatTilTrig
 gen2const_v Horizontal freqs loadB zPhases #  
 gen2const_v Vertical vFreqs vLoadB zPhases #
 0.01 0 endRepeat
+
+gen2ampRamp_v Horizontal freqs linr loadB bias zPhases #  
+gen2ampRamp_v Vertical vFreqs linr vLoadB vStdB zPhases #
+0.01 0 
 
 repeatTilTrig 
 gen2const_v Horizontal freqs bias zPhases #  
@@ -54,6 +58,7 @@ gen2Freq&AmpRamp_v Horizontal linR freqs finFreqs
 							  linR bias finB zPhases # 
 gen2const_v Vertical vFreqs vStdB zPhases #
 1 0
+% from here on cphases
 % DUMP BIAS RAMP (helps with intensity init)
 gen2const_v Horizontal finFreqs finB cphases #   
 gen2AmpRamp_v Vertical vFreqs linR vStdB tunB zPhases #

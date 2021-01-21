@@ -312,9 +312,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="longnam.h">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ClInclude>
     <ClInclude Include="FTDI\ftd2xx.h">
       <Filter>DIO</Filter>
     </ClInclude>
@@ -701,15 +698,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icon2.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="icon1.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="Atom.ico">
-      <Filter>Resources</Filter>
-    </Image>
     <Image Include="Source\LowLevel\Atom.ico" />
     <Image Include="Source\LowLevel\JILA.bmp" />
     <Image Include="Source\Shades_Of_Infrared.bmp" />

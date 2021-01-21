@@ -547,10 +547,10 @@ void QtMainWindow::handleColorboxUpdate (QString color, QString systemDelim){
 	auxWin->changeBoxColor (delimStr, colorstr);
 	basWin->changeBoxColor (delimStr, colorstr);
 	dmWin->changeBoxColor (delimStr, colorstr);
- }
+}
 
-void QtMainWindow::handleNotification (QString txt, unsigned level){
-	mainStatus.addStatusText (str(txt), level);
+void QtMainWindow::handleNotification (QString txt, unsigned level, int debugMod){
+	mainStatus.addStatusText (str(txt), (0 > int(level) + debugMod) ? 0 : level + debugMod);
 }
 
 QThread* QtMainWindow::getExpThread () {

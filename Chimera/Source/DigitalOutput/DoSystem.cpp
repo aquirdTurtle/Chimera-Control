@@ -80,7 +80,7 @@ std::pair<unsigned, unsigned> DoSystem::getTtlBoardSize(){
 void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 	auto& px = loc.rx (), & py = loc.ry ();
 	// title
-	ttlTitle = new QLabel ("DIGITAL OUTPUT", parent);
+	ttlTitle = new QLabel ("DIGITAL OUTPUT SYSTEM", parent);
 	ttlTitle->setGeometry (px, py, 480, 25);
 	py += 25;
 	// all number numberLabels

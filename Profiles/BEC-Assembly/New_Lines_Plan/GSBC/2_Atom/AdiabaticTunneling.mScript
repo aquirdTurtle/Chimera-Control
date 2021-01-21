@@ -5,7 +5,7 @@ off: axialRamanShutter
 off: probeShutter 
 on: shutter795
 pulseon: dds_reset 0.1
-pulseon: windfreakTrig 0.05
+call triggerWindfreak()
 on: totalRamanRf
 t += 1
 call turnonmot()
@@ -13,7 +13,7 @@ t += loadMotTime
 call triggerScout()
 t += 5
 call D1GreyLambdaLoading()
-pulseon: windfreakTrig 0.05
+call triggerWindfreak()
 pulseon: niawgTrig 0.1 % to standard imaging / cooling bias
 t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
@@ -27,7 +27,7 @@ t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
 call intrapgreymolasses() 
-pulseon: windfreakTrig 0.08
+call triggerWindfreak()
 off: shutter795
 pulseon: tweezerIntensityTrig 0.1 % to sbc depth
 call send_uw_to_raman_eom()
@@ -45,7 +45,7 @@ pulseon: niawgTrig 0.1 % to the move stuff.
 t += 1.4
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
 t += 1
-t += 10
+t += adiabaticTransferTime
 % tweezers start separating here.
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 t += 3.2

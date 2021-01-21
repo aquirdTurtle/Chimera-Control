@@ -36,7 +36,7 @@ class CalibrationThreadWorker : public QObject {
 		void runAll ();
 		void calibrate (calSettings& cal, unsigned which);
 	Q_SIGNALS:
-		void notification (QString msg, unsigned debugLvl = 0);
+		void notification (QString msg, unsigned baseLvl = 0, int debugLvl=0);
 		void warn (QString msg, unsigned debugLvl = 1);
 		void error (QString msg, unsigned debugLvl = 0);
 		void calibrationChanged ();

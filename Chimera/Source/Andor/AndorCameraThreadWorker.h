@@ -18,7 +18,7 @@ class AndorCameraThreadWorker : public QObject {
 		
 	Q_SIGNALS:
 		void error (QString, unsigned);
-        void notify (QString, unsigned);
+        void notify (QString, unsigned, int);
         void pictureTaken (int);
         void acquisitionFinished ();
 };

@@ -25,13 +25,12 @@ class MicrowaveSystem : public IChimeraSystem{
 		MicrowaveSystem(IChimeraQtWindow* parent);
 		void handleContextMenu (const QPoint& pos);
 		void initialize( QPoint& pos, IChimeraQtWindow* parentWin );
-		void handleListviewDblClick ();
-		void handleListviewRClick ();
 		std::string getIdentity();
 		MicrowaveCore& getCore ();
 		void handleSaveConfig (ConfigStream& saveFile);
 		void setMicrowaveSettings (microwaveSettings settings);
 		void programNow (std::vector<parameterType> constants);
+		void refreshCurrentUwList ();
 		void handleReadPress ();
 		void handleWritePress ();
 	private:

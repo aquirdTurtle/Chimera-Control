@@ -27,7 +27,7 @@ niawgWavePower::mode niawgWavePower::fromStr ( std::string txt ){
 }
 
 const std::array<niawgLibOption::mode, 4> niawgLibOption::allModes = { mode::allowed, mode::banned, mode::forced };
-const niawgLibOption::mode niawgLibOption::defaultMode = mode::allowed;
+const niawgLibOption::mode niawgLibOption::defaultMode = mode::banned;
 
 std::string niawgLibOption::toStr ( niawgLibOption::mode m ){
 	switch ( m ){

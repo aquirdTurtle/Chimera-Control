@@ -77,15 +77,13 @@ void PlotCtrl::initializeCalData (calSettings cal) {
 	}
 }
 
-
-
 void PlotCtrl::setData (std::vector<plotDataVec> newData){
 	removeData ();
 	double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
-	if (style == plotStyle::GeneralErrorPlot) {
+	if (style == plotStyle::CalibrationPlot) {
 		// need to rename...
-		if (newData.size () != 2 || !view->chart ()) {
-			// should always have the calibration data and fit.
+		if (newData.size () != 3 || !view->chart ()) {
+			// should always have the calibration data, historical fit, and recent fit.
 			return;
 		}
 		// first data set is scatter
@@ -102,7 +100,6 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		// second line
 		auto& newLineData2 = newData[1];
 		fitData = new QtCharts::QLineSeries (view->chart ());
-		auto color = GIST_RAINBOW_RGB[1 * GIST_RAINBOW_RGB.size () / 2];
 		QPen pen = fitData->pen ();
 		pen.setWidth (2);
 		pen.setColor ("red");
@@ -115,6 +112,22 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			*fitData << QPointF (newLineData2[count].x, newLineData2[count].y);
 		}
 		fitData->setName ("Fit");
+		view->chart ()->addSeries (fitData);
+		// third line
+		auto& newLineData3 = newData[2];
+		fitData = new QtCharts::QLineSeries (view->chart ());
+		pen = fitData->pen ();
+		pen.setWidth (2);
+		pen.setColor ("orange");
+		fitData->setPen (pen);
+		for (auto count : range (newLineData3.size ())) {
+			xmin = newLineData3[count].x < xmin ? newLineData3[count].x : xmin;
+			xmax = newLineData3[count].x > xmax ? newLineData3[count].x : xmax;
+			ymin = newLineData3[count].y < ymin ? newLineData3[count].y : ymin;
+			ymax = newLineData3[count].y > ymax ? newLineData3[count].y : ymax;
+			*fitData << QPointF (newLineData3[count].x, newLineData3[count].y);
+		}
+		fitData->setName ("Historical Fit");
 		view->chart ()->addSeries (fitData);
 	}
 	else if (style == plotStyle::BinomialDataPlot) {
@@ -256,7 +269,7 @@ void PlotCtrl::setStyle (plotStyle newStyle){
 }
 
 void PlotCtrl::resetChart () {
-	if (style != plotStyle::GeneralErrorPlot) {
+	if (style != plotStyle::CalibrationPlot) {
 		view->chart ()->legend ()->hide ();
 	}
 	view->chart ()->createDefaultAxes ();

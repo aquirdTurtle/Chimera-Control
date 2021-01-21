@@ -129,13 +129,16 @@ double Segment::pulseCalc( segPulseInfo pulse, int iteration, long size, double 
 void Segment::calcData( unsigned long sampleRate, unsigned varNum){
 	// calculate the size of the waveform.
 	double numDataPointsf = input.time.getValue(varNum)/1e3 * sampleRate;
+	int numDataPoints = (int)round (numDataPointsf);
 	// test if good time.
 	if (fabs( numDataPointsf - round( numDataPointsf ) ) > 1e-6){
 		thrower ( "ERROR: Bad time entered for the time of an intensity sequence segment. The time was "
 				 + str(input.time.getValue (varNum) / 1e3) + ", and the sample rate is " + str( sampleRate ) + ". The product of these"
 				 " is the number of samples in the segment, and this must be an integer." );
 	}
-	int numDataPoints = (int)round( numDataPointsf );
+	if (input.ramp.isRamp && (input.ramp.type != "lin" && input.ramp.type != "tanh" && input.ramp.type != "nr")) {
+		Segment::analyzeRampFile (input.ramp, numDataPoints);
+	}
 	// resize to zero. This is a complete reset of the data points in the class.
 	dataArray.resize( 0 );
 	// writebtn the data points. These are all in powers. These are converted to voltages later.
@@ -168,12 +171,14 @@ void Segment::assignDataVal( int dataNum, double val ){
 	dataArray[dataNum] = val;
 }
 
-void Segment::analyzeRampFile (rampInfo& ramp) {
+
+void Segment::analyzeRampFile (rampInfo& ramp, long totalSamples) {
 	std::ifstream rampFile (RAMP_LOCATION + ramp.type + ".txt");
 	if (!rampFile.is_open ()) {
 		thrower ("ERROR: ramp type " + ramp.type + " is unrecognized.\r\n");
 	}
 	ramp.rampFileName = ramp.type;
+	ramp.rampFileVals.clear ();
 	std::string word;
 	while (rampFile >> word) {
 		try {
@@ -182,6 +187,10 @@ void Segment::analyzeRampFile (rampInfo& ramp) {
 		catch (boost::bad_lexical_cast & err) {
 			thrower ("Failed to convert ramp file to doubles!");
 		}
+	}
+	if (ramp.rampFileVals.size () != totalSamples) {
+		thrower ("ramp file vals not same size as total samples! ramp size was "
+			+ str (ramp.rampFileVals.size ()) + ", total sample number was " + str (totalSamples));
 	}
 	ramp.isFileRamp = true;
 }

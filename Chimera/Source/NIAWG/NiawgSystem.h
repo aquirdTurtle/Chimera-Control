@@ -19,7 +19,7 @@ class NiawgSystem : public IChimeraSystem {
 		void initialize (QPoint& loc, IChimeraQtWindow* qtp);
 		void handleSaveConfig (ConfigStream& saveFile);
 		void handleOpenConfig (ConfigStream& openfile);
-		static bool getSettingsFromConfig (ConfigStream& openfile);
+		//static bool getSettingsFromConfig (ConfigStream& openfile);
 		void updateWindowEnabled ();
 
 		Script niawgScript;
@@ -27,4 +27,6 @@ class NiawgSystem : public IChimeraSystem {
 		rerngGuiControl rearrangeCtrl;		
 		QLabel* niawgHeader;
 		QCheckBox* controlNiawg;
+		QLabel* debugLvlLabel;
+		QLineEdit* debugLvlEdit;
 };

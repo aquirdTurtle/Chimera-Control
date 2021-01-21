@@ -19,8 +19,13 @@ struct AndorRunSettings{
 	int emGainLevel = 0;
 	int readMode = 4;
 	AndorRunModes::mode acquisitionMode = AndorRunModes::mode::Kinetic;
-	// 1 means frame transfer mode on, 0 means non-frame transfer mode.
-	int frameTransferMode = 0;
+	/* frameTransferMode = 0 (off).
+	Slower than when on. Cleans between images. Mech. shutter may not be necessary.
+	   frameTransferMode = 1 (on).
+	Faster than when off. Does not clean between images, giving better background. Mech. Shutter may be necessary.
+    See iXonEM+ hardware guide pg 42.
+	*/
+	int frameTransferMode = 1;
 	AndorTriggerMode::mode triggerMode = AndorTriggerMode::mode::External;
 	bool showPicsInRealTime = false;
 	//

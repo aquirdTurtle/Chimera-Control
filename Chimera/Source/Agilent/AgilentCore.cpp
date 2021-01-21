@@ -18,11 +18,17 @@ AgilentCore::AgilentCore (const agilentSettings& settings) :
 	setupCommands (settings.setupCommands){
 	calibrations[0].includesSqrt = false;
 	calibrations[0].calibrationCoefficients = settings.calibrationCoeff;
+	calibrations[0].polynomialOrder = settings.calibrationCoeff.size();
 	// could probably set these properly but in general wasn't doing this when was doing manual calibrations.
 	calibrations[0].calmax = 1e6;
 	calibrations[0].calmin = -1e6;
+
 	calibrations[1].includesSqrt = false;
 	calibrations[1].calibrationCoefficients = settings.calibrationCoeff;
+	calibrations[1].polynomialOrder = settings.calibrationCoeff.size ();
+	calibrations[1].calmax = 1e6;
+	calibrations[1].calmin = -1e6;
+
 
 	try{
 		visaFlume.open ();

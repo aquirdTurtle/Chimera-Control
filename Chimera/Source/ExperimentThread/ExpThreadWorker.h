@@ -97,7 +97,7 @@ class ExpThreadWorker : public QObject {
         void process ();
     Q_SIGNALS:
         void updateBoxColor (QString, QString);
-        void notification (QString msg, unsigned debugLvl=0);
+        void notification (QString msg, unsigned debugLvl=0, int debugMod=0);
         void warn (QString msg, unsigned debugLvl=1);
         void repUpdate (unsigned int);
         void prepareAndor (AndorRunSettings*, analysisSettings);

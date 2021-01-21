@@ -97,7 +97,7 @@ class QtMainWindow : public IChimeraQtWindow{
 		std::vector<calResult> getCalInfo ();
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
-		void handleNotification (QString txt, unsigned level=0);
+		void handleNotification (QString txt, unsigned level=0, int debugLvl=0);
 		void onRepProgress (unsigned int repNum);
 		void onErrorMessage (QString errMessage, unsigned level=0);
 		void onNormalFinish (QString finMsg, profileSettings finishedProfile );

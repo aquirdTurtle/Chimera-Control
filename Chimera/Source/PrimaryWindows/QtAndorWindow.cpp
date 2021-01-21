@@ -468,9 +468,14 @@ dataPoint QtAndorWindow::getMainAnalysisResult (){
 }
 
 void QtAndorWindow::cleanUpAfterExp (){
-	plotThreadActive = false;
-	atomCrunchThreadActive = false;
-	dataHandler.normalCloseFile ();
+	try {
+		plotThreadActive = false;
+		atomCrunchThreadActive = false;
+		dataHandler.normalCloseFile ();
+	}
+	catch (ChimeraError & err) {
+		reportErr ("Andor Window Failed to clean up after exp! Error: " + err.qtrace ());
+	}
 }
 
 int QtAndorWindow::getMostRecentFid (){

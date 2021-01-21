@@ -8,8 +8,7 @@
 #include <qradiobutton.h>
 #include <PrimaryWindows/IChimeraQtWindow.h>
 
-class CQLineEdit : public QLineEdit 
-{
+class CQLineEdit : public QLineEdit {
 	public:
 		CQLineEdit (IChimeraQtWindow* parent);
 		CQLineEdit (const QString&, IChimeraQtWindow* parent);

@@ -5,15 +5,14 @@ off: axialRamanShutter
 off: probeShutter 
 on: shutter795
 pulseon: dds_reset 0.1
-pulseon: windfreakTrig 0.05
-on: totalRamanRf
+call triggerwindfreak() 
 t += 1
 call turnonmot()
 t += loadMotTime
 call triggerScout()
 t += 5
 call D1GreyLambdaLoading()
-pulseon: windfreakTrig 0.05
+call triggerwindfreak()
 pulseon: dds_step 5
 t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
@@ -21,6 +20,7 @@ pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 call intrapgreymolasses()
 %off: tweezerrf
 %t+= 20
+t+= 5
 pulseon: tweezerIntensityTrig 0.1 % to TOF depth
 
 call freespaceimage()

@@ -49,9 +49,6 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			workingInput.pulse.isPulse = false;
 			workingInput.mod.modulationIsOn = false;
 			script >> workingInput.ramp.type;
-			if (workingInput.ramp.type != "lin" && workingInput.ramp.type != "tanh" && workingInput.ramp.type != "nr") {
-				Segment::analyzeRampFile (workingInput.ramp);
-			}
 			script >> workingInput.ramp.start;
 			workingInput.ramp.start.assertValid ( params, scope );
 			script >> workingInput.ramp.end;

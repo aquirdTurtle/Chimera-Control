@@ -69,28 +69,24 @@ void MicrowaveSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	uwListListview->setColumnWidth (0, 40);
 	uwListListview->setColumnWidth (1, 240);
 	uwListListview->setColumnWidth (2, 140);
-	
 
 	uwListListview->setShowGrid (true);
-	uwListListview->connect (
-		uwListListview, &QTableWidget::cellChanged, [this](int row, int col) {
-			if (currentList.size () <= row) {
-				return;
-			}
-			auto qtxt = uwListListview->item (row, col)->text ();
-			switch (col) {
-			case 1:
-				currentList[row].frequency = str (qtxt);
-				break;
-			case 2:
-				currentList[row].power = str (qtxt);
-				break;
-			}
-		});
 	refreshListview ();
 	py += 100;
 }
 
+void MicrowaveSystem::refreshCurrentUwList () {
+	currentList.resize (uwListListview->rowCount ());
+	for (auto rowI : range (uwListListview->rowCount ())) {
+		try {
+			currentList[rowI].frequency = str (uwListListview->item (rowI, 1)->text ());
+			currentList[rowI].power = str (uwListListview->item (rowI, 2)->text ());
+		}
+		catch (ChimeraError&) {
+			throwNested ("Failed to convert microwave table data to uw list structure!");
+		}
+	}
+}
 void MicrowaveSystem::handleReadPress (){
 	auto res = core.uwFlume.read ();
 	readTxt->setText (cstr (res));
@@ -117,6 +113,7 @@ void MicrowaveSystem::programNow(std::vector<parameterType> constants){
 
 
 void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile){
+	refreshCurrentUwList ();
 	saveFile << core.configDelim
 		<< "\n/*Control?*/ " << controlOptionCheck->isChecked ()
 		<< "\n/*List Size:*/ " << currentList.size ();

@@ -60,6 +60,7 @@ class ParameterSystem : IChimeraSystem {
 								  ScanRangeInfo inputRangeInfo );
 		static std::vector<parameterType> combineParams ( std::vector<parameterType>& masterVars, 
 														  std::vector<parameterType>& subVars );
+		static std::vector<std::reference_wrapper<parameterType>> getConstParamsFromList (std::vector<parameterType>& variables);
 		// getters
 		parameterType getVariableInfo(int varNumber);
 		std::vector<parameterType> getAllConstants();

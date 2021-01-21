@@ -16,12 +16,14 @@ class Expression {
 		std::string expressionStr;
 		std::string calName = "";
 		bool varies( );
+		double evaluate (std::vector<std::reference_wrapper<parameterType>> & variables, unsigned variation = -1,
+						 std::vector<calResult> calibrations = std::vector<calResult> ());
 		double evaluate ( std::vector<parameterType>& variables = std::vector<parameterType> (), unsigned variation = -1,
 						  std::vector<calResult> calibrations = std::vector<calResult>());
 		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ),
 			unsigned totalVariationNumber = -1 );
 		double handleCalibration (double val, std::vector<calResult> calibrations);
-		double getValue ( unsigned variation );	
+		double getValue ( unsigned variation ) const;	
 	private:
 		void doMultAndDiv( std::vector<std::string>& terms );
 		void doAddAndSub( std::vector<std::string>& terms );

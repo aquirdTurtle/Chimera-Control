@@ -73,8 +73,21 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 		});
 	configSettings.andor.triggerMode = AndorTriggerMode::mode::External;
 
+	frameTransferModeCombo = new CQComboBox(parent);
+	frameTransferModeCombo->setGeometry (px, py, 160, 25);
+	frameTransferModeCombo->setToolTip ("Frame Transfer Mode OFF:\n"
+		"Slower than when on. Cleans between images. Mechanical shutter may not be necessary.\n"
+		"Frame Transfer Mode ON:\n"
+		"Faster than when off. Does not clean between images, giving better background.\n"
+		"Mechanical Shutter probably necessary unless imaging continuously.\n"
+		"See iXonEM + hardware guide pg 42.\n");
+	frameTransferModeCombo->addItems ({ "FTM: OFF!", "FTM: ON!" });
+	frameTransferModeCombo->setCurrentIndex (0);
+	configSettings.andor.frameTransferMode = 0;
+
 	verticalShiftSpeedCombo = new CQComboBox (parent);
-	verticalShiftSpeedCombo->setGeometry (px, py += 25, 240, 25);
+	verticalShiftSpeedCombo->setGeometry (px+160, py, 160, 25);
+	verticalShiftSpeedCombo->setToolTip ("Vertical Shift Speed (Million Pixels per Second)");
 	for (auto speed : vertSpeeds){ 
 		verticalShiftSpeedCombo->addItem ("VS: " + qstr(speed));
 	}
@@ -82,20 +95,21 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 	configSettings.andor.vertShiftSpeedSetting = 0;
 
 	horizontalShiftSpeedCombo = new CQComboBox (parent);
-	horizontalShiftSpeedCombo->setGeometry (px+240, py, 240, 25);
+	horizontalShiftSpeedCombo->setGeometry (px+320, py, 160, 25);
 	for (auto speed : horSpeeds){
 		horizontalShiftSpeedCombo->addItem ("HS: " + qstr (speed));
 	}
+	horizontalShiftSpeedCombo->setToolTip ("Horizontal Shift Speed (Million Pixels per Second)");
 	horizontalShiftSpeedCombo->setCurrentIndex (0);
 	configSettings.andor.horShiftSpeedSetting = 0;
 
 	emGainBtn = new CQPushButton ("Set EM Gain (-1=OFF)", parent);
-	emGainBtn->setGeometry (px, py += 25, 160, 20);
+	emGainBtn->setGeometry (px, py += 25, 200, 20);
 	parent->connect (emGainBtn, &QPushButton::released, [parent]() {
 			parent->andorWin->handleEmGainChange ();
 		});
 	emGainEdit = new CQLineEdit ("-1", parent);
-	emGainEdit->setGeometry (px + 160, py, 160, 20);
+	emGainEdit->setGeometry (px + 200, py, 120, 20);
 	emGainEdit->setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 						   " mode off. The program will immediately change the state of the camera after changing this"
 						   " edit." );
@@ -126,30 +140,39 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 	imageDimensionsObj.initialize( pos, parent, 1, 480 );
 
 	// Accumulation Time
-	accumulationCycleTimeLabel = new QLabel ("Accumulation Cycle Time", parent);
-	accumulationCycleTimeLabel->setGeometry (px, py, 240, 25);
+	accumulationCycleTimeLabel = new QLabel ("Accum. Time", parent);
+	accumulationCycleTimeLabel->setGeometry (px, py, 120, 25);
+	accumulationCycleTimeLabel->setToolTip ("Accumulation Cycle Time (ms?)");
 
 	accumulationCycleTimeEdit = new CQLineEdit ("0.1", parent);
-	accumulationCycleTimeEdit->setGeometry (px + 240, py, 240, 25);
+	accumulationCycleTimeEdit->setGeometry (px + 120, py, 120, 25);
+	accumulationCycleTimeEdit->setToolTip ("Accumulation Cycle Time (ms?)");
 
 	// Accumulation Number
-	accumulationNumberLabel = new QLabel ("Accumulation #", parent);
-	accumulationNumberLabel->setGeometry (px, py+=25, 240, 25);
+	accumulationNumberLabel = new QLabel ("Accum. #", parent);
+	accumulationNumberLabel->setGeometry (px+240, py, 120, 25);
+	accumulationNumberLabel->setToolTip ("Accumulation Number");
 	accumulationNumberEdit = new CQLineEdit ("1", parent);
-	accumulationNumberEdit->setGeometry (px + 240, py, 240, 25);
+	accumulationNumberEdit->setGeometry (px + 360, py, 120, 25);
+	accumulationNumberEdit->setToolTip ("Accumulation Number");
 
 	// minimum kinetic cycle time (determined by camera)
-	minKineticCycleTimeLabel = new QLabel ("Minimum Kinetic Cycle Time (s)", parent);
-	minKineticCycleTimeLabel->setGeometry (px, py+=25, 240, 25);
+	minKineticCycleTimeLabel = new QLabel ("Min. Kin. Time", parent);
+	minKineticCycleTimeLabel->setGeometry (px, py+=25, 120, 25);
+	minKineticCycleTimeLabel->setToolTip ("Minimum Kinetic Cycle Time (s)");
+
 	minKineticCycleTimeDisp = new QLabel ("---", parent);
-	minKineticCycleTimeDisp->setGeometry (px + 240, py, 240, 25);
+	minKineticCycleTimeDisp->setGeometry (px + 120, py, 120, 25);
+	minKineticCycleTimeDisp->setToolTip ("Minimum Kinetic Cycle Time (s)");
 
 	/// Kinetic Cycle Time
-	kineticCycleTimeLabel = new QLabel ("Kinetic Cycle Time (s)", parent);
-	kineticCycleTimeLabel->setGeometry (px, py+=25, 240, 25);
+	kineticCycleTimeLabel = new QLabel ("Kin. Time", parent);
+	kineticCycleTimeLabel->setGeometry (px+240, py, 120, 25);
+	kineticCycleTimeLabel->setToolTip ("Kinetic Cycle Time (s)");
 
 	kineticCycleTimeEdit = new CQLineEdit ("0.1", parent);
-	kineticCycleTimeEdit->setGeometry (px+240, py, 240, 25);
+	kineticCycleTimeEdit->setGeometry (px+360, py, 120, 25);
+	kineticCycleTimeEdit->setToolTip ("Kinetic Cycle Time (s)");
 	py += 25;
 	//
 	calControl.initialize( pos, parent );
@@ -189,6 +212,10 @@ void AndorCameraSettingsControl::updateDisplays () {
 	accumulationNumberEdit->setText (cstr (optionsIn.accumulationNumber));
 	temperatureEdit->setText (cstr (optionsIn.temperatureSetting));
 	imageDimensionsObj.setImageParametersFromInput (optionsIn.imageSettings);
+
+	verticalShiftSpeedCombo->setCurrentIndex (optionsIn.vertShiftSpeedSetting);
+	horizontalShiftSpeedCombo->setCurrentIndex (optionsIn.horShiftSpeedSetting);
+	frameTransferModeCombo->setCurrentIndex (optionsIn.frameTransferMode);
 
 	picSettingsObj.setUnofficialExposures (optionsIn.exposureTimes);
 	picSettingsObj.setUnofficialPicsPerRep (optionsIn.picsPerRepetition);
@@ -232,6 +259,10 @@ unsigned AndorCameraSettingsControl::getVsSpeed () {
 	return verticalShiftSpeedCombo->currentIndex ();
 }
 
+unsigned AndorCameraSettingsControl::getFrameTransferMode () {
+	return frameTransferModeCombo->currentIndex ();
+}
+
 void AndorCameraSettingsControl::updateSettings(){
 	if (currentlyUneditable) {
 		return;
@@ -253,6 +284,7 @@ void AndorCameraSettingsControl::updateSettings(){
 
 	configSettings.andor.horShiftSpeedSetting = getHsSpeed ();
 	configSettings.andor.vertShiftSpeedSetting = getVsSpeed ();
+	configSettings.andor.frameTransferMode = getFrameTransferMode ();
 }
 
 std::array<softwareAccumulationOption, 4> AndorCameraSettingsControl::getSoftwareAccumulationOptions ( ){
@@ -452,8 +484,9 @@ void AndorCameraSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 		saveFile << exposure << " ";
 	}
 	saveFile << "\n/*Andor Pics Per Rep:*/\t\t" << configSettings.andor.picsPerRepetition;
-	saveFile << "\n/*Horizontal Shift Speed*/\t" << configSettings.andor.horShiftSpeedSetting;
-	saveFile << "\n/*Vertical Shift Speed*/\t" << configSettings.andor.vertShiftSpeedSetting;
+	saveFile << "\n/*Horizontal Shift Speed:*/\t" << configSettings.andor.horShiftSpeedSetting;
+	saveFile << "\n/*Vertical Shift Speed:*/\t" << configSettings.andor.vertShiftSpeedSetting;
+	saveFile << "\n/*Frame Transfer Mode:*/\t" << configSettings.andor.frameTransferMode;
 	saveFile << "\nEND_CAMERA_SETTINGS\n";
 	picSettingsObj.handleSaveConfig(saveFile);
 	imageDimensionsObj.handleSave (saveFile);

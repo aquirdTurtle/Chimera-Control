@@ -43,7 +43,7 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 	}
 	py += 20;
 	/// Total picture number
-	totalPicNumberLabel = new QLabel ("Total Picture #", parent);
+	totalPicNumberLabel = new QLabel ("Total Pic. #", parent);
 	totalPicNumberLabel->setGeometry (px, py, 100, 20);
 	for (auto picInc : range (4)) {
 		totalNumberChoice[picInc] = new CQRadioButton ("", parent);
@@ -52,7 +52,7 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 		parent->connect (totalNumberChoice[picInc], &QRadioButton::toggled, handleChange);
 	}
 	/// Exposure Times
-	exposureLabel = new QLabel ("Exposure (ms):", parent);
+	exposureLabel = new QLabel ("Exposure(ms):", parent);
 	exposureLabel->setGeometry (px, py+=20, 100, 20);
 	for ( auto picInc : range(4) ) {
 		exposureEdits[picInc] = new CQLineEdit (parent);
@@ -62,7 +62,7 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 	setUnofficialExposures ( std::vector<float> ( 4, 10 / 1000.0f ) );
 
 	/// Thresholds
-	thresholdLabel = new QLabel ("Threshold (cts)", parent);
+	thresholdLabel = new QLabel ("Threshold:", parent);
 	thresholdLabel->setGeometry (px, py += 20, 100, 20);
 	for ( auto picInc : range(4) ) {
 		thresholdEdits[picInc] = new CQLineEdit ("100", parent);
@@ -70,6 +70,7 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 		parent->connect (thresholdEdits[picInc], &QLineEdit::textChanged, handleChange);
 		currentPicSettings.thresholds[ picInc ] = { 100 };
 	}
+
 	/// colormaps
 	colormapLabel = new QLabel ("Colormap", parent);
 	colormapLabel->setGeometry (px, py += 20,100, 25);
@@ -94,7 +95,9 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 		currentPicSettings.colors[ picInc ] = 0;
 	}
 	/// software accumulation mode
-	softwareAccumulationLabel = new QLabel ("Software Accum:", parent);
+	softwareAccumulationLabel = new QLabel ("Soft. Accum:", parent);
+	softwareAccumulationLabel->setToolTip ("Software Accumulation averages the images in real time. Underlying data in"
+										   " the hdf5 file is unchanged.");
 	softwareAccumulationLabel->setGeometry (px, py += 25, 100, 20);
 	for ( auto picInc : range ( 4 ) ) {
 		softwareAccumulateAll[picInc] = new CQCheckBox("All?", parent);

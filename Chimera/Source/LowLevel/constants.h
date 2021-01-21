@@ -72,7 +72,7 @@
 	const std::string PLOT_FILES_SAVE_LOCATION = str (CODE_ROOT) + "\\Plotting";
 	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Control\\";
 	//const std::string LIB_PATH = str (CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-Gain_0p82\\";
-	const std::string LIB_PATH = str (CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-0.083333-PowerLevel\\";
+	const std::string LIB_PATH = str (CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-New\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str (CODE_ROOT) + "\\Default-Scripts\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = str (CODE_ROOT) + "\\Chimera\\";

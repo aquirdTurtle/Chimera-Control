@@ -2,10 +2,10 @@
 
 def freeSpaceImage():
   % give the shutter some time to open.
-  var FSImageTime 0.04
-  var offsetTime 0.05
-  var sideMotScan 9
-  var repumpscan 0.2
+  var FSImageTime 0.02
+  var offsetTime 0.0
+  var sideMotScan 8.2 %9.1
+  var repumpscan 00.41 %0.2
   var diagmotscan 0.86
   var toftimescan 0.1
 
@@ -14,13 +14,13 @@ def freeSpaceImage():
   on: repumpShutter
   on: sidemotShutter
   on: diagmotShutter
-  t += 5
   on: andorShutter
+  t += 5
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
   % changed to -2.2 on 11/11/2020
-  var image_detuning -2 %-2 % -2.2 %-1.5
+  var image_detuning -0.5 %-2 % -2.2 %-1.5
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
   t += 5
@@ -43,18 +43,22 @@ def freeSpaceImage():
 
   %drop atoms (off tweezerrf), then delay
 
-  %off: tweezerrf
+  off: tweezerrf
   t += toftimescan
 
   t += offsetTime
   pulseon: andorTrig FSImageTime 
+  pulseon: oscilloscopemarker 0.001
   t += (-1*offsetTime)
 
+  on: oscilloscopemarker
   on: SideMotRf
   on: diagMotRf
+  
   %on: andorTrig
   
   t += fSImageTime
+  off: oscilloscopemarker
   off: andorshutter
   off: SideMotRf
   off: diagMotRf

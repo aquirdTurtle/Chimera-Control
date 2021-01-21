@@ -1,5 +1,6 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
+off: andorShutter
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
@@ -35,8 +36,12 @@ call pump2stretch()
 call gsbc()
 %End SBC
 
+off: totalramanrf
+off: axialRamanShutter
+off: axialRamanShutter2
 %off: tweezerrf
 %t+= 20
+t += 5
 pulseon: tweezerIntensityTrig 0.1 % to TOF depth
 call freespaceimage()
 % call pgcatomflashingimage()

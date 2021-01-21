@@ -3,9 +3,10 @@
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
 
 var tunnelbias 0.58 
-var ldumpBias 0.715
+var ldumpBias 0.8
+
 var tundumpBias 0.03   
-var ddumpBias 0.02  
+var ddumpBias 0.003  
 var main_v_f 81 
 var dumpf 117 
 var spacing 5
@@ -14,13 +15,15 @@ var perturbBias 0.035
 var hPerturbBias 0.5
 var_v 2 linR [ lin lin ]
 var_v 2 tanhR [ tanh tanh ] 
+var_v 2 adRmp1 [ expDecay expDecay ] 
+var_v 2 adRmp2 [ expRise expRise ] 
 var_v 2 freqs [ 75 87 ] 
 var_v 2 finFreqs [ (81-spacing/2) (81+spacing/2) ] 
 
 var_v 2 bias [ 0.6 0.4 ] 
 var_v 2 loadB [ 0.6 0.4 ] 
-var_v 2 prepB [ prepBias (1-prepBias) ] 
-var_v 2 tunB [ tunbias1 (1-tunBias1) ]  
+var_v 2 prepB [ (resonance+resWidth) (1-(resonance+resWidth)) ] 
+var_v 2 tunB [ resonance (1-resonance) ]  
 var_v 2 petB [ hPerturbBias (1 - hPerturbBias) ]
 
 var_v 2 vFreqs [ main_v_f dumpf ]
@@ -67,9 +70,9 @@ gen2const_v Horizontal finFreqs prepB cphases #
 gen2AmpRamp_v Vertical vFreqs linR vStdB vTunB zPhases #
 0.4 0
 
-gen2AmpRamp_v Horizontal finFreqs linR prepB tunB zPhases # 
+gen2AmpRamp_v Horizontal finFreqs adRmp1 prepB tunB zPhases # 
 gen2const_v Vertical vFreqs vTunB zPhases #
-100 0
+adiabaticTransferTime 0
 
 gen2ampRamp_V Horizontal finFreqs linR tunB petB cphases #   
 gen2const_v Vertical vFreqs vTunB zPhases #
@@ -89,9 +92,9 @@ gen2const_v Vertical vFreqs vTunB zPhases #
 %gen2const_v Vertical vFreqs vPetB zPhases #
 %0.01 0 endRepeat
 
-gen2AmpRamp_v Horizontal finFreqs linR tunB prepB zPhases # 
+gen2AmpRamp_v Horizontal finFreqs adRmp2 tunB prepB zPhases # 
 gen2const_v Vertical vFreqs vTunB zPhases #
-100 0
+adiabaticTransferTime 0
 
 gen2const_v Horizontal finFreqs prepB cphases #   
 gen2AmpRamp_v Vertical vFreqs linR vTunB vStdB zPhases #

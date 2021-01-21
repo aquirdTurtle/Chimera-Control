@@ -83,7 +83,7 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 		emit newCalibrationDataPoint (QPointF (calPoint, result.resVals.back ()));
 		Sleep (20);
 	}
-	CalibrationManager::determineCalMinMax (cal);
+	CalibrationManager::determineCalMinMax (cal.result);
 
 	cal.currentlyCalibrating = false;
 	std::ofstream file ("C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationValuesFile.txt");

@@ -63,6 +63,7 @@ class AndorCameraSettingsControl{
 		AndorRunSettings getRunningSettings ();
 		unsigned getHsSpeed ();
 		unsigned getVsSpeed ();
+		unsigned getFrameTransferMode ();
 	private:
 
 		AndorRunSettings currentlyRunningSettings;
@@ -82,7 +83,8 @@ class AndorCameraSettingsControl{
 		CQLineEdit* accumulationNumberEdit;
 		// 
 		CQComboBox* cameraModeCombo;
-
+		
+		CQComboBox* frameTransferModeCombo;
 		CQComboBox* verticalShiftSpeedCombo;
 		CQComboBox* horizontalShiftSpeedCombo;
 

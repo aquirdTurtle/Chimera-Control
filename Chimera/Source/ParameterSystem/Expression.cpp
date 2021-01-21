@@ -335,7 +335,7 @@ void Expression::internalEvaluate ( std::vector<parameterType>& params, unsigned
 	}
 }
 
-double Expression::getValue ( unsigned variation ){
+double Expression::getValue ( unsigned variation ) const {
 	if ( variation >= values.size ( ) ){
 		thrower ( "Tried to get expression value for variation that doesn't seem to exist! Variation index requested was " 
 			+ str(variation) + " while values size is " + str(values.size()) + ". Expression is:" + expressionStr );
@@ -345,9 +345,18 @@ double Expression::getValue ( unsigned variation ){
 
 /*
 Evaluate takes in an expression, which can be a combination of variables, standard math operations, and standard
-math functions, and evaluates it to a double.
+math functions, and evaluates it to a double. The non-wrapped version is the typical use case. Occasionally I don't
+have the original vector and instead have a vector of references to the original vecto, hence the reference_wrapped version.
 */
-double Expression::evaluate( std::vector<parameterType>& variables, unsigned variation, 
+double Expression::evaluate (std::vector<parameterType>& variables, unsigned variation, std::vector<calResult> calibrations) {
+	std::vector<std::reference_wrapper<parameterType>> wrapVariables;
+	for (auto& var : variables) {
+		wrapVariables.push_back(var);
+	}
+	return evaluate (wrapVariables, variation, calibrations);
+}
+
+double Expression::evaluate( std::vector<std::reference_wrapper<parameterType>>& variables, unsigned variation, 
 	std::vector<calResult> calibrations ){
 	// make a constant copy of the original string to use during the evaluation.
 	const std::string originalExpression( expressionStr );
@@ -372,7 +381,8 @@ double Expression::evaluate( std::vector<parameterType>& variables, unsigned var
 	if ( variation != -1 ){
 		// substitute all variables within the expression.
 		for ( auto& term : terms ){
-			for ( auto& variable : variables ){
+			for ( auto& varWrap: variables ){
+				auto& variable = varWrap.get ();
 				if ( term == variable.name && (variable.parameterScope == expressionScope
 												|| variable.parameterScope == GLOBAL_PARAMETER_SCOPE)){
 					if ( variable.keyValues.size( ) == 0 ){
@@ -425,7 +435,14 @@ double Expression::handleCalibration (double val, std::vector<calResult> calibra
 			thrower ("Expression needed calibration \"" + calName + "\" but didn't find it in the calibrations list given"
 				" to the evaluation function!");
 		}
-		return CalibrationManager::calibrationFunction (val, cal);
+		double calVal;
+		try {
+			calVal = CalibrationManager::calibrationFunction (val, cal);
+		}
+		catch (ChimeraError & err) {
+			throwNested ("Error using calibration to evaluate expression \"" + expressionStr + "\"");
+		}
+		return calVal;
 	}
 }
 

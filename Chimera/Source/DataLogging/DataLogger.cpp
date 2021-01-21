@@ -580,7 +580,7 @@ void DataLogger::assertClosed () {
 		voltsDataSet.close ();
 		file.close ();
 	}
-	catch (H5::Exception &err) {
+	catch (H5::Exception &) {
 		throwNested ("Failed to assert closed! H5 Exception thrown!");
 	}
 	andorDataSetShouldBeValid = false;
@@ -605,7 +605,10 @@ void DataLogger::normalCloseFile(){
 	}
 	catch ( H5::Exception& err ){
 		auto fullE = getFullError (err);
-		thrower ("Normal Close Failed???; Full error:" + fullE);
+		throwNested ("Normal Close Failed???; Full error:" + fullE);
+	}
+	catch (ChimeraError &) {
+		throwNested ("Normal Close Failed??");
 	}
 	assertClosed ();
 }
