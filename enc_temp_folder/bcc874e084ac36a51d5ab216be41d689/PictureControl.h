@@ -29,7 +29,7 @@ class PictureControl : public QWidget{
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( QPoint loc, int width, int height );
 		void setSliderControlLocs(QPoint pos, int height);
-		void drawBitmap (const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
+		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
 						 bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber, 
 						 bool includingAnalysisMarkers);
 		void setSliderPositions(unsigned min, unsigned max);
@@ -51,7 +51,6 @@ class PictureControl : public QWidget{
 		coordinate selectedLocation;
 		void setTransformationMode (Qt::TransformationMode);
 	private:
-
 		Qt::TransformationMode transformationMode;
 		Ui::PictureControl* ui;
 		int picScaleFactor;
@@ -62,9 +61,7 @@ class PictureControl : public QWidget{
 		std::vector<plotDataVec> horData, vertData;
 		PlotCtrl* horGraph;
 		PlotCtrl* vertGraph;
-		bool mostRecentAutoScale;
-		int mostRecentAutoMin;
-		int mostRecentAutoMax;
+		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
 		// for replotting.

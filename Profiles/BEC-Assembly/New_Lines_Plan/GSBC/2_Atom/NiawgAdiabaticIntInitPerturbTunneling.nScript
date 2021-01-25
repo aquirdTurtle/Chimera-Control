@@ -18,7 +18,7 @@ var_v 2 freqs [ 75 87 ]
 var_v 2 finFreqs [ (81-spacing/2) (81+spacing/2) ] 
 var_v 2 bias [ 0.6 0.4 ] 
 var_v 2 loadB [ 0.601 0.399 ] 
-var_v 2 finB [ tunbias1 (1-tunBias1) ]  
+var_v 2 finB [ resonance (1-resonance) ]  
 var_v 2 petB [ perturbBias (1-perturbBias) ]
 var_v 2 zPhases [ 0 0 ]  
 var_v 2 cphases [ -1 -1 ]  
@@ -68,7 +68,7 @@ gen2AmpRamp_v Vertical vFreqs adRampThere vStdB tunB
                        zPhases #
 adiabaticInitTime 0
 
-gen2AmpRamp_v Horizontal finFreqs linR tunB petB cphases #   
+gen2AmpRamp_v Horizontal finFreqs linR finB petB cphases #   
 gen2const_v Vertical vFreqs tunB zPhases #
 0.01 0 
 
@@ -78,7 +78,7 @@ gen2const_v Horizontal finFreqs petB cphases #
 gen2const_v Vertical vFreqs tunB zPhases #
 0.01 0 endRepeat
 
-gen2AmpRamp_v Horizontal finFreqs linR petB tunB cphases #   
+gen2AmpRamp_v Horizontal finFreqs linR petB finB cphases #   
 gen2const_v Vertical vFreqs tunB zPhases #
 0.01 0 
 

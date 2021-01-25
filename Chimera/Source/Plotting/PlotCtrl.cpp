@@ -23,7 +23,16 @@ void PlotCtrl::handleContextMenu (const QPoint& pos) {
 		[this]() {
 			view->chart ()->removeAllSeries ();
 		});
+	auto* leg = new QAction ("Toggle Legend", view);
+	view->connect (leg, &QAction::triggered,
+		[this]() {
+			showLegend = !showLegend;
+			resetChart ();
+		});
+
+
 	menu.addAction (clear);
+	menu.addAction (leg);
 	menu.exec (view->mapToGlobal (pos));
 }
 
@@ -142,6 +151,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			auto& newLine = newData[traceNum];
 			line = new QtCharts::QScatterSeries (view->chart ());
 			line->setBorderColor (Qt::black);
+			line->setName ("DSet " + qstr (traceNum+1));
 			if (lineCount == qtScatterData.size ()-1) {
 				line->setMarkerSize (8.0);
 				line->setColor( QColor (255, 255, 255));
@@ -164,10 +174,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		}
 	}
 	else if (style == plotStyle::HistPlot) {
-		if (newData.size () == 0) {
-			return;
-		}
-		if (!view->chart ()) {
+		if (newData.size () == 0 || !view->chart ()) {
 			return;
 		}
 		qtLineData.clear ();
@@ -182,6 +189,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			line = new QtCharts::QLineSeries (view->chart ());
 			auto color = GIST_RAINBOW_RGB[(lineCount++) * GIST_RAINBOW_RGB.size () / qtLineData.size ()];
 			line->setColor (QColor (color[0], color[1], color[2], 150));
+			line->setName ("DSet " + qstr (traceNum + 1));
 			for (auto count : range (newLine.size ())) {
 				xmin = newLine[count].x < xmin ? newLine[count].x : xmin;
 				xmax = newLine[count].x > xmax ? newLine[count].x : xmax;
@@ -269,13 +277,33 @@ void PlotCtrl::setStyle (plotStyle newStyle){
 }
 
 void PlotCtrl::resetChart () {
-	if (style != plotStyle::CalibrationPlot) {
-		view->chart ()->legend ()->hide ();
+	if (!showLegend){
+		view->chart ()->legend()->hide ();
+	}
+	else {
+		view->chart ()->legend ()->setVisible (true);
+		view->chart ()->legend ()->detachFromChart ();
+		view->chart ()->legend ()->setBackgroundVisible (true);
+		view->chart ()->legend ()->setBrush (QBrush (QColor (25, 25, 25, 25)));
+		view->chart ()->legend ()->setPen (QPen (QColor (255, 255, 255, 255)));
+	}
+	switch (style) {
+		case plotStyle::BinomialDataPlot:
+		case plotStyle::HistPlot:
+			view->chart ()->legend ()->setGeometry (QRectF (40, 35, 70, 60));
+			view->chart ()->legend ()->update ();
+			break;
+		case plotStyle::CalibrationPlot:
+		case plotStyle::DacPlot:
+		case plotStyle::TtlPlot:
+			view->chart ()->legend ()->setGeometry (QRectF (40, 35, 120, 65));
+			view->chart ()->legend ()->update ();
+			break;
 	}
 	view->chart ()->createDefaultAxes ();
 	view->chart ()->layout ()->setContentsMargins (0, 0, 0, 0);
 	view->chart ()->setBackgroundRoundness (0);
-	view->chart ()->setBackgroundBrush (QBrush (QColor (20, 20, 20)));
+	view->chart ()->setBackgroundBrush (QBrush (QColor (0,0,0,0)));
 	view->chart ()->setMargins (QMargins (0, 0, 0, 0));
 	if (view->chart ()->axes (Qt::Horizontal)[0]) {
 		auto pen = view->chart ()->axes (Qt::Horizontal)[0]->gridLinePen ();
@@ -293,7 +321,14 @@ void PlotCtrl::init( QPoint& pos, LONG width, LONG height, IChimeraQtWindow* par
 	view = new QtCharts::QChartView (chart, parent);
 	view->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (view, &QtCharts::QChartView::customContextMenuRequested,
-		[this](const QPoint& pos) { handleContextMenu (pos); });
+		[this, parent](const QPoint& pos) { 
+			try {
+				handleContextMenu (pos);
+			}
+			catch (ChimeraError & err) {
+				parent->reportErr (err.qtrace ());
+			}
+		});
 
 	for (auto datanum : range (qtLineData.size ())) {
 		qtLineData[datanum] = new QtCharts::QLineSeries (view->chart ());

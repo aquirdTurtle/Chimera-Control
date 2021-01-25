@@ -40,7 +40,8 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 	edit->move (px, py);
 	edit->setFixedSize (480, size);
 	edit->setReadOnly (true);
-	edit->setStyleSheet ("QPlainTextEdit { color: " + qstr (textColors[0]) + "; }");
+	//edit->setStyleSheet ("QPlainTextEdit { color: " + qstr (textColors[0]) + "; }");
+	edit->setObjectName (qstr(headerText));
 	py += size;
 	parent->connect (clearBtn, &QPushButton::released, [this]() {clear (); });
 }

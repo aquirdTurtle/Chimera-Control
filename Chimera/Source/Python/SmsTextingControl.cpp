@@ -8,6 +8,12 @@
 #include <QMenu>
 #include "PrimaryWindows/QtMainWindow.h"
 
+SmsTextingControl::SmsTextingControl () {//: smtp("smtp.gmail.com", 465, SmtpClient::SslConnection) {
+	//smtp.setUser (qstr(emailAddress));
+	//smtp.setPassword (qstr(password));
+
+}
+
 void SmsTextingControl::handleContextMenu (const QPoint& pos){
 	QTableWidgetItem* item = peopleListView->itemAt (pos);
 	if (!item) { return; }
@@ -79,14 +85,20 @@ void SmsTextingControl::deletePersonInfo(QTableWidgetItem* item){
 	peopleListView->removeRow (item->row());
 }
 
-/*
-void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType){
+void SmsTextingControl::sendMessage(std::string message, std::string msgType){
 	auto peopleToText = getPeopleFromListview ();
 	if (msgType == "Loading"){
 		for (personInfo& person : peopleToText){
 			if (person.textIfLoadingStops){
+				//MimeMessage message;
+				//
+				//message.setSender (new EmailAddress (qstr(emailAddress), "Chimera"));
+				//message.addRecipient (new EmailAddress ("recipient@host.com", "Recipient's Name"));
+				//message.setSubject ("SmtpClient for Qt - Demo");
+
+
 				// send text gives an appropriate error message.
-				pyHandler->sendText( person, message, "Not Loading Atoms", emailAddress, password );
+				//pyHandler->sendText( person, message, "Not Loading Atoms", emailAddress, password );
 			}
 		}
 	}
@@ -94,7 +106,7 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 		for ( personInfo& person : peopleToText ){
 			if ( person.textIfLoadingStops ){
 				// send text gives an appropriate error message.
-				pyHandler->sendText ( person, message, "Not Loading MOT", emailAddress, password );
+				//pyHandler->sendText ( person, message, "Not Loading MOT", emailAddress, password );
 			}
 		}
 	}
@@ -102,14 +114,14 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 		for (personInfo& person : peopleToText){
 			if (person.textWhenComplete){
 				// send text gives an appropriate error message.
-				pyHandler->sendText(person, message, "Experiment Finished", emailAddress, password);
+				//pyHandler->sendText(person, message, "Experiment Finished", emailAddress, password);
 			}
 		}
 	}
 	else{
 		thrower ("unrecognized text message type: " + msgType);
 	}
-}*/
+}
 
 
 std::vector<personInfo> SmsTextingControl::getPeopleFromListview (){

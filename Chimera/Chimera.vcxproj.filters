@@ -783,6 +783,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
+    <Text Include="StylesheetDefs.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Old_Intensity_Calibrations.txt">

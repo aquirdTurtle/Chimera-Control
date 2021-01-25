@@ -1,52 +1,98 @@
 QWidget {
-    background: rgba( 0, 0, 0, 0 );
-    color: red;
+    background: @StaticBackground; /*@ErrorColor*/
+    color: @ErrorColor;
+}
+
+QMainWindow {
+    background-color: @StaticBackground;
 }
 
 QLabel {
-    background: rgb( 25, 25, 25 );
-    color: rgba(200, 200, 200, 255);
+    background: @StaticBackground;
+    color: @NeutralTextColor;
     qproperty-alignment: AlignCenter;
-    font: bold 11pt;
+    font: bold @DefaultFontSize;
 }
 
-QTextEdit[readOnly="true"], QTextEdit:disabled, QPlainTextEdit, QPlainTextEdit[readOnly="true"], QPlainTextEdit:disabled {
-    background: rgb( 25, 25, 25 );
-    color: MainTextColor;
+QProgressBar {
+    text-align: center;
+    color: @MainTextColor;
+    font: bold @DefaultFontSize;
+    background-color: @StaticBackground;
+}
+
+QProgressBar::chunk {
+    background-color: #cb4b16;
+}
+
+QChartView {
+    background: @StaticBackground;
+}
+
+QHeaderView::section:checked {
+    background-color: @ActiveColor;
+}
+
+QTextEdit [readOnly="true"], QTextEdit:disabled, QPlainTextEdit, QPlainTextEdit[readOnly="true"], QPlainTextEdit:disabled {
+    background: @StaticBackground;
+    color: @MainTextColor;
+}
+
+QPlainTextEdit#ERROR_STATUS {
+    color: @ErrorColor;
+}
+
+QPlainTextEdit#EXPERIMENT_STATUS {
+    color: @ExpStatusColor;
+}
+
+
+QSlider::groove:vertical {
+    background: white;
+    position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+    left: 12px;
+    right: 12px;
+}
+
+QSlider::handle:vertical {
+    height: 10px;
+    background: @InteractableBackground;
+    margin: 0 -8px; /* expand outside the groove */
 }
 
 QTextEdit {
-    background: rgb( 40, 40, 40 );
-    font: normal 11pt;
+    background: @InteractableBackground;
+    color: @MainTextColor;
+    font: normal @DefaultFontSize;
 }
 
 QLineEdit {
-    background: rgb( 40, 40, 40 );
-    font: normal 11pt;
-    color: MainTextColor;
+    background: @InteractableBackground;
+    font: normal @DefaultFontSize;
+    color: @MainTextColor;
+    border: 1px solid gray;
 }
 
 QLineEdit:disabled, QCheckBox:disabled, QComboBox:disabled, QRadioButton:disabled {
-    background: rgb( 25, 25, 25 );
-    color: rgba(200, 200, 200, 255);
+    background: @StaticBackground;
+    color: @NeutralTextColor;
 }
 
-
 QChartView, QComboBox, QRadioButton, QCheckBox, QPushButton, QListView {
-    background: rgb( 40, 40, 40 );
-    color: MainTextColor;
-    font: bold 11pt;
+    background: @InteractableBackground;
+    color: @MainTextColor;
+    font: bold @DefaultFontSize;
 }
 
 QTableView::item:selected:!active, QTableView {
-    background: rgb( 40, 40, 40 );
-    color: MainTextColor;
+    background: @InteractableBackground;
+    color: @MainTextColor;
     font: normal 8pt "Courier New";
 }
 
 QTableView::item:selected {
-    background: rgb( 60, 40, 40 );
-    color: rgba( 201, 97, 106, 255 );
+    background: @ActiveColor;
+    color: @MainTextColor;
     font: bold 8pt "Courier New";
 }
 
@@ -55,21 +101,21 @@ QTableView::item:!enabled {
 }
 
 QTableCornerButton::section, QHeaderView::section {
-    background: rgb( 25, 25, 25 );
-    color: rgba(200, 200, 200, 255);
+    background: @StaticBackground;
+    color: @NeutralTextColor;
     qproperty-alignment: AlignCenter;
-    font: bold 11pt "Courier New";
+    font: bold @DefaultFontSize "Courier New";
 }
 
 QMenuBar {
-    background-color: rgb( 40, 40, 40 );
+    background-color: @InteractableBackground;
     color: rgb(255, 255, 255);
-    font: bold 11pt;
+    font: bold @DefaultFontSize;
 }
 
 QMenu, QMenu::item {
-    background-color: rgb( 40, 40, 40 );
-    color: MainTextColor;
+    background-color: @InteractableBackground;
+    color: @MainTextColor;
     font: 10pt;
 }
 
@@ -77,32 +123,29 @@ QMenu::item:selected {
     background-color: #000000;
 }
 
-
-QCheckBox::indicator {
-}
-
 QToolTip {
     border: 1px solid white;
-    background-color: black;
+    background-color: @DarkBackground;
     border-radius: 4px;
     color: white;
 }
 
+
 QScrollBar:vertical {
-    border: 1px solid rgb(25,25,25,0);
-    background: rgb(25,25,25);
+    border: 1px solid rgba(25, 25, 25, 0);
+    background: @DarkBackground;
     width: 15px;
     margin: 22px 0 22px 0;
 }
 
 QScrollBar::handle:vertical {
-    background: rgb(35,35,35);
+    background: @InteractableBackground;
     min-height: 20px;
 }
 
 QScrollBar::add-line:vertical {
     border: 2px solid grey;
-    background: rgb(35,35,35);
+    background: @InteractableBackground;
     height: 20px;
     subcontrol-position: bottom;
     subcontrol-origin: margin;
@@ -110,7 +153,7 @@ QScrollBar::add-line:vertical {
 
 QScrollBar::sub-line:vertical {
     border: 2px solid grey;
-    background: rgb(35,35,35);
+    background: @InteractableBackground;
     height: 20px;
     subcontrol-position: top;
     subcontrol-origin: margin;
@@ -129,19 +172,19 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 
 QScrollBar:horizontal {
     border: 1px solid rgb(25,25,25,0);
-    background: rgb(25,25,25);
+    background: @DarkBackground;
     height: 15px;
     margin: 0px 20px 0 20px;
 }
 
 QScrollBar::handle:horizontal {
-    background: rgb(35,35,35);
+    background: @InteractableBackground;
     min-width: 20px;
 }
 
 QScrollBar::add-line:horizontal {
     border: 2px solid grey;
-    background: rgb(35,35,35);
+    background: @InteractableBackground;
     width: 20px;
     subcontrol-position: right;
     subcontrol-origin: margin;
@@ -149,7 +192,7 @@ QScrollBar::add-line:horizontal {
 
 QScrollBar::sub-line:horizontal {
     border: 2px solid grey;
-    background: rgb(35,35,35);
+    background: @InteractableBackground;
     width: 20px;
     subcontrol-position: left;
     subcontrol-origin: margin;

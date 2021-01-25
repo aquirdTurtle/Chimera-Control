@@ -39,7 +39,7 @@ ConfigStream::ConfigStream (std::string txt, bool isAddr){
 		streamText = this->str ();
 	}
 	else{
-		ScriptStream::ScriptStream (txt);
+		ScriptStream::operator<<(txt.c_str());
 		streamText = this->str ();
 	}
 };

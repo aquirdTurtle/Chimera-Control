@@ -1,2 +1,43 @@
 /*This file is read using configstream and so should support comments like this.*/
-MainTextColor rgba( 191, 97, 106, 255 )
+
+/* solarized color ref
+$base03:    #002b36; - dark solarized
+$base02:    #073642; - dark solarized
+$base01:    #586e75;
+$base00:    #657b83;
+$base0:     #839496;
+$base1:     #93a1a1;
+$base2:     #eee8d5; - light solarized
+$base3:     #fdf6e3; - light solarized
+$yellow:    #b58900;
+$orange:    #cb4b16;
+$red:       #dc322f;
+$magenta:   #d33682;
+$violet:    #6c71c4;
+$blue:      #268bd2;
+$cyan:      #2aa198;
+$green:     #859900;
+*/
+
+
+% @MainTextColor rgba( 191, 97, 106, 255 )
+/*
+@MainTextColor rgba( 0, 200, 0, 255 )
+@NeutralTextColor rgba( 200, 200, 200, 255 )
+@DefaultFontSize 11pt
+@StaticBackground rgb( 25, 25, 25 )
+@InteractableBackground rgb( 40, 40, 40 )
+*/
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Dark Solarized
+
+@MainTextColor #6c71c4
+@NeutralTextColor rgba( 200, 200, 200, 255 )
+@DefaultFontSize 11pt
+@StaticBackground #073642
+@InteractableBackground #002b36
+@DarkBackground #002024
+
+% the reading of the stylesheet doesn't seem to like having a comment being the last thing.
+@ActiveColor #000000
+@ErrorColor #dc322f
+@ExpStatusColor #2aa198

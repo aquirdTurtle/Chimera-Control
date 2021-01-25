@@ -341,7 +341,7 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 		}
 		else if (picNum % curSettings.picsPerRepetition == 0){
 			int counter = 0;
-			for (auto data : picsToDraw) { 
+			for (auto data : picsToDraw){
 				std::pair<int, int> minMax;
 				minMax = stats.update (data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);

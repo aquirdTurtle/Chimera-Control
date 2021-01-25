@@ -2,7 +2,7 @@
 
 def freeSpaceImage():
   % give the shutter some time to open.
-  var FSImageTime 0.02
+  var FSImageTime 0.01
   var offsetTime 0.0
   var sideMotScan 8.2 %9.1
   var repumpscan 00.41 %0.2
@@ -21,16 +21,14 @@ def freeSpaceImage():
   % var motPower 0.25
   % changed to -2.2 on 11/11/2020
   var image_detuning -0.5 %-2 % -2.2 %-1.5
-  dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
+  dacLinSpace: MotFreq defaultMotFreq image_detuning 1 10
   call zeroFields()
-  t += 5
+  %t += 1
   % turn the repump on a tiny bit early 
   % to pump to the F=2 manifold.
-  on: RepumpRf
-  t += 0.2
+  %on: RepumpRf
+  %t += 0.2
   %on: andorTrig
-  on: a9
-  t += 0.1
 
   dac: SideMotPower { sideMotScan sidemot } %sideMotScan 9
   dac: RepumpPower { repumpscan repump } %repumpscan 0.2
@@ -53,7 +51,8 @@ def freeSpaceImage():
 
   on: oscilloscopemarker
   on: SideMotRf
-  on: diagMotRf
+  off: diagMotRf
+  on: repumpRf
   
   %on: andorTrig
   
@@ -68,8 +67,6 @@ def freeSpaceImage():
   dac: SideMotPower 0
   dac: RepumpPower 0
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
-  t += 1
-  off: a9
   t += 1
   t += 0.2
   % note that the camera needs some time before it can take

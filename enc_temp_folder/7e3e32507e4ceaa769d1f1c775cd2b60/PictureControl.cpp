@@ -324,8 +324,8 @@ void PictureControl::setActive( bool activeState )
  */
 void PictureControl::redrawImage(){
 	if ( active && mostRecentImage_m.size ( ) != 0 ){
-		drawBitmap (mostRecentImage_m, mostRecentAutoScale, mostRecentAutoMin, mostRecentAutoMax, 
-			mostRecentSpecialMinSetting, mostRecentSpecialMaxSetting, mostRecentGrids, mostRecentPicNum, true);
+		drawBitmap (mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
+			mostRecentSpecialMaxSetting, mostRecentGrids, mostRecentPicNum, true);
 	}
 }
 
@@ -342,7 +342,7 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
-void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
+void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo, 
 								  bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber,
 								  bool includingAnalysisMarkers ){
 	mostRecentImage_m = picData;
@@ -353,18 +353,16 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 
 	auto minColor = sliderMin.getValue ( );
 	auto maxColor = sliderMax.getValue ( );
-	mostRecentAutoScale = autoScale;
-	mostRecentAutoMax = autoMax;
-	mostRecentAutoMin = autoMin;
+	mostRecentAutoscaleInfo = autoScaleInfo;
 	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
 	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
 	int dataWidth = grid.size ( );
 	// first element containst whether autoscaling or not.
 	long colorRange;
-	if ( autoScale ){
+	if ( std::get<0> ( autoScaleInfo ) ){
 		// third element contains max, second contains min.
-		colorRange = autoMax - autoMin;
-		minColor = autoMin;
+		colorRange = std::get<2> ( autoScaleInfo ) - std::get<1> ( autoScaleInfo );
+		minColor = std::get<1> ( autoScaleInfo );
 	}
 	else{
 		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );

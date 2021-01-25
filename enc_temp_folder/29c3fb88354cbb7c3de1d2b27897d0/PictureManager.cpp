@@ -19,8 +19,9 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, unsigned whichPicCtrl,
 	std::vector<atomGrid> grids, unsigned pictureNumber, 
 	bool includingAnalysisMarkers, QPainter& painter){
-	pictures[whichPicCtrl].drawBitmap ( picData, autoScalePictures, minMax.first, minMax.second, specialLessThanMin, 
-		specialGreaterThanMax, grids, pictureNumber, includingAnalysisMarkers );
+	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
+	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax,
+									   grids, pictureNumber, includingAnalysisMarkers);
 	if (alwaysShowGrid)	{
 		pictures[whichPicCtrl].drawGrid (painter);
 	}

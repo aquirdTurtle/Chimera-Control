@@ -36,13 +36,18 @@ call pump2stretch()
 call gsbc()
 %End SBC
 
+
+pulseon: tweezerIntensityTrig 0.1 % to TOF depth
+
 off: totalramanrf
 off: axialRamanShutter
 off: axialRamanShutter2
+
 %off: tweezerrf
 %t+= 20
+
 t += 5
-pulseon: tweezerIntensityTrig 0.1 % to TOF depth
+
 call freespaceimage()
 % call pgcatomflashingimage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth

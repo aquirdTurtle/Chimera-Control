@@ -8,6 +8,9 @@
 #include <QLabel>
 #include <QTableWidget>
 
+//#include "../../3rd_Party/SmtpClient-for-Qt-1.1/src/SmtpMime";
+//#include "../src/SmtpMime"
+
 struct personInfo{
 	std::string name="";
 	std::string number="";
@@ -19,9 +22,10 @@ struct personInfo{
 
 class SmsTextingControl{
 	public:
+		SmsTextingControl ();
 		void initialize( QPoint& pos, IChimeraQtWindow* parent );
 		void handleContextMenu (const QPoint& pos);
-		//void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
+		void sendMessage( std::string message, std::string msgType );
 		void addPerson( personInfo person );
 		void deletePersonInfo(QTableWidgetItem* item);
 	private:
@@ -30,5 +34,6 @@ class SmsTextingControl{
 		std::vector<personInfo> getPeopleFromListview ();
 		QLabel* title;
 		QTableWidget* peopleListView;
+		//SmtpClient smtp;
 		//std::vector<personInfo> peopleToText;
 };

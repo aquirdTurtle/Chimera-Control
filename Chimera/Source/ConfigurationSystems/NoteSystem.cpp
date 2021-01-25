@@ -1,10 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "NoteSystem.h"
-#include "LowLevel/constants.h"
-#include "ConfigurationSystems/ConfigSystem.h"
 #include <PrimaryWindows/QtMainWindow.h>
-#include <QBoxLayout>
 #include <QFile>
 #include <string>
 
