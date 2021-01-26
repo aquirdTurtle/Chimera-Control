@@ -64,7 +64,7 @@ void MicrowaveSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	uwListListview->verticalHeader ()->setDefaultSectionSize (20);
 	uwListListview->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (uwListListview, &QTableWidget::customContextMenuRequested,
-		[this](const QPoint& pos) {this->handleContextMenu (pos); });
+		[this](const QPoint& pos) {handleContextMenu (pos); });
 	uwListListview->setGeometry (px, py, 480, 120);
 	uwListListview->setColumnWidth (0, 40);
 	uwListListview->setColumnWidth (1, 240);

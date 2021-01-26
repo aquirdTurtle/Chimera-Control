@@ -12,4 +12,6 @@ ImageLabel::~ImageLabel () {
 
 void ImageLabel::mouseReleaseEvent (QMouseEvent* event) {
 	emit mouseReleased (event);
+	QLabel::mouseReleaseEvent (event);
 }
+

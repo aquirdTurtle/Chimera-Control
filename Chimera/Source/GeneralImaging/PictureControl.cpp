@@ -1,9 +1,11 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
+#include <GeneralImaging/PictureManager.h>
 #include "PictureControl.h"
 #include <algorithm>
 #include <numeric>
 #include <boost/lexical_cast.hpp>
+#include <qmenu.h>
 
 PictureControl::PictureControl ( bool histogramOption, Qt::TransformationMode mode) 
 	: histOption( histogramOption ), QWidget (), transformationMode(mode){
@@ -59,10 +61,30 @@ void PictureControl::updatePlotData ( ){
 	}
 }
 
+
+void PictureControl::handleContextMenu (const QPoint& pos, PictureManager* managerParent) {
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	if (managerParent->autoScalePictures) {
+		auto* noAutoScale = new QAction ("Set Autoscale OFF", pictureObject);
+		pictureObject->connect (noAutoScale, &QAction::triggered, 
+			[this, managerParent]() {managerParent->autoScalePictures = false; });
+		menu.addAction (noAutoScale);
+	}
+	else {
+		auto* setAutoScale = new QAction ("Set Autoscale ON", pictureObject);
+		pictureObject->connect (setAutoScale, &QAction::triggered,
+			[this, managerParent]() {managerParent->autoScalePictures = true; });
+		menu.addAction (setAutoScale);
+	}
+	menu.exec (pictureObject->mapToGlobal (pos));
+}
+
 /*
-* initialize all controls associated with single picture.
-*/
-void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWindow* parent, int picScaleFactorIn){
+ * initialize all controls associated with single picture.
+ */
+void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWindow* parent, 
+	PictureManager* managerParent, int picScaleFactorIn){
 	picScaleFactor = picScaleFactorIn;
 	if ( width < 100 ){
 		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
@@ -88,8 +110,11 @@ void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWi
 	}
 	pictureObject = new ImageLabel (parent);
 	pictureObject->setGeometry (px, py, width, height);
+	pictureObject->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse (event); });
 	setPictureArea (loc, maxWidth, maxHeight);
+	parent->connect (pictureObject, &QLabel::customContextMenuRequested,
+		[this, managerParent](const QPoint& pos) {handleContextMenu (pos, managerParent); });
 
 	std::vector<unsigned char> data (20000);
 	for (auto& pt : data){
@@ -548,6 +573,10 @@ void PictureControl::drawPicNum( unsigned picNum, QPainter& painter ){
 	painter.setFont (font);
 	painter.setPen (Qt::white);
 	painter.drawText (QPoint ( int(picScaleFactor)/5, picScaleFactor), cstr (picNum));
+}
+
+void PictureControl::setPicScaleFactor (int scaleFactorIn){
+	picScaleFactor = scaleFactorIn;
 }
 
 void PictureControl::drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter ){

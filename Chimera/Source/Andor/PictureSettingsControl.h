@@ -45,6 +45,7 @@ class PictureSettingsControl {
 		void updateSettings( );
 		void updateColormaps ( std::array<int, 4> colorsIndexes );
 		void setUnofficialPicsPerRep( unsigned picNum);
+		int getPicScaleFactor ();
 		std::array<std::string, 4> getThresholdStrings();
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
@@ -65,7 +66,9 @@ class PictureSettingsControl {
 		QLabel* colormapLabel;
 		QLabel* displayTypeLabel;
 		QLabel* softwareAccumulationLabel;
-		QLabel* transfModeLabel;
+		QLabel* picScaleFactorLabel;
+		QLineEdit* picScaleFactorEdit;
+
 		CQComboBox* transformationModeCombo;
 		// 
 		std::array<CQRadioButton*, 4> totalNumberChoice;

@@ -107,8 +107,7 @@ class ConfigSystem : public IChimeraSystem {
 		// Version 5.9: Added burst mode control to andor system.
 		// Version 5.10: added niawg debug level
 		// Version 5.11: added andor frame transfer mode
-		// Version 5.12: Added pic scale factor
-		const Version version = Version( "5.12" );
+		const Version version = Version( "5.11" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;

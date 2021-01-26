@@ -273,8 +273,7 @@ void AndorCameraSettingsControl::updateSettings(){
 	configSettings.thresholds =				picSettingsObj.getThresholds( );
 	configSettings.palleteNumbers =			picSettingsObj.getPictureColors( );
 	configSettings.andor.picsPerRepetition =	picSettingsObj.getPicsPerRepetition( );
-	configSettings.picScaleFactor = picSettingsObj.getPicScaleFactor ();
-
+	
 	configSettings.andor.imageSettings = readImageParameters( );
 	configSettings.andor.kineticCycleTime = getKineticCycleTime( );
 	configSettings.andor.accumulationTime = getAccumulationCycleTime( );
@@ -286,7 +285,6 @@ void AndorCameraSettingsControl::updateSettings(){
 	configSettings.andor.horShiftSpeedSetting = getHsSpeed ();
 	configSettings.andor.vertShiftSpeedSetting = getVsSpeed ();
 	configSettings.andor.frameTransferMode = getFrameTransferMode ();
-	
 }
 
 std::array<softwareAccumulationOption, 4> AndorCameraSettingsControl::getSoftwareAccumulationOptions ( ){

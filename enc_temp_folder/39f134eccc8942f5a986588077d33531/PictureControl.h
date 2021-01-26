@@ -19,17 +19,20 @@
 namespace Ui {
 	class PictureControl;
 }
+class PictureManager;
 class PictureControl : public QWidget{
 	Q_OBJECT
 	public:
 		PictureControl ( bool histogramOption, Qt::TransformationMode mode );
-		void initialize( QPoint loc, int width, int height, IChimeraQtWindow* widget, int picScaleFactorIn=50);
+		void initialize( QPoint loc, int width, int height, IChimeraQtWindow* widget, PictureManager* managerParent,
+			int picScaleFactorIn=50);
+		void handleContextMenu (const QPoint& pos, PictureManager* managerParent);
 		void handleMouse( QMouseEvent* event );
 		void drawPicNum(unsigned picNum, QPainter& painter);
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( QPoint loc, int width, int height );
 		void setSliderControlLocs(QPoint pos, int height);
-		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
+		void drawBitmap (const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
 						 bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber, 
 						 bool includingAnalysisMarkers);
 		void setSliderPositions(unsigned min, unsigned max);
@@ -51,6 +54,7 @@ class PictureControl : public QWidget{
 		coordinate selectedLocation;
 		void setTransformationMode (Qt::TransformationMode);
 	private:
+
 		Qt::TransformationMode transformationMode;
 		Ui::PictureControl* ui;
 		int picScaleFactor;
@@ -61,7 +65,9 @@ class PictureControl : public QWidget{
 		std::vector<plotDataVec> horData, vertData;
 		PlotCtrl* horGraph;
 		PlotCtrl* vertGraph;
-		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
+		bool mostRecentAutoScale;
+		int mostRecentAutoMin;
+		int mostRecentAutoMax;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
 		// for replotting.

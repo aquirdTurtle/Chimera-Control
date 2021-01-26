@@ -26,18 +26,11 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 			parent->reportErr (err.qtrace());
 		}
 	};
-
-	picScaleFactorLabel = new QLabel ("Pic. Scale Factor:", parent); 
-	picScaleFactorLabel->setGeometry (px, py, 120, 20);
-
-	picScaleFactorEdit  = new QLineEdit ("50", parent);
-	picScaleFactorEdit->setGeometry (px + 120, py, 120, 20);
-	
+	transfModeLabel = new QLabel ("Qt Image Transformation Mode:", parent);
+	transfModeLabel->setGeometry (px, py, 240, 20);
 	transformationModeCombo = new CQComboBox (parent);
 	transformationModeCombo->setGeometry (px+240, py, 240, 20);
-	transformationModeCombo->addItems ({ "Image Transformation Mode: Fast", "Image Transformation Mode: Smooth" });
-	transformationModeCombo->setToolTip ( "This setting controls how Qt transforms the image as it places on the screen."
-										  " Use \"Fast\" for larger images" );
+	transformationModeCombo->addItems ({ "Fast", "Smooth" });
 	parent->connect (transformationModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
 		parent->andorWin, &QtAndorWindow::handleTransformationModeChange);
 
@@ -165,7 +158,6 @@ void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	for ( auto saOpt : getSoftwareAccumulationOptions ( ) ){
 		saveFile << saOpt.accumAll << " " << saOpt.accumNum << " ";
 	}
-	saveFile << "\n/*Pic Scale Factor:*/\t" << str(picScaleFactorEdit->text());
 	saveFile << "\nEND_PICTURE_SETTINGS\n";
 }
 
@@ -198,9 +190,6 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Conf
 		for ( auto& opt : fileSettings.saOpts ){
 			configFile >> opt.accumAll >> opt.accumNum;
 		}
-	}
-	if (configFile.ver >= Version ("4.12")) {
-		configFile >> fileSettings.picScaleFactor;
 	}
 	return fileSettings;
 }
@@ -348,7 +337,6 @@ void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSett
 	else {
 		transformationModeCombo->setCurrentIndex (1);
 	}
-	picScaleFactorEdit->setText (qstr (inputSettings.picScaleFactor));
 }
 
 std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds ( ){
@@ -421,13 +409,3 @@ void PictureSettingsControl::setEnabledStatus (bool viewRunningSettings) {
 		setUnofficialPicsPerRep (unofficialPicsPerRep);
 	}
 }
-
-int PictureSettingsControl::getPicScaleFactor () {
-	try {
-		return boost::lexical_cast<int>(str (picScaleFactorEdit->text()));
-	}
-	catch (boost::bad_lexical_cast & err) {
-		thrower ("Failed to convert picture scale factor to integer!");
-	}
-}
-

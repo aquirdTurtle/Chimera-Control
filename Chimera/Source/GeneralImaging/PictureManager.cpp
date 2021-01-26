@@ -188,6 +188,12 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, unsigned 
 	setPalletes ({ 0,0,0,0 });
 }
 
+void PictureManager::setScaleFactor (int sf) {
+	for (auto& pic : pictures) {
+		pic.setPicScaleFactor (sf);
+	}
+}
+
 void PictureManager::initialize( QPoint& loc, int manWidth, int manHeight, IChimeraQtWindow* widget, int scaleFactor){
 	auto& px = loc.rx (), & py = loc.ry ();
 	picturesLocation = loc;
@@ -196,13 +202,13 @@ void PictureManager::initialize( QPoint& loc, int manWidth, int manHeight, IChim
 	// Square: width = 550, height = 440
 	auto width = 1200;
 	auto height = 220;
-	pictures[0].initialize( loc, width, height, widget, scaleFactor);
+	pictures[0].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
-	pictures[1].initialize( loc, width, height, widget, scaleFactor);
+	pictures[1].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
-	pictures[2].initialize( loc, width, height, widget, scaleFactor);
+	pictures[2].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
-	pictures[3].initialize( loc, width, height, widget, scaleFactor);
+	pictures[3].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
 	createPalettes ();
 	for (auto& pic : pictures){

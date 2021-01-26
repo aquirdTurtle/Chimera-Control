@@ -1,9 +1,11 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
+#include <GeneralImaging/PictureManager.h>
 #include "PictureControl.h"
 #include <algorithm>
 #include <numeric>
 #include <boost/lexical_cast.hpp>
+#include <qmenu.h>
 
 PictureControl::PictureControl ( bool histogramOption, Qt::TransformationMode mode) 
 	: histOption( histogramOption ), QWidget (), transformationMode(mode){
@@ -59,10 +61,30 @@ void PictureControl::updatePlotData ( ){
 	}
 }
 
+
+void PictureControl::handleContextMenu (const QPoint& pos, PictureManager* managerParent) {
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	if (managerParent->autoScalePictures) {
+		auto* noAutoScale = new QAction ("No Autoscale", pictureObject);
+		pictureObject->connect (noAutoScale, &QAction::triggered, 
+			[this, managerParent]() {managerParent->autoScalePictures = false; });
+		menu.addAction (noAutoScale);
+	}
+	else {
+		auto* setAutoScale = new QAction ("Set Autoscale", pictureObject);
+		pictureObject->connect (setAutoScale, &QAction::triggered,
+			[this, managerParent]() {managerParent->autoScalePictures = true; });
+		menu.addAction (setAutoScale);
+	}
+	menu.exec (pictureObject->mapToGlobal (pos));
+}
+
 /*
-* initialize all controls associated with single picture.
-*/
-void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWindow* parent, int picScaleFactorIn){
+ * initialize all controls associated with single picture.
+ */
+void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWindow* parent, 
+	PictureManager* managerParent, int picScaleFactorIn){
 	picScaleFactor = picScaleFactorIn;
 	if ( width < 100 ){
 		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
@@ -88,8 +110,11 @@ void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWi
 	}
 	pictureObject = new ImageLabel (parent);
 	pictureObject->setGeometry (px, py, width, height);
+	pictureObject->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse (event); });
 	setPictureArea (loc, maxWidth, maxHeight);
+	parent->connect (pictureObject, &QLabel::customContextMenuRequested,
+		[this, managerParent](const QPoint& pos) {handleContextMenu (pos, managerParent); });
 
 	std::vector<unsigned char> data (20000);
 	for (auto& pt : data){
@@ -324,8 +349,8 @@ void PictureControl::setActive( bool activeState )
  */
 void PictureControl::redrawImage(){
 	if ( active && mostRecentImage_m.size ( ) != 0 ){
-		drawBitmap (mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
-			mostRecentSpecialMaxSetting, mostRecentGrids, mostRecentPicNum, true);
+		drawBitmap (mostRecentImage_m, mostRecentAutoScale, mostRecentAutoMin, mostRecentAutoMax, 
+			mostRecentSpecialMinSetting, mostRecentSpecialMaxSetting, mostRecentGrids, mostRecentPicNum, true);
 	}
 }
 
@@ -342,7 +367,7 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
-void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo, 
+void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
 								  bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber,
 								  bool includingAnalysisMarkers ){
 	mostRecentImage_m = picData;
@@ -353,16 +378,18 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 
 	auto minColor = sliderMin.getValue ( );
 	auto maxColor = sliderMax.getValue ( );
-	mostRecentAutoscaleInfo = autoScaleInfo;
+	mostRecentAutoScale = autoScale;
+	mostRecentAutoMax = autoMax;
+	mostRecentAutoMin = autoMin;
 	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
 	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
 	int dataWidth = grid.size ( );
 	// first element containst whether autoscaling or not.
 	long colorRange;
-	if ( std::get<0> ( autoScaleInfo ) ){
+	if ( autoScale ){
 		// third element contains max, second contains min.
-		colorRange = std::get<2> ( autoScaleInfo ) - std::get<1> ( autoScaleInfo );
-		minColor = std::get<1> ( autoScaleInfo );
+		colorRange = autoMax - autoMin;
+		minColor = autoMin;
 	}
 	else{
 		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );

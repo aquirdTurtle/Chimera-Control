@@ -19,15 +19,19 @@
 namespace Ui {
 	class PictureControl;
 }
+class PictureManager;
 class PictureControl : public QWidget{
 	Q_OBJECT
 	public:
 		PictureControl ( bool histogramOption, Qt::TransformationMode mode );
-		void initialize( QPoint loc, int width, int height, IChimeraQtWindow* widget, int picScaleFactorIn=50);
+		void initialize( QPoint loc, int width, int height, IChimeraQtWindow* widget, PictureManager* managerParent,
+			int picScaleFactorIn=50);
+		void handleContextMenu (const QPoint& pos, PictureManager* managerParent);
 		void handleMouse( QMouseEvent* event );
 		void drawPicNum(unsigned picNum, QPainter& painter);
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( QPoint loc, int width, int height );
+		void setPicScaleFactor (int scaleFactorIn);
 		void setSliderControlLocs(QPoint pos, int height);
 		void drawBitmap (const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
 						 bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber, 

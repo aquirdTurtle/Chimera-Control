@@ -19,9 +19,8 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, unsigned whichPicCtrl,
 	std::vector<atomGrid> grids, unsigned pictureNumber, 
 	bool includingAnalysisMarkers, QPainter& painter){
-	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
-	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax,
-									   grids, pictureNumber, includingAnalysisMarkers);
+	pictures[whichPicCtrl].drawBitmap ( picData, autoScalePictures, minMax.first, minMax.second, specialLessThanMin, 
+		specialGreaterThanMax, grids, pictureNumber, includingAnalysisMarkers );
 	if (alwaysShowGrid)	{
 		pictures[whichPicCtrl].drawGrid (painter);
 	}
@@ -197,13 +196,13 @@ void PictureManager::initialize( QPoint& loc, int manWidth, int manHeight, IChim
 	// Square: width = 550, height = 440
 	auto width = 1200;
 	auto height = 220;
-	pictures[0].initialize( loc, width, height, widget, scaleFactor);
+	pictures[0].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
-	pictures[1].initialize( loc, width, height, widget, scaleFactor);
+	pictures[1].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
-	pictures[2].initialize( loc, width, height, widget, scaleFactor);
+	pictures[2].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
-	pictures[3].initialize( loc, width, height, widget, scaleFactor);
+	pictures[3].initialize( loc, width, height, widget, this, scaleFactor);
 	py += height;
 	createPalettes ();
 	for (auto& pic : pictures){

@@ -73,7 +73,6 @@ class QtAndorWindow : public IChimeraQtWindow{
 		void handlePictureSettings ();
 		bool cameraIsRunning ();
 		void abortCameraRun ();
-		void handleAutoscaleSelection ();
 		void assertOff ();
 		void assertDataFileClosed ();
 		void prepareAtomCruncher (AllExperimentInput& input);

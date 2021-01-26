@@ -323,8 +323,7 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 	emit newImage ({ picNum, calPicData[(picNum - 1) % curSettings.picsPerRepetition] }); 
 
 	auto picsToDraw = andorSettingsCtrl.getImagesToDraw (calPicData);
-	try
-	{
+	try	{
 		if (realTimePic){
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
@@ -341,7 +340,7 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 		}
 		else if (picNum % curSettings.picsPerRepetition == 0){
 			int counter = 0;
-			for (auto data : picsToDraw){
+			for (auto data : picsToDraw) { 
 				std::pair<int, int> minMax;
 				minMax = stats.update (data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
@@ -357,7 +356,7 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 						errBox ("EXCCESSIVE CAMERA COUNTS DETECTED!!!");
 					}
 				}
-				else{
+				else {
 					numExcessCounts = 0;
 				}
 				QPainter painter (this);
@@ -432,19 +431,6 @@ void QtAndorWindow::handleSpecialGreaterThanMaxSelection (){
 	pics.setSpecialGreaterThanMax (specialGreaterThanMax);
 }
 
-void QtAndorWindow::handleAutoscaleSelection (){
-	if (autoScalePictureData){
-		autoScalePictureData = false;
-		//mainWin->checkAllMenus (ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED);
-	}
-	else{
-		autoScalePictureData = true;
-		//mainWin->checkAllMenus (ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED);
-	}
-	pics.setAutoScalePicturesOption (autoScalePictureData);
-}
-
-
 LRESULT QtAndorWindow::onCameraCalFinish (WPARAM wParam, LPARAM lParam){
 	// notify the andor object that it is done.
 	andor.onFinish ();
@@ -453,8 +439,8 @@ LRESULT QtAndorWindow::onCameraCalFinish (WPARAM wParam, LPARAM lParam){
 	justCalibrated = true;
 	andorSettingsCtrl.cameraIsOn (false);
 	// normalize.
-	for (auto& p : avgBackground){
-		p /= 100.0;
+	for (auto& pix : avgBackground){
+		pix /= 100.0;
 	}
 	// if auto cal is selected, always assume that the user was trying to start with F5.
 	if (andorSettingsCtrl.getAutoCal ()){
