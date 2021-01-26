@@ -32,10 +32,11 @@ void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent )
 
 	picScaleFactorEdit  = new QLineEdit ("50", parent);
 	picScaleFactorEdit->setGeometry (px + 120, py, 120, 20);
-	
+	parent->connect (picScaleFactorEdit, &QLineEdit::textChanged, handleChange);
+
 	transformationModeCombo = new CQComboBox (parent);
 	transformationModeCombo->setGeometry (px+240, py, 240, 20);
-	transformationModeCombo->addItems ({ "Image Transformation Mode: Fast", "Image Transformation Mode: Smooth" });
+	transformationModeCombo->addItems ({ "Img Transformation: Fast", "Img Transformation: Smooth" });
 	transformationModeCombo->setToolTip ( "This setting controls how Qt transforms the image as it places on the screen."
 										  " Use \"Fast\" for larger images" );
 	parent->connect (transformationModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
@@ -152,7 +153,7 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings(){
 
 void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "PICTURE_SETTINGS\n";
-	saveFile << "/*Transformation Mode:*/ " << str (transformationModeCombo->currentText ());
+	saveFile << "/*Transformation Mode:*/ " << str (transformationModeCombo->currentIndex () == 0 ? "Fast" : "Smooth");
 	saveFile << "\n/*Color Options:*/ ";
 	for (auto color : currentPicSettings.colors){
 		saveFile << color << " ";
@@ -199,7 +200,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Conf
 			configFile >> opt.accumAll >> opt.accumNum;
 		}
 	}
-	if (configFile.ver >= Version ("4.12")) {
+	if (configFile.ver >= Version ("5.12")) {
 		configFile >> fileSettings.picScaleFactor;
 	}
 	return fileSettings;

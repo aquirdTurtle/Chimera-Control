@@ -32,6 +32,7 @@ class DmControl{
 		void loadProfile();
 		void loadProfile(std::string filename);
 		void updateButtons();
+		void updateEditColor (QLineEdit* edit);
 		int getActNum();
 
 		void handleSaveConfig(ConfigStream& newFile);

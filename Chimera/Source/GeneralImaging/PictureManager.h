@@ -11,6 +11,7 @@ class PictureManager {
 	public:
 		PictureManager ( bool histOption, std::string configurationFileDelim, bool autoscaleDefault,
 						 Qt::TransformationMode mode );
+		void setScaleFactor (int sf);
 		void updatePlotData ( );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);

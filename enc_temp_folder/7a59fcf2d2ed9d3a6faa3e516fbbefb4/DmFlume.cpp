@@ -9,16 +9,19 @@ DmFlume::DmFlume(bool safemode_option) {
 	if (safemode) {
 		ActuatorCount = 137;
 	}
+	
 	open("25CW012#060");
 }
 
 
 void DmFlume::open(std::string serialNumber) {
 	if(!safemode){
-		if ((serialNumber.length()) > 12) {
+		if ((serialNumber.length()) > 12) 
+		{
 			thrower("Serial Number is incorrect");
 		}
-		else {
+		else 
+		{
 			BMCRC err = NO_ERR;
 			const char* SerialChar = serialNumber.c_str();
 			err = BMCOpen(&hdm, SerialChar);
@@ -32,20 +35,25 @@ void DmFlume::open(std::string serialNumber) {
 	}
 }
 
-void DmFlume::close() {
-	if (!safemode) {
+void DmFlume::close() 
+{
+	if (!safemode) 
+	{
 		BMCRC err = NO_ERR;
 		err = BMCClose(&hdm);
-		if (err != NO_ERR) {
+		if (err != NO_ERR) 
+		{
 			thrower("Error closing the drivertype" + hdm.Driver_Type);
 			thrower(BMCErrorString(err));
 		}
 	}
 }
 
-std::string DmFlume::getDeviceInfo(std::string serialNumber) {
+std::string DmFlume::getDeviceInfo(std::string serialNumber) 
+{
 	std::string msg = "";
-	if (!safemode) 	{
+	if (!safemode) 
+	{
 		struct DM_DRIVER Mirror = hdm.driver;
 		msg += ("Driver: " + str(hdm.Driver_Type));
 		msg += "\n";
@@ -54,7 +62,8 @@ std::string DmFlume::getDeviceInfo(std::string serialNumber) {
 		msg += ("\t Serial Number:" + std::string(Mirror.serial_number));
 		msg += "\n";
 	}
-	else {
+	else 
+	{
 		msg = "No Device Found.";
 	}
 	return msg;

@@ -236,7 +236,7 @@ void DmControl::initialize( QPoint loc, IChimeraQtWindow* win, int count, std::s
 		}
 	}
 	ConfigSystem::reloadCombo(profileSelector, DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
-	initializeTable(loc, 120, 25, win);
+	initializeTable(loc, 50, 25, win);
 	loadProfile ("flatProfile");
 	refreshAbberationDisplays ();
 }
@@ -266,6 +266,7 @@ void DmControl::updateEditColor (QLineEdit* edit) {
 			"color: rgba(255, 255, 255, 255);\n"
 			" }\n";
 		edit->setStyleSheet (stylesheetString);
+		qDebug () << edit->styleSheet ();
 		return; 
 	}
 	auto index = int (val * 255.0);
@@ -274,6 +275,7 @@ void DmControl::updateEditColor (QLineEdit* edit) {
 			"background: #FF0000;\n"
 			" }\n";
 		edit->setStyleSheet (stylesheetString);
+		qDebug() << edit->styleSheet ();
 		return;
 	}
 	auto r_c = qstr (int (infernoMap[index][0] * 255));
@@ -285,6 +287,8 @@ void DmControl::updateEditColor (QLineEdit* edit) {
 		"color: rgba(255, 255, 255, 255);\n"
 		" } ";
 	edit->setStyleSheet (stylesheetString);
+	qDebug () << edit->styleSheet ();
+
 }
 
 void DmControl::ProgramNow() {
