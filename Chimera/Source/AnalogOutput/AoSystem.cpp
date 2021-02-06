@@ -208,21 +208,19 @@ void AoSystem::initialize(QPoint& pos, IChimeraQtWindow* parent ){
 	quickChange->setGeometry ({ QPoint{px + 320, py},QPoint{px + 480, py += 25} });
 	quickChange->setToolTip ( "With this checked, you can quickly change a DAC's value by using the arrow keys while "
 							 "having the cursor before the desired digit selected in the DAC's edit.");
-
-	int collumnInc = 0;
-	
+	int collumnInc = 0;	
 	unsigned dacInc = 0;
 	for ( auto& out : outputs )	{
-		if ( dacInc == outputs.size ( ) / 3 || dacInc == 2 * outputs.size ( ) / 3 )	{
+		if ( dacInc == outputs.size ( ) / 4 || dacInc == 2 * outputs.size ( ) / 4 || dacInc == 3 * outputs.size () / 4)	{
 			collumnInc++;
 			// go to second or third collumn
-			py -= 20 * outputs.size ( ) / 3;
-			px += 160;
+			py -= 20 * outputs.size ( ) / 4;
+			px += 120;
 		}
 		out.initialize ( pos, parent, dacInc );
 		dacInc++;
 	}
-	px -= 320;
+	px -= 120*3;
 }
 
 bool AoSystem::eventFilter (QObject* obj, QEvent* event){
@@ -234,15 +232,12 @@ bool AoSystem::eventFilter (QObject* obj, QEvent* event){
 	return false;
 }
 
-void AoSystem::handleRoundToDac( )
-{
-	if ( roundToDacPrecision )
-	{
+void AoSystem::handleRoundToDac( ){
+	if ( roundToDacPrecision ){
 		roundToDacPrecision = false;
 		//mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
 	}
-	else
-	{
+	else{
 		roundToDacPrecision = true;
 		//mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
 	}
@@ -258,30 +253,25 @@ void AoSystem::handleSetDacsButtonPress(DoCore& ttls, bool useDefault ){
 	prepareForce( );
 	ttls.prepareForce( );
 	std::array<double, 24> vals;
-	for (auto dacInc : range(outputs.size()) )
-	{
+	for (auto dacInc : range(outputs.size()) ){
 		vals[ dacInc ] = outputs[ dacInc ].getVal ( useDefault );
 		prepareDacForceChange( dacInc, vals[dacInc], ttls );
 	}
 	// wait until after all this to actually do this to make sure things get through okay.
-	for ( auto outputNum : range ( outputs.size() ) )
-	{
+	for ( auto outputNum : range ( outputs.size() ) ){
 		outputs[ outputNum ].info.currVal = vals[ outputNum ];
 	}
 }
 
 
-void AoSystem::updateEdits( )
-{
-	for ( auto& dac : outputs )
-	{
+void AoSystem::updateEdits( ){
+	for ( auto& dac : outputs )	{
 		dac.updateEdit ( roundToDacPrecision );
 	}
 }
 
 
-void AoSystem::organizeDacCommands(unsigned variation)
-{
+void AoSystem::organizeDacCommands(unsigned variation){
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
@@ -290,27 +280,23 @@ void AoSystem::organizeDacCommands(unsigned variation)
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](AoCommand a, AoCommand b){ return a.time < b.time; });
-	for (unsigned commandInc : range(tempEvents.size()))
-	{
+	for (unsigned commandInc : range(tempEvents.size())){
 		auto& command = tempEvents[commandInc];
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time. Check that the times are greater than a pico second apart. 
 		// pretty arbitrary.
-		if (commandInc == 0 || fabs( command.time - timeOrganizer.back().first) > 1e-9)
-		{
+		if (commandInc == 0 || fabs( command.time - timeOrganizer.back().first) > 1e-9){
 			// new time
 			std::vector<AoCommand> quickVec = { command };
 			timeOrganizer.push_back ( { command.time, quickVec } );
 		}
-		else
-		{
+		else {
 			// old time
 			timeOrganizer.back().second.push_back( command );
 		}
 	}
 	/// make the snapshots
-	if ( timeOrganizer.size ( ) == 0 )
-	{
+	if ( timeOrganizer.size ( ) == 0 ){
 		// no commands, that's fine.
 		return;
 	}
@@ -318,19 +304,16 @@ void AoSystem::organizeDacCommands(unsigned variation)
 	snap.clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
 	std::array<double, 24> dacValues;
-	for ( auto i : range ( outputs.size ( ) ) )
-	{
+	for ( auto i : range ( outputs.size ( ) ) ){
 		dacValues[ i ] = outputs[ i ].info.currVal;
 	}
 	snap.push_back({ 0, dacValues });
-	for (auto& command : timeOrganizer)
-	{
+	for (auto& command : timeOrganizer)	{
 		// auto& command = timeOrganizer[commandInc];
 		// first copy the last set so that things that weren't changed remain unchanged.
 		snap.push_back(snap.back());
 		snap.back().time = command.first;
-		for ( auto& change : command.second )
-		{
+		for ( auto& change : command.second ){
 			// see description of this command above... update everything that changed at this time.
 			snap.back().dacValues[change.line] = change.value;
 		}
@@ -338,39 +321,30 @@ void AoSystem::organizeDacCommands(unsigned variation)
 }
 
 
-void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, unsigned variation )
-{
+void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, unsigned variation ){
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = dacSnapshots(variation);
 	auto& loadSkipSnaps = loadSkipDacSnapshots(variation);
-	if ( snaps.size( ) == 0 )
-	{
+	if ( snaps.size( ) == 0 ){
 		return;
 	}
-	for ( auto snapshotInc : range( snaps.size( ) - 1 ) )
-	{
-		if ( snaps[snapshotInc].time < time && snaps[snapshotInc + 1].time >= time )
-		{
+	for ( auto snapshotInc : range( snaps.size( ) - 1 ) ){
+		if ( snaps[snapshotInc].time < time && snaps[snapshotInc + 1].time >= time ){
 			loadSkipSnaps = std::vector<AoSnapshot>( snaps.begin( ) + snapshotInc + 1, snaps.end( ) );
 			break;
 		}
 	}
 }
 
-
-std::array<double, 24> AoSystem::getFinalSnapshot()
-{
+std::array<double, 24> AoSystem::getFinalSnapshot(){
 	auto numVar = dacSnapshots.getNumVariations ();
-	if (numVar != 0)
-	{
-		if ( dacSnapshots( numVar-1 ).size( ) != 0 )
-		{
+	if (numVar != 0){
+		if ( dacSnapshots( numVar-1 ).size( ) != 0 ){
 			return dacSnapshots ( numVar - 1 ).back( ).dacValues;
 		}
 	}
 	thrower ("No DAC Events");
 }
-
 
 /*
  * IMPORTANT: this does not actually change any of the outputs of the board. It is meant to be called when things have
@@ -378,16 +352,13 @@ std::array<double, 24> AoSystem::getFinalSnapshot()
  * program doesn't change it's internal memory of all of the status of the aoSys as the experiment runs. (it can't, 
  * besides it would intensive to keep track of that in real time).
  */
-void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
-{
+void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status){
 	// set the internal values
-	for ( auto outInc : range(outputs.size()) )
-	{
+	for ( auto outInc : range(outputs.size())){
 		outputs[outInc].info.currVal = status[ outInc ];
 		outputs[ outInc ].updateEdit ( roundToDacPrecision );
 	}
 }
-
 
 void AoSystem::resetDacs (unsigned varInc, bool skipOption){
 	stopDacs ();
@@ -411,7 +382,6 @@ std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( unsigned var ){
 		if ( dacSnapshots.getNumVariations() <= var ){
 			thrower ( "Attempted to use dac data from variation " + str( var ) + ", which does not exist!" );
 		}
-
 		for ( auto snapn : range(dacSnapshots(var).size()) ){
 			if (snapn != 0) {
 				data.push_back ({ dacSnapshots (var)[snapn].time, double (dacSnapshots (var)[snapn-1].dacValues[line]), 0 });

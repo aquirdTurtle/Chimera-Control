@@ -36,21 +36,24 @@ call pump2stretch()
 call gsbc()
 %End SBC
 
+%t += waittime
+pulseon: niawgTrig 0.1
 
-pulseon: tweezerIntensityTrig 0.1 % to TOF depth
+pulseon: tweezerIntensityTrig 0.1 % to waitDepth
 
 off: totalramanrf
 off: axialRamanShutter
 off: axialRamanShutter2
 
-%off: tweezerrf
-%t+= 20
+off: tweezerrf
+t+= 20
 
 t += 5
 
 call freespaceimage()
 % call pgcatomflashingimage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
+pulseon: niawgTrig 0.1
 t += 1
 off: tweezerRf
 t += 0.2

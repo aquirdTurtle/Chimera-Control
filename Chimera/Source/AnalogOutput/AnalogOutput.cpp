@@ -14,7 +14,7 @@ void AnalogOutput::initialize ( QPoint& pos, IChimeraQtWindow* parent, int which
 	label->setToolTip ( (info.name + "\n" + info.note).c_str() );
 
 	edit = new CQLineEdit ("0", parent);
-	edit->setGeometry ({ QPoint{px + 20, py},QPoint{px + 160, py += 20} });
+	edit->setGeometry ({ QPoint{px + 20, py}, QPoint{px + 120, py += 20} });
 	edit->setToolTip ( (info.name + "\r\n" + info.note).c_str() );
 	edit->installEventFilter (parent);
 	parent->connect (edit, &QLineEdit::textChanged, 		

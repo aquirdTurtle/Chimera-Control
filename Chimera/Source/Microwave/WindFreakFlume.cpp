@@ -33,7 +33,7 @@ void WindFreakFlume::programSingleSetting (microwaveListEntry setting, unsigned 
 	answer = query ("W" + str (setting.power.getValue (varNumber), 5));
 }
 
-void WindFreakFlume::programList (std::vector<microwaveListEntry> list, unsigned varNum){
+void WindFreakFlume::programList (std::vector<microwaveListEntry> list, unsigned varNum, double triggerTime){
 	resetConnection ();
 	// Settings for RfoutA
 	std::string answer;
@@ -54,7 +54,7 @@ void WindFreakFlume::programList (std::vector<microwaveListEntry> list, unsigned
 	// set sweep mode to "list"
 	answer = query ("X1");
 	// set trigger time
-	answer = query ("t0.1");
+	answer = query ("t" + str(triggerTime, 3));
 	// sweep continuously
 	answer = query ("c0");
 }

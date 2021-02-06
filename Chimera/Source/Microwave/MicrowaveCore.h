@@ -14,7 +14,7 @@ class MicrowaveCore : public IDeviceCore{
 		void setPmSettings ();
 		void programVariation (unsigned variationNumber, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		std::pair<DoRows::which, unsigned> getRsgTriggerLine ();
+		std::pair<DoRows::which, unsigned> getUWaveTriggerLine ();
 		unsigned getNumTriggers (microwaveSettings settings);
 		microwaveSettings getSettingsFromConfig (ConfigStream& openFile);
 		std::string configDelim = "MICROWAVE_SYSTEM";
@@ -27,7 +27,9 @@ class MicrowaveCore : public IDeviceCore{
 		microwaveSettings experimentSettings;
 		WindFreakFlume uwFlume;
 
+		void setTrigTime (double time);
+
 	private:
-		const double triggerTime = 0.01;
-		const std::pair<DoRows::which, unsigned> rsgTriggerLine = { DoRows::which::D, 0 };
+		double triggerTime = 0.01;
+		const std::pair<DoRows::which, unsigned> uwaveTriggerLine = { DoRows::which::D, 0 };
 };

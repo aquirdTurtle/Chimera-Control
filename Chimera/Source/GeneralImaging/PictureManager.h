@@ -27,10 +27,12 @@ class PictureManager {
 						 bool includingAnalysisMarkers, QPainter& painter);
 		void createPalettes( );
 		void handleEditChange( unsigned id );
+		softwareAccumulationOption getSoftwareAccumulationOpt (unsigned whichPicControl);
 		void setAlwaysShowGrid(bool showOption, QPainter& painter);
 		void redrawPictures(coordinate selectedLocation, std::vector<atomGrid> gridInfo, bool forceGrid, 
 			unsigned picNumber, QPainter& painter);
 		void setNumberPicturesActive( int numberActive );
+		Matrix<double> getAccumPicData (unsigned whichPicControl);
 		coordinate getSelLocation();
 		void setSinglePicture( imageParameters imageParams );
 		void setMultiplePictures( imageParameters imageParams, unsigned numberActivePics );

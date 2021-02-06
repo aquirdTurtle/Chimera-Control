@@ -30,7 +30,8 @@
 	using MICROWAVE_FLUME = RsgFlume;
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	constexpr auto DM_SERIAL = "25CW012#060";
-	constexpr bool DM_SAFEMODE = true;
+	constexpr bool DM_SAFEMODE = false;
+
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM10";
 	//constexpr short UW_SYSTEM_ADDRESS = 28;
 	constexpr bool UW_SYSTEM_SAFEMODE = false;

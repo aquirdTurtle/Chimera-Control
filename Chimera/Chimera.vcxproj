@@ -591,13 +591,12 @@
     <ClInclude Include="Source\NIAWG\NiawgStructures.h" />
     <ClInclude Include="Source\Andor\PictureSettingsControl.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\DataAnalysisControl.h" />
-    <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h" />
     <ClInclude Include="Source\Plotting\PlottingInfo.h" />
     <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h" />
     <ClInclude Include="Source\LowLevel\constants.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\range.h" />
-    <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h" />
+    <QtMoc Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\realTimePlotterInput.h" />
     <ClInclude Include="Source\NIAWG\Rearrangement\rerngContainer.h" />
     <ClInclude Include="Source\NIAWG\Rearrangement\rerngMoveStructures.h" />
@@ -746,7 +745,6 @@
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp" />
     <ClCompile Include="Source\Andor\PictureSettingsControl.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp" />
-    <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp" />
     <ClCompile Include="Source\Plotting\PlottingInfo.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ProfileIndicator.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\range.cpp" />

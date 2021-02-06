@@ -27,9 +27,7 @@ class QtDeformableMirrorWindow : public IChimeraQtWindow {
         void windowSaveConfig (ConfigStream& newFile);
         void fillExpDeviceList (DeviceList& list);
 
-        void handleProgramDmNow ();
         void handlePistonChange (unsigned id);
-        void handleNewDmProfile ();
         void handleAddAbberations ();
         
     private:

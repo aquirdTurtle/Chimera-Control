@@ -6,7 +6,7 @@
 #include <ExperimentMonitoringAndStatus/ColorBox.h>
 
 QtDeformableMirrorWindow::QtDeformableMirrorWindow (QWidget* parent) : IChimeraQtWindow (parent), 
-dm (DM_SERIAL, DM_SAFEMODE){
+dm (this, DM_SERIAL, DM_SAFEMODE){
 	statBox = new ColorBox ();
 	setWindowTitle ("Deformable Mirror Window");
 }
@@ -18,22 +18,6 @@ void QtDeformableMirrorWindow::initializeWidgets (){
 	QPoint pos = { 0,0 };
 	statBox->initialize (pos, this, 480, mainWin->getDevices ());
 	dm.initialize (pos, this, dm.getActNum (), DM_SERIAL, 65);
-}
-
-void QtDeformableMirrorWindow::handleProgramDmNow () {
-	dm.ProgramNow ();
-}
-
-void QtDeformableMirrorWindow::handleNewDmProfile () {
-	try {
-		dm.loadProfile ();
-	}
-	catch (ChimeraError& err) {
-		reportErr (err.qtrace ());
-	}
-}
-
-void QtDeformableMirrorWindow::handlePistonChange (unsigned id) {
 }
 
 void QtDeformableMirrorWindow::handleAddAbberations () {
@@ -66,3 +50,4 @@ void QtDeformableMirrorWindow::windowSaveConfig (ConfigStream& newFile){
 void QtDeformableMirrorWindow::fillExpDeviceList (DeviceList& list){
 	list.list.push_back (dm.getCore ());
 }
+

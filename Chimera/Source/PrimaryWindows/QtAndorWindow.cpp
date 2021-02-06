@@ -327,7 +327,8 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 		if (realTimePic){
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
-			minMax = stats.update (picsToDraw.back (), picNum % curSettings.picsPerRepetition, selectedPixel,
+			minMax = stats.update (pics.getAccumPicData(picNum % curSettings.picsPerRepetition), 
+				picNum % curSettings.picsPerRepetition, selectedPixel,
 				picNum / curSettings.picsPerRepetition,
 				curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
 			QPainter painter (this);
@@ -338,11 +339,12 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 			timer.update (picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
 				curSettings.totalVariations, curSettings.picsPerRepetition);
 		}
-		else if (picNum % curSettings.picsPerRepetition == 0){
+		else if (picNum % curSettings.picsPerRepetition == 0) {
 			int counter = 0;
 			for (auto data : picsToDraw) { 
 				std::pair<int, int> minMax;
-				minMax = stats.update (data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
+				minMax = stats.update (pics.getAccumPicData (picNum % curSettings.picsPerRepetition), counter, 
+					selectedPixel, picNum / curSettings.picsPerRepetition,
 					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
 				if (minMax.second > 50000){
 					numExcessCounts++;
@@ -350,8 +352,9 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 						// POTENTIALLY DANGEROUS TO CAMERA.
 						// AUTO PAUSE THE EXPERIMENT. 
 						// This can happen if a laser, particularly the axial raman laser, is left on during an image.
-						// cosmic rays may occasionally trip it as well.
-						reportErr ("No MOT and andor win wants auto pause!");
+						// cosmic rays may occasionally trip it as well, although this should be rare as it requires 
+						// two consequtive images.
+						reportErr ("EXCCESSIVE CAMERA COUNTS DETECTED!");
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F2, this);
 						errBox ("EXCCESSIVE CAMERA COUNTS DETECTED!!!");
 					}

@@ -364,6 +364,14 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
 	accumNum = 0;
 }
 
+Matrix<double> PictureControl::getAccumPicData () {
+	return accumPicData;
+}
+
+softwareAccumulationOption PictureControl::getSoftwareAccumulationOption () {
+	return saOption;
+}
+
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */

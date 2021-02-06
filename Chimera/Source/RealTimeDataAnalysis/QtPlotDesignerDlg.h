@@ -4,20 +4,29 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <qcheckbox.h>
 #include <qcombobox.h>
 #include <Plotting/PlottingInfo.h>
+
+enum class FitType {
+	GAUSSIAN_FIT,
+	LORENTZIAN_FIT,
+	SINE_FIT
+};
+
+enum class FitOption {
+	NO_FIT,
+	REAL_TIME_FIT,
+	FIT_AT_END
+};
 
 class QtPlotDesignerDlg : public QDialog {
 	Q_OBJECT;
 	public:
-		QtPlotDesignerDlg ();
+		QtPlotDesignerDlg (unsigned pictureNumber);
+		QtPlotDesignerDlg (std::string fileName);
 
-		QtPlotDesignerDlg (unsigned pictureNumber) : picNumber (pictureNumber), currentPlotInfo (picNumber){
-		}
-		QtPlotDesignerDlg (std::string fileName) : picNumber (PlottingInfo::getPicNumberFromFile (fileName)), 
-			currentPlotInfo (fileName) {
-		}
-		void init();
+		void initializeWidgets();
 		void handlePixelEditChange ();
 		void handleSave ();
 		void handleCancel ();
@@ -61,11 +70,11 @@ class QtPlotDesignerDlg : public QDialog {
 		QLabel* dataSetNumberText;
 		QComboBox* dataSetNumCombo;
 
-		QPushButton* plotThisDataBox;
+		QCheckBox* plotThisDataBox;
 
 		QLabel* xAxisText;
-		QPushButton* averageEachVariation;
-		QPushButton* runningAverage;
+		QCheckBox* averageEachVariation;
+		QCheckBox* runningAverage;
 
 		QLabel* analysisLocationsText;
 		QLabel* pixelsPerAnalysisGroupText;
@@ -76,8 +85,8 @@ class QtPlotDesignerDlg : public QDialog {
 		QComboBox* prcPicNumCombo;
 		QLabel* prcPixelNumberText;
 		QComboBox* prcPixelNumCombo;
-		QPushButton* prcAtomBox;
-		QPushButton* prcNoAtomBox;
+		QCheckBox* prcAtomBox;
+		QCheckBox* prcNoAtomBox;
 		QPushButton* prcShowAllButton;
 
 		// PSC
@@ -88,8 +97,8 @@ class QtPlotDesignerDlg : public QDialog {
 		QComboBox* pscPicNumCombo;
 		QLabel* pscPixelNumberText;
 		QComboBox* pscPixelNumCombo;
-		QPushButton* pscAtomBox;
-		QPushButton* pscNoAtomBox;
+		QCheckBox* pscAtomBox;
+		QCheckBox* pscNoAtomBox;
 		QPushButton* pscShowAllButton;
 
 		//
@@ -100,12 +109,12 @@ class QtPlotDesignerDlg : public QDialog {
 		QLineEdit* legendEdit;
 
 		QLabel* fitsText;
-		QPushButton* gaussianFit;
-		QPushButton* lorentzianFit;
-		QPushButton* decayingSineFit;
-		QPushButton* noFit;
-		QPushButton* realTimeFit;
-		QPushButton* atFinishFit;
+		QCheckBox* gaussianFit;
+		QCheckBox* lorentzianFit;
+		QCheckBox* decayingSineFit;
+		QCheckBox* noFit;
+		QCheckBox* realTimeFit;
+		QCheckBox* atFinishFit;
 
 		QPushButton* saveButton;
 		QPushButton* cancelButton;

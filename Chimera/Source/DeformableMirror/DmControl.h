@@ -9,6 +9,7 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <GeneralObjects/IChimeraSystem.h>
 
 struct DmInfo{
 	// add any other settings for the whole machine here. 
@@ -20,15 +21,16 @@ struct pistonInfo {
 	int Value;
 };
 
-class DmControl{
+
+class DmControl : IChimeraSystem {
 	public:
 		static constexpr unsigned numAbberations = 8;
 
-		DmControl(std::string serialNumber, bool safeMode);
-		void initialize( QPoint loc, IChimeraQtWindow* parent, int count, std::string serialNumber, LONG width );
+		DmControl(IChimeraQtWindow* parent, std::string serialNumber, bool safeMode);
+		void initialize( QPoint loc, IChimeraQtWindow* parent, int count, std::string serialNumber, long width );
 	    void handleOnPress(int i);
-		void ProgramNow();
-		void setMirror(double *A);
+		void programNow();
+		void setMirror(std::vector<double> valArray);
 		void loadProfile();
 		void loadProfile(std::string filename);
 		void updateButtons();
@@ -50,7 +52,7 @@ class DmControl{
 
 	private:		
 		DmInfo theDMInfo;
-		DmCore defObject;
+		DmCore core;
 		DmProfileCreator Profile;
 		DMOutputForm currentValues;
 		std::vector<QLineEdit*> actuatorEdits;
@@ -72,8 +74,9 @@ class DmControl{
 		QLabel* sphericalLabel;
 		QLabel* trefoilLabel;
 		QLabel* comaLabel;
-		QPushButton* programNow;
+		QPushButton* programNowBtn;
 		QComboBox* profileSelector;
+		const QString initProfile = "flatProfile";
 		std::vector<double> tempValueArray;
 		std::vector<double> writeArray;
 };

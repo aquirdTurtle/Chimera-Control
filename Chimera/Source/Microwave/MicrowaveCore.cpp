@@ -7,6 +7,10 @@
 
 MicrowaveCore::MicrowaveCore() : uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE){}
 
+void MicrowaveCore::setTrigTime (double time) {
+	triggerTime = time;
+}
+
 void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	if (!experimentActive) { return; }
 	if (!experimentSettings.control || experimentSettings.list.size () == 0)	{
@@ -19,7 +23,7 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 			uwFlume.programSingleSetting (experimentSettings.list[0], variationNumber);
 		}
 		else{
-			uwFlume.programList (experimentSettings.list, variationNumber);
+			uwFlume.programList (experimentSettings.list, variationNumber, triggerTime);
 		}
 	}
 	catch (ChimeraError&)	{
@@ -39,7 +43,7 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 				uwFlume.programSingleSetting (experimentSettings.list[0], variationNumber);
 			}
 			else {
-				uwFlume.programList (experimentSettings.list, variationNumber);
+				uwFlume.programList (experimentSettings.list, variationNumber, triggerTime);
 			}
 		}
 		catch (ChimeraError & ){
@@ -77,11 +81,9 @@ std::string MicrowaveCore::queryIdentity (){
 	return uwFlume.queryIdentity ();
 }
 
-
 void MicrowaveCore::setFmSettings (){
 	uwFlume.setFmSettings ();
 }
-
 
 void MicrowaveCore::setPmSettings (){
 	uwFlume.setPmSettings ();
@@ -107,10 +109,9 @@ void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, Exp
 	}
 }
 
-std::pair<DoRows::which, unsigned> MicrowaveCore::getRsgTriggerLine (){
-	return rsgTriggerLine;
+std::pair<DoRows::which, unsigned> MicrowaveCore::getUWaveTriggerLine() {
+	return uwaveTriggerLine;
 }
-
 
 unsigned MicrowaveCore::getNumTriggers (microwaveSettings settings){
 	return settings.list.size () == 1 ? 0 : settings.list.size ();

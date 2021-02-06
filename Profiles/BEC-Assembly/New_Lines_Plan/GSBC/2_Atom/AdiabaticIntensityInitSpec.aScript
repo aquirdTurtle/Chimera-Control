@@ -1,0 +1,25 @@
+%var loadingDepth 11 % 13.4 
+var loadingDepth 7
+var imagingDepth 12.25 
+var intraplgmdepth 20.4
+var dumpDepth 0.5  
+var moveDepth 0.5 
+var ramanDepth 19   
+var tunDepth 0.2 
+var pushoutDepth 0.2
+
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
+ramp tanh ramanDepth dumpDepth 1 onceWaitTrig #   
+ramp tanh dumpDepth moveDepth 1 onceWaitTrig #
+
+ramp expDecay_ag moveDepth tunDepth adiabaticInitTime onceWaitTrig # 
+ramp expRise_ag tunDepth moveDepth adiabaticInitTime  onceWaitTrig # 
+
+ramp tanh moveDepth ramanDepth 1 onceWaitTrig #   
+ramp tanh ramanDepth pushoutDepth 1 onceWaitTrig #  
+ramp tanh pushoutDepth imagingDepth 1 onceWaitTrig #    
+ramp lin imagingDepth loadingDepth 1 once # 
+  

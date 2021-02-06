@@ -36,9 +36,14 @@ class MicrowaveSystem : public IChimeraSystem{
 	private:
 		MicrowaveCore core;
 		QLabel* header;
+		QPushButton* writeNow;
 		QLineEdit* writeTxt;
+		QPushButton* readNow;
 		QLabel* readTxt;
-		// this is a readbtn-only control that shows the user how the RSG actually gets programmed in the end.
+		
+		QLabel* triggerStepTimeLabel;
+		QLineEdit* triggerStepTimeEdit;
+
 		QTableWidget* uwListListview;
 		QCheckBox* controlOptionCheck;
 		QPushButton* programNowPush;

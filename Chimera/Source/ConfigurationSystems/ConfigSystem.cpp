@@ -343,6 +343,8 @@ bool ConfigSystem::checkConfigurationSave( std::string prompt, IChimeraQtWindow*
 	if (!configurationIsSaved){
 		auto answer = QMessageBox::question (NULL, qstr ("Check Save?"), qstr(prompt), QMessageBox::Yes 
 			| QMessageBox::No | QMessageBox::Cancel );
+
+
 		if (answer == QMessageBox::Yes){
 			saveConfiguration( win );
 		}

@@ -5,8 +5,9 @@
 #include <boost/lexical_cast.hpp>
 #include <qdebug.h>
 
-DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode), Profile() {
-	defObject.initialize();
+DmControl::DmControl(IChimeraQtWindow* parent, std::string serialNumber, bool safeMode) : IChimeraSystem (parent), 
+core(serialNumber, safeMode), Profile() {
+	core.initialize();
 	tempValueArray = std::vector<double>(137);
 	std::string location = DM_FLAT_PROFILE;
 	Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
@@ -146,15 +147,14 @@ DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serial
 			{ 1 , 0 , 0 }
 			//
 		} };
-
 }
 
 void DmControl::initializeTable(QPoint& pos, int width, int height, IChimeraQtWindow* parent){
 	auto& px = pos.rx (), & py = pos.ry ();
-	magLabel = new QLabel ("Mag.", parent);
+	magLabel = new QLabel ("Magnitude", parent);
 	magLabel->setGeometry (px, py, width, height);
 	angleLabel = new QLabel ("Angle", parent);
-	angleLabel->setGeometry (px+width, py+height, width, height);
+	angleLabel->setGeometry (px+width, py, width, height);
 
 	comaMag = new QLineEdit (parent);
 	comaMag->setGeometry (px, py+= height, width, height);
@@ -188,11 +188,13 @@ void DmControl::initializeTable(QPoint& pos, int width, int height, IChimeraQtWi
 	applyCorrections->setGeometry (px, py += height, 2 * width + 90, height);
 }
 
-void DmControl::initialize( QPoint loc, IChimeraQtWindow* win, int count, std::string serialNumber, LONG width ){
+void DmControl::initialize( QPoint loc, IChimeraQtWindow* parent, int count, std::string serialNumber, long width ){
 	auto& px = loc.rx (), & py = loc.ry ();
-	programNow = new QPushButton ("Program Now", win);
-	programNow->setGeometry (px, py, 240, 25);
-	profileSelector = new QComboBox (win);
+	programNowBtn = new QPushButton ("Program Now", parent);
+	programNowBtn->setGeometry (px, py, 240, 25);
+	connect (programNowBtn, &QPushButton::pressed, [this]() { programNow (); });
+
+	profileSelector = new QComboBox (parent);
 	profileSelector->setGeometry (px, py+=25, 240, 25);
 	py -= 25;
 
@@ -229,24 +231,24 @@ void DmControl::initialize( QPoint loc, IChimeraQtWindow* win, int count, std::s
 	}
 	else {
 		for (auto actNum : range(137)){
-			actuatorEdits[actNum] = new QLineEdit (win);
+			actuatorEdits[actNum] = new QLineEdit (parent);
 			actuatorEdits[actNum]->setGeometry (locs[actNum].x(), locs[actNum].y(), width, width);
 			actuatorEdits[actNum]->connect (actuatorEdits[actNum], &QLineEdit::textChanged,
 				[this, actNum]() { updateEditColor (actuatorEdits[actNum]); } );			
 		}
 	}
-	ConfigSystem::reloadCombo(profileSelector, DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
-	initializeTable(loc, 120, 25, win);
-	loadProfile ("flatProfile");
+	ConfigSystem::reloadCombo(profileSelector, DM_PROFILES_LOCATION, str("*") + "txt", str(initProfile));
+	initializeTable(loc, 120, 25, parent);
+	loadProfile (str(initProfile));
 	refreshAbberationDisplays ();
 }
 
-void DmControl::handleOnPress(int i) {
-	actuatorEdits[i]->setEnabled(true);
+void DmControl::handleOnPress(int which) {
+	actuatorEdits[which]->setEnabled(true);
 }
 
 void DmControl::updateButtons() {
-	defObject.readDMArray(tempValueArray);
+	core.readDMArray(tempValueArray);
 	for (auto num : range(137)) {
 		auto value = tempValueArray[num];
 		actuatorEdits[num]->setText(cstr (value, 5));
@@ -287,7 +289,8 @@ void DmControl::updateEditColor (QLineEdit* edit) {
 	edit->setStyleSheet (stylesheetString);
 }
 
-void DmControl::ProgramNow() {
+void DmControl::programNow() {
+	emit notification ("Programming DM!");
 	std::vector<double> values;
 	for (auto actNum : range(137)) {
 		std::string s2 = str(actuatorEdits[actNum]->text(), 4, false, true);
@@ -305,17 +308,18 @@ void DmControl::ProgramNow() {
 			values.push_back(0.0);
 		}	
 	}
-	defObject.loadArray(values.data());
+	core.loadArray(values.data());
 	updateButtons();
 }
 
-void DmControl::setMirror(double *A) {
-	defObject.loadArray(A);
+void DmControl::setMirror(std::vector<double> valArray) {
+	emit notification (qstr ("Loading Value Array onto DM.\n"));
+	core.loadArray(valArray.data());
 	updateButtons(); //pass an array and program it
 }
 
 int DmControl::getActNum() {
-	return defObject.getActCount();
+	return core.getActCount();
 }
 
 //put in class
@@ -335,35 +339,36 @@ void DmControl::loadProfile(){
 }
 
 void DmControl::loadProfile(std:: string filename){
-		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
-		if (!file.is_open()) {
-			thrower("File did not open");
+	emit notification (qstr ("Loading DM Profile " + filename + "\n"));
+	std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
+	if (!file.is_open()) {
+		thrower("File did not open");
+	}
+	std::string value;
+	double voltage;
+	int count = 0;
+	for (auto& act : actuatorEdits) {
+		std::getline(file, value);
+		try {
+			voltage = boost::lexical_cast<double>(value);
 		}
-		std::string value;
-		double voltage;
-		int count = 0;
-		for (auto& act : actuatorEdits) {
-			std::getline(file, value);
-			try {
-				voltage = boost::lexical_cast<double>(value);
-			}
-			catch (boost::bad_lexical_cast) {
-				voltage = 0.0;
-			}
-			auto editTxt = str (voltage, 5);
-			act->setText(editTxt.c_str ());
-			auto index = int (voltage * 255);
-			assert (index <= 255);
-			QString r_c = qstr (int (infernoMap[index][0] * 255));
-			QString g_c = qstr (int (infernoMap[index][1] * 255));
-			QString b_c = qstr (int (infernoMap[index][2] * 255));
-			//configDisplay->setStyleSheet (" QLabel{ font: bold 8pt; }");
-			QString stylesheetString = "QLineEdit { color: rgba (255, 255, 255, 255); } ";
-			act->setStyleSheet (stylesheetString);
-			tempValueArray[count] = voltage;
-			count++;
-		}	
-		setMirror(tempValueArray.data());
+		catch (boost::bad_lexical_cast) {
+			voltage = 0.0;
+		}
+		auto editTxt = str (voltage, 5);
+		act->setText(editTxt.c_str ());
+		auto index = int (voltage * 255);
+		assert (index <= 255);
+		QString r_c = qstr (int (infernoMap[index][0] * 255));
+		QString g_c = qstr (int (infernoMap[index][1] * 255));
+		QString b_c = qstr (int (infernoMap[index][2] * 255));
+		//configDisplay->setStyleSheet (" QLabel{ font: bold 8pt; }");
+		QString stylesheetString = "QLineEdit { color: rgba (255, 255, 255, 255); } ";
+		act->setStyleSheet (stylesheetString);
+		tempValueArray[count] = voltage;
+		count++;
+	}	
+	setMirror(tempValueArray);
 }
 
 void DmControl::writeCurrentFile(std::string out_file) {
@@ -417,7 +422,7 @@ void DmControl::add_Changes() {
 }
 
 DmCore &DmControl::getCore() {
-	return defObject;
+	return core;
 }
 
 DMOutputForm DmControl::getExpressionValues() {
@@ -444,7 +449,7 @@ DMOutputForm DmControl::getExpressionValues() {
 }
 
 void DmControl::handleSaveConfig(ConfigStream& saveStream) {
-	defObject.handleSaveConfig(saveStream, getExpressionValues());
+	core.handleSaveConfig(saveStream, getExpressionValues());
 }
 
 void DmControl::refreshAbberationDisplays (){
@@ -460,10 +465,10 @@ void DmControl::refreshAbberationDisplays (){
 }
 
 void DmControl::openConfig() {
-	currentValues = defObject.getInfo();
+	currentValues = core.getInfo();
 	refreshAbberationDisplays ();
 }
 
 void DmControl::setCoreInfo (DMOutputForm form){
-	defObject.setCurrentInfo (form);
+	core.setCurrentInfo (form);
 }

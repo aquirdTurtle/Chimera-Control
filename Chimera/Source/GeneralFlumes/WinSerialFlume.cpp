@@ -3,7 +3,7 @@
 #include "WinSerialFlume.h"
 
 WinSerialFlume::WinSerialFlume( bool safemode_option, std::string portAddr ) : safemode(safemode_option ), 
-portAddress(portAddr) {
+																			   portAddress(portAddr) {
 	open ( portAddress );
 }
 
@@ -14,8 +14,6 @@ void WinSerialFlume::resetConnection (){
 
 void WinSerialFlume::open ( std::string fileAddr ){
 	if ( !safemode ) {
-		//serialPortHandle = CreateFile ( fileAddr.c_str ( ), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 
-		//								NULL );
 		serialPortHandle = CreateFile (("\\\\.\\" + fileAddr).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if ( serialPortHandle == INVALID_HANDLE_VALUE ) {
 			thrower ( "WinSerialFlume Failed to initialize serial port \"" + portAddress + "\"!" );
@@ -68,8 +66,7 @@ void WinSerialFlume::write( std::string msg ){
 	}
 }
 
-std::string WinSerialFlume::read ( )
-{
+std::string WinSerialFlume::read ( ){
 	std::vector<char> buf;
 	DWORD numBytesRead;
 	if ( !safemode ) {
@@ -87,24 +84,17 @@ std::string WinSerialFlume::read ( )
 	return std::string ( buf.begin(), buf.end() );
 }
 
-
-std::string WinSerialFlume::query ( std::string msg )
-{
+std::string WinSerialFlume::query ( std::string msg ){
 	write ( msg );
 	return read ( );
 }
 
-
-void WinSerialFlume::close( )
-{
-	if ( serialPortHandle == INVALID_HANDLE_VALUE )
-	{
+void WinSerialFlume::close( ){
+	if ( serialPortHandle == INVALID_HANDLE_VALUE )	{
 		thrower ( "ERROR: tried to disconnect but handle was invalid?" );
 	}
-	if ( !safemode )
-	{
-		if ( !CloseHandle( serialPortHandle ) )
-		{
+	if ( !safemode ){
+		if ( !CloseHandle( serialPortHandle ) )	{
 			thrower ( "ERROR: Error closing windows serial handle? (Check error codes...)" );
 		}
 	}

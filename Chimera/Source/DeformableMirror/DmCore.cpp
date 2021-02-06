@@ -12,7 +12,6 @@ DmCore::DmCore(std::string Number, bool safemodeOption) : DM(safemodeOption), pr
 	valueArray = std::vector<double>(DM.getActuatorCount(), 0.0);
 }
 
-
 void DmCore::setSerial(std::string Number) {
 	serial = Number;
 	boolOfSerial = true;
@@ -89,7 +88,6 @@ DMOutputForm DmCore::getSettingsFromConfig(ConfigStream& configFile) {
 	return Info;
 }
 
-
 void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out) {
 	currentInfo = out;
 	//add the new line for the delimeter
@@ -126,6 +124,7 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 		DM.currentInfo.trefoil.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 		DM.currentInfo.trefoilAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 		DM.currentInfo.spherical.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+
 		DM.currentInfo.coma.internalEvaluate(variables[seqInc], variations);
 		DM.currentInfo.comaAng.internalEvaluate(variables[seqInc], variations);
 		DM.currentInfo.astig.internalEvaluate(variables[seqInc], variations);

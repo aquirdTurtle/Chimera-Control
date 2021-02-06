@@ -34,12 +34,9 @@ call send_uw_to_raman_eom()
 t += 1
 call pump2stretch() 
 call gsbc()
-daclinspace: motFreq 0.2 heatFreq 1 10  
-dac: repumpfreq heatRepumpf
-pulseon: tweezerIntensityTrig 0.1 % to heat test depth
-t += 10
 off: axialRamanShutter  
 off: axialRamanShutter2  
+off: totalRamanRf
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to the move stuff.
 var dumpTime 13

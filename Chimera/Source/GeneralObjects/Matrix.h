@@ -15,6 +15,8 @@ class Matrix {
 		Matrix( unsigned rowsInGrid=0, unsigned colsInGrid=0 );
 		Matrix( unsigned rowsInGrid, unsigned colsInGrid, type initValue );
 		Matrix( unsigned rowsInGrid, unsigned colsInGrid, std::vector<type> init1D );
+		Matrix (unsigned rowsInGrid, unsigned colsInGrid, boost::container::vector<type> init1D);
+
 		type operator()( unsigned row, unsigned col ) const;
 		type & operator()( unsigned row, unsigned col );
 		type operator()( QPoint p ) const;
@@ -113,6 +115,18 @@ Matrix<type>::Matrix( unsigned rowsInGrid, unsigned colsInGrid, std::vector<type
 		thrower ( "ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
 				 "Lengths were: " + str( data.size( ) ) + ", " + str( rows ) + ", and " + str( cols )
 				 + " respectively." );
+	}
+}
+
+template<class type>
+Matrix<type>::Matrix (unsigned rowsInGrid, unsigned colsInGrid, boost::container::vector<type> init1D) :
+	rows (rowsInGrid),
+	cols (colsInGrid),
+	data (init1D.begin (), init1D.end ()) {
+	if (data.size () != rows * cols) {
+		thrower ("ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
+			"Lengths were: " + str (data.size ()) + ", " + str (rows) + ", and " + str (cols)
+			+ " respectively.");
 	}
 }
 

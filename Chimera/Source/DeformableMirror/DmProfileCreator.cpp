@@ -5,11 +5,11 @@
 #include <math.h>
 #include <fstream>
 #include <boost/lexical_cast.hpp>
+
 #define M_PI 3.14159265358979323846
 
 template<typename T>
-std::vector<double> linspace(T start_in, T end_in, int num_in)
-{
+std::vector<double> linspace(T start_in, T end_in, int num_in){
 	std::vector<double> linspaced;
 
 	double start = static_cast<double>(start_in);
@@ -17,16 +17,14 @@ std::vector<double> linspace(T start_in, T end_in, int num_in)
 	double num = static_cast<double>(num_in);
 
 	if (num == 0) { return linspaced; }
-	if (num == 1)
-	{
+	if (num == 1){
 		linspaced.push_back(start);
 		return linspaced;
 	}
 
 	double delta = (end - start) / (num - 1);
 
-	for (int i = 0; i < num - 1; ++i)
-	{
+	for (int i = 0; i < num - 1; ++i){
 		linspaced.push_back(start + delta * i);
 	}
 	linspaced.push_back(end); // I want to ensure that start and end
@@ -34,18 +32,15 @@ std::vector<double> linspace(T start_in, T end_in, int num_in)
 	return linspaced;
 }
 
-DmProfileCreator::DmProfileCreator() /*: Mirror("0", true)*/ 
-{
+DmProfileCreator::DmProfileCreator() /*: Mirror("0", true)*/ {
 	currentAmps = linspace(0, 0, 45);
 }
 
-double DmProfileCreator::getKnoll(int n, int m) 
-{
+double DmProfileCreator::getKnoll(int n, int m) {
 	return ((n * (n + 2) + m) / 2);
 }
 
-void DmProfileCreator::fromNoll(int j, int& n, int& m) 
-{
+void DmProfileCreator::fromNoll(int j, int& n, int& m) {
 	    n = 0;
 		m = 0;
 		while (j > n) {
@@ -84,10 +79,7 @@ double DmProfileCreator::zernikeTheta(int m, double theta) {
 	}
 }
 
-
-
-double DmProfileCreator::factorial(unsigned int n)
-{
+double DmProfileCreator::factorial(unsigned int n){
 	double ret = 1;
 	for (double i = 1; i <= n; ++i)
 		ret *= i;
@@ -97,8 +89,7 @@ double DmProfileCreator::factorial(unsigned int n)
 double DmProfileCreator::zernikeRadial(int n, int m, double r) {
 	m = abs(m);
 	if (m > n) {
-		thrower("Error: n must be greater than or equal to m!");
-		
+		thrower("Error: n must be greater than or equal to m!");		
 	}
 	if ((int(n - m) % 2) > 0) {
 		thrower("Error: (n - m) must be even!");
@@ -234,23 +225,22 @@ void DmProfileCreator::makeIm() {
 }
 
 std::vector<double> DmProfileCreator::checkVals(std::vector<double> val) {
-	int i = 0;
+	int valNum = 0;
 	for (auto& voltage : val) {
 		if (voltage >= 1) {
-			val[i] = 1;
+			val[valNum] = 1;
 			//thrower("ChimeraError: voltage on piston " + str(i) + " is out of range");
 		}
 		else if(voltage < 0){
-			val[i] = 0;
+			val[valNum] = 0;
 		}
-		i++;
+		valNum++;
 	}
 	return val;
 }
 
 void DmProfileCreator::addComa(double comaMag, double comaAngle) {
-		//Adds at a particular angle and magnitude to a list of zernike amplituders.
-
+	//Adds at a particular angle and magnitude to a list of zernike amplituders.
 	double x;
 	double y;
 	toCartesian(comaMag, comaAngle, x, y);
@@ -306,7 +296,6 @@ std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amp
 			else if ((pow(x, 2) + pow(y, 2)) < 1.5) {
 				int count = 0;
 				for (int d = 0; d < 45; d++) {
-
 					int n, m;
 					fromNoll(count, n, m);
 					double r, t;
@@ -325,17 +314,14 @@ std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amp
 			volt *= pow(zernSum, 2) * weightFactor;
 			volt += flatVoltage[i];
 			vals.push_back(volt);
-
 		}
-
 		if (!quiet) {
 			vals = checkVals(vals);
 		}
 		return vals;
 }
 
-void DmProfileCreator::generateProfile() 
-{
+void DmProfileCreator::generateProfile() {
 	std::string location = DM_FLAT_PROFILE;
 	readZernikeFile(location);
 	//double mag = 0.2;

@@ -102,9 +102,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Microwave\RsgFlume.cpp">
       <Filter>MicrowaveSystem</Filter>
     </ClCompile>
@@ -443,9 +440,6 @@
     <ClInclude Include="Source\Plotting\dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
@@ -684,9 +678,6 @@
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\NIAWG\rampInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -854,6 +845,9 @@
       <Filter>Auxiliary Window</Filter>
     </QtMoc>
     <QtMoc Include="Source\AnalogInput\CalibrationThreadWorker.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

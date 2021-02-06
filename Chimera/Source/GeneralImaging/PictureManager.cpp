@@ -26,6 +26,14 @@ void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax
 	}
 }
 
+Matrix<double> PictureManager::getAccumPicData (unsigned whichPicControl) {
+	return pictures[whichPicControl].getAccumPicData ();
+}
+
+softwareAccumulationOption PictureManager::getSoftwareAccumulationOpt(unsigned whichPicControl) {
+	return pictures[whichPicControl].getSoftwareAccumulationOption ();
+}
+
 void PictureManager::setPalletes(std::array<int, 4> palleteIds){
 	for (int picInc = 0; picInc < 4; picInc++){
 		if ( palleteIds[ picInc ] >= 3 ){

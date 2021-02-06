@@ -1194,9 +1194,6 @@ void NiawgCore::calcWaveData( channelWaveForm& inputData, std::vector<ViReal64>&
 	int sample = 0;
 	/// increment through all samples
 	for ( ; sample < sampleNum; sample++ ){
-		if (sample % 1000 == 0) {
-			qDebug () << "Sample: " << sample/1e3 << "k";
-		}
 		// calculate the time that this sample number refers to
 		double t = (double)sample / NiawgConstants::NIAWG_SAMPLE_RATE;
 		/// Calculate Phase and Power Positions. For Every signal...

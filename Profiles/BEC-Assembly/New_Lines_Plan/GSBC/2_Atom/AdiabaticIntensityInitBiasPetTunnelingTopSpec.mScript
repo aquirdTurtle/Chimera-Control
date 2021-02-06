@@ -5,17 +5,17 @@ off: axialRamanShutter
 off: probeShutter 
 on: shutter795
 pulseon: dds_reset 0.1
-call triggerwindfreak()
+pulseon: windfreakTrig 0.05
 on: totalRamanRf
-t += 0.01
+t += 1
 call turnonmot()
 t += loadMotTime
 call triggerScout()
 t += 5
 call D1GreyLambdaLoading()
-call triggerwindfreak()
+pulseon: windfreakTrig 0.05
 pulseon: niawgTrig 0.1 % to standard imaging / cooling bias
-t += 2
+t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 pulseon: dds_step 5
 call pgcAtomFlashingImage()
@@ -27,13 +27,14 @@ t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
 call intrapgreymolasses() 
-call triggerWindfreak()
+pulseon: windfreakTrig 0.08
 off: shutter795
 pulseon: tweezerIntensityTrig 0.1 % to sbc depth
 call send_uw_to_raman_eom()
-t += 0.01
+t += 1
 call pump2stretch() 
 call gsbc()
+call triggerWindfreak()
 off: axialRamanShutter  
 off: axialRamanShutter2  
 off: totalRamanRf
@@ -43,18 +44,38 @@ var dumpTime 3
 t += dumpTime
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to the move stuff.
-t += 2 % the freq ramp
+t += 2
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
 t += adiabaticInitTime
 t += 0.01
-t += tunnelTime
-pulseon: niawgTrig 0.1 
-t += 0.01 % unperturb tweezer time
+var tunnelTime 3
+t += tunnelTime 
 pulseon: tweezerIntensityTrig 0.1 % to move depth
+pulseon: niawgTrig 0.1 % separate tweezers
+t += 0.01
 t += adiabaticInitTime
 t += 2
+pulseon: tweezerIntensityTrig 0.1 % to spec depth
+t += 1
+% add sbc here...
+t += 1
+on: a15
+on: totalRamanRf
+var specPulseTime 0.08
+dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
+pulseon: topPulseTrig 0.01
+call topRamanPulse(tbspecpulselen)
+off: a15
+off: totalRamanRf
+dac: eoPulseLev 0
+
+call pushout()
+
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+t += 5
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 t += 1
+
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
 pulseon: niawgTrig 0.1

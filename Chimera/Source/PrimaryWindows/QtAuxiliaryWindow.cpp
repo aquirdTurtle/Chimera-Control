@@ -653,7 +653,7 @@ std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 
 std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
 	std::string msg;
-	msg += "Microwave System:\n";
+	msg += "\nMicrowave System:\n";
 	if (!(MICROWAVE_SYSTEM_DEVICE_TYPE == microwaveDevice::NONE)){
 		msg += "\tCode System is Active!\n";
 		msg += "\t" + uwSys.getIdentity ();

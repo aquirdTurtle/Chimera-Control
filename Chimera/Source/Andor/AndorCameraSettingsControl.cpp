@@ -74,7 +74,7 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 	configSettings.andor.triggerMode = AndorTriggerMode::mode::External;
 
 	frameTransferModeCombo = new CQComboBox(parent);
-	frameTransferModeCombo->setGeometry (px, py, 160, 25);
+	frameTransferModeCombo->setGeometry (px, py += 25, 160, 25);
 	frameTransferModeCombo->setToolTip ("Frame Transfer Mode OFF:\n"
 		"Slower than when on. Cleans between images. Mechanical shutter may not be necessary.\n"
 		"Frame Transfer Mode ON:\n"

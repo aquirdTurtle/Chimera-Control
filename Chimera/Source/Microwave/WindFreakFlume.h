@@ -12,6 +12,6 @@ class WindFreakFlume : public WinSerialFlume {
 		void setPmSettings ();
 		void setFmSettings ();
 		void programSingleSetting (microwaveListEntry setting, unsigned varNumber);
-		void programList (std::vector<microwaveListEntry> list, unsigned varNum);
+		void programList (std::vector<microwaveListEntry> list, unsigned varNum, double triggerTime);
 		std::string getListString ();
 };

@@ -40,6 +40,8 @@ class PictureControl : public QWidget{
 		void drawGrid(QPainter& painter);
 		void drawCircle(coordinate selectedLocation, QPainter& painter);
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
+		softwareAccumulationOption getSoftwareAccumulationOption ();
+
 		void drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter);
 		void handleEditChange( int id );
 		void updatePalette(QVector<QRgb> pallete );
@@ -54,6 +56,7 @@ class PictureControl : public QWidget{
 			bool includingAnalysisMarkers=true);
 		coordinate selectedLocation;
 		void setTransformationMode (Qt::TransformationMode);
+		Matrix<double> getAccumPicData();
 	private:
 
 		Qt::TransformationMode transformationMode;

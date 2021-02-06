@@ -801,7 +801,7 @@ unsigned ExpThreadWorker::determineVariationNumber (std::vector<parameterType> v
 void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams) {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
-	bool niawgMismatch = false, rsgMismatch = false;
+	bool niawgMismatch = false, uwaveMismatch = false;
 	for (auto variationInc : range (determineVariationNumber (expParams))) {
 		if (true /*runMaster*/) {
 			unsigned actualTrigs = input->ttls.countTriggers ({ DoRows::which::D,15 }, variationInc);
@@ -836,19 +836,19 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 				emit notification (qstr (infoString), 2);
 			}
 		}
-		/// check RSG
-		auto& rsg = input->devices.getSingleDevice< MicrowaveCore > ();
-		if (!rsgMismatch) {
-			auto actualTrigs = input->ttls.countTriggers (rsg.getRsgTriggerLine (), variationInc);
-			auto rsgExpectedTrigs = rsg.getNumTriggers (rsg.experimentSettings);
-			std::string infoString = "Actual/Expected RSG Triggers: " + str (actualTrigs) + "/"
-				+ str (rsgExpectedTrigs) + ".";
-			if (actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1) {
+		/// check Microwave System
+		auto& uwaveCore = input->devices.getSingleDevice< MicrowaveCore > ();
+		if (!uwaveMismatch) {
+			auto actualTrigs = input->ttls.countTriggers (uwaveCore.getUWaveTriggerLine (), variationInc);
+			auto uwaveExpectedTrigs = uwaveCore.getNumTriggers (uwaveCore.experimentSettings);
+			std::string infoString = "Actual/Expected Microwave Triggers: " + str (actualTrigs) + "/"
+				+ str (uwaveExpectedTrigs) + ".";
+			if (actualTrigs != uwaveExpectedTrigs && uwaveExpectedTrigs != 0 && uwaveExpectedTrigs != 1) {
 				emit warn (cstr (
-					"WARNING: the RSG is not getting triggered by the ttl system the same number"
+					"WARNING: the Microwave System is not getting triggered by the ttl system the same number"
 					" of times a trigger command appears in the master script. " + infoString + " First "
 					"instance seen variation " + str (variationInc) + ".\r\n"));
-				rsgMismatch = true;
+				uwaveMismatch = true;
 			}
 			if (variationInc == 0) {
 				emit notification (qstr (infoString), 2);
