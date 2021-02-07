@@ -3,6 +3,7 @@
 #include "Segment.h"
 #include <boost/lexical_cast.hpp>
 
+
 void Segment::calculateSegVariations( unsigned totalNumVariations, std::vector<parameterType>& variables ){	
 	// handle more complicated things.
 	if ( input.ramp.isRamp ){
