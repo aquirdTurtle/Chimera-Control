@@ -16,25 +16,6 @@ void ScriptedAgilentWaveform::resetNumberOfTriggers( ){
 }
 
 
-
-void ScriptedAgilentWaveform::replaceVarValues () {
-	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size (); segNumInc++) {
-		waveformSegments[segNumInc].convertInputToFinal ();
-	}
-}
-
-
-/*
-* This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
-*/
-void ScriptedAgilentWaveform::replaceVarValues (unsigned variation, std::vector<parameterType>& variables) {
-	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size (); segNumInc++) {
-		waveformSegments[segNumInc].convertInputToFinal (variation, variables);
-	}
-}
-
-
-
 /** This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 * segNum: This tells the function what the next segment # is.
 * script: this is the object to be readbtn from.

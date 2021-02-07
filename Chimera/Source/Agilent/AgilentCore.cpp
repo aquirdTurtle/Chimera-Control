@@ -386,26 +386,25 @@ void AgilentCore::programSetupCommands (){
 
 
 void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& scriptInfo, unsigned channel,
-										 std::vector<parameterType>& params){
+	std::vector<parameterType>& params) {
 	prepAgilentSettings (channel);
 	programSetupCommands ();
-	if (scriptInfo.wave.isVaried () || variation == 0){
+	if (scriptInfo.wave.isVaried () || variation == 0) {
 		unsigned totalSegmentNumber = scriptInfo.wave.getSegmentNumber ();
-		scriptInfo.wave.replaceVarValues (variation, params);
 		// Loop through all segments
-		for (auto segNumInc : range(totalSegmentNumber)){
+		for (auto segNumInc : range (totalSegmentNumber)) {
 			// Use that information to writebtn the data.
-			try{
+			try {
 				scriptInfo.wave.calSegmentData (segNumInc, sampleRate, variation);
 			}
-			catch (ChimeraError&){
+			catch (ChimeraError&) {
 				throwNested ("IntensityWaveform.calSegmentData threw an error! Error occurred in segment #"
 					+ str (totalSegmentNumber));
 			}
 		}
 		// order matters.
 		// loop through again and calc/normalize/writebtn values.
-		scriptInfo.wave.convertPowersToVoltages (scriptInfo.useCal, calibrations[channel-1]);
+		scriptInfo.wave.convertPowersToVoltages (scriptInfo.useCal, calibrations[channel - 1]);
 		scriptInfo.wave.calcMinMax ();
 		scriptInfo.wave.minsAndMaxes.resize (variation + 1);
 		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt ();
@@ -413,7 +412,7 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 		scriptInfo.wave.normalizeVoltages ();
 		visaFlume.write ("SOURCE" + str (channel) + ":DATA:VOL:CLEAR");
 		prepAgilentSettings (channel);
-		for (unsigned segNumInc : range (totalSegmentNumber)){
+		for (unsigned segNumInc : range (totalSegmentNumber)) {
 			visaFlume.write (scriptInfo.wave.compileAndReturnDataSendString (segNumInc, variation,
 				totalSegmentNumber, channel));
 			// Save the segment
@@ -431,6 +430,7 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 		visaFlume.write ("SOURCE" + str (channel) + ":DATA:VOL:CLEAR");
 	}
 }
+
 
 deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
 	auto readFunc = ConfigSystem::getGetlineFunc (file.ver);

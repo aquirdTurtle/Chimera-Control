@@ -32,8 +32,6 @@ class ScriptedAgilentWaveform {
 		std::vector<std::pair<double, double>> minsAndMaxes;
 		unsigned long getNumTrigs( );
 		void resetNumberOfTriggers( );
-		void replaceVarValues (unsigned variation, std::vector<parameterType>& variables);
-		void replaceVarValues ();
 	private:
 		unsigned numberOfTriggers;
 		std::vector<Segment> waveformSegments;
