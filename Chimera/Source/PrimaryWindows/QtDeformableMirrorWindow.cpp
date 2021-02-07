@@ -50,4 +50,3 @@ void QtDeformableMirrorWindow::windowSaveConfig (ConfigStream& newFile){
 void QtDeformableMirrorWindow::fillExpDeviceList (DeviceList& list){
 	list.list.push_back (dm.getCore ());
 }
-

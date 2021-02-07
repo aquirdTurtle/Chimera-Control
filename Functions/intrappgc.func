@@ -1,62 +1,40 @@
 % Master-Script See the "?" for info on commands.
 
 
-
 def intrappgc():
-
 	off: diagMotRf
-
 	call zeroFieldsPgc()
-
 	t += 1
-
 	dac: diagMotPower 0
-
 	var mot_detuning -3
 
 	var repump_pow 0.1
-
 	daclinspace: MotFreq defaultmotfreq mot_detuning 2 10
-
 	var diagmot_power 0.3
 
 	dac: SideMotPower { 4.8 sidemot } 
 	
 	dac: RepumpPower repump_pow
-
       %dac: DiagmotPower diagmot_power % off!
 
 	t += 2.1
-
 	var cooling_time 8
 
 	on: RepumpRf
-
 	off: diagmotRf
-
 	on: SideMotRf
-
 	t += cooling_time 
-
 	off: SideMotRf
-
 	off: RepumpRf
-
       off: diagmotrf
-
 	daclinspace: MotFreq mot_detuning defaultmotfreq 2 10
-
 	call zeroFields()
-
 	t += 1.5
 
 
 
 
 
-
-
 	
-
 
 

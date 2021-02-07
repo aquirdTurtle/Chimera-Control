@@ -49,4 +49,3 @@ niawgLibOption::mode niawgLibOption::fromStr ( std::string txt ){
 	}
 	thrower ( "Failed to convert string to niawg lib option!" );
 }
-

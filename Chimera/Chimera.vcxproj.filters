@@ -102,6 +102,9 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
+    <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Microwave\RsgFlume.cpp">
       <Filter>MicrowaveSystem</Filter>
     </ClCompile>
@@ -309,6 +312,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="longnam.h">
+    </ClInclude>
     <ClInclude Include="FTDI\ftd2xx.h">
       <Filter>DIO</Filter>
     </ClInclude>
@@ -439,6 +444,50 @@
     </ClInclude>
     <ClInclude Include="Source\Plotting\dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\PiezoType.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Microwave\RsgFlume.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\Fgen.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\ftdiFlume.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\CameraCalibration.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\CameraImageDimensions.h">
+      <Filter>Andor Window</Filter>
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\SerialPiezoFlume.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
+    <ClInclude Include="Source\RealTimeDataAnalysis\DataAnalysisControl.h">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Plotting\dataPoint.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
     <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
@@ -677,6 +726,9 @@
     </ClInclude>
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h">
       <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\NIAWG\rampInfo.h">
       <Filter>Header Files</Filter>

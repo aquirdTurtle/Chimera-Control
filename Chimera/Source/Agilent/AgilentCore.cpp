@@ -391,6 +391,7 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 	programSetupCommands ();
 	if (scriptInfo.wave.isVaried () || variation == 0){
 		unsigned totalSegmentNumber = scriptInfo.wave.getSegmentNumber ();
+		scriptInfo.wave.replaceVarValues (variation, params);
 		// Loop through all segments
 		for (auto segNumInc : range(totalSegmentNumber)){
 			// Use that information to writebtn the data.

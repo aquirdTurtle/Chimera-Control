@@ -94,6 +94,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'" Label="QtSettings">
     <QtInstall>msvc2019_64</QtInstall>
     <QtModules>core;gui;uitools;widgets;charts</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -591,6 +592,7 @@
     <ClInclude Include="Source\NIAWG\NiawgStructures.h" />
     <ClInclude Include="Source\Andor\PictureSettingsControl.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\DataAnalysisControl.h" />
+    <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h" />
     <ClInclude Include="Source\Plotting\PlottingInfo.h" />
     <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h" />
     <ClInclude Include="Source\LowLevel\constants.h" />
@@ -745,6 +747,7 @@
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp" />
     <ClCompile Include="Source\Andor\PictureSettingsControl.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp" />
+    <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp" />
     <ClCompile Include="Source\Plotting\PlottingInfo.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ProfileIndicator.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\range.cpp" />

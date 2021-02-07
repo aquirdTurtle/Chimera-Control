@@ -1,0 +1,134 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var tunnelbias 0.58 
+var ldumpBias 0.71
+var tundumpBias 0.03   
+var ddumpBias 0.02  
+var main_v_f 81 
+var dumpf 117 
+var spacing 5
+
+ var_v 3 linRamps [ lin lin lin ]    
+var_v 3 edgeramps [ lin nr lin ] 
+var_v 3 freqs [ 69 81 93 ] 
+var_v 3 finFreqs [ (81-spacing) 81 (81+spacing) ] 
+var_v 3 amps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648 ] 
+%var_v 3 loadAmps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648 ]
+
+%var_v 3 loadAmps [ 0.5143841416947187 0.4856158583052814 0 ]
+var_v 3 loadAmps [ 1 0 0 ] 
+%var_v 3 amps [ 0.5143841416947187   0.4856158583052814 0 ]
+
+%var_v 3 finAmps [ tunnelBias (1-tunnelBias) tone3b ]  
+%var_v 3 finAmps [ 0.5 tunnelBias 0.55 ]  
+%var_v 3 finAmps [ 0.3875073543431289 tunnelBias tunbias3 ]
+var_v 3 finAmps [ tunbias1 (1-tunBias2) tunbias3 ]  
+var_v 3 phases [ 0 0 0 ]  
+var_v 3 cphases [ -1 -1 -1 ]  
+
+var loadBias 0.805
+
+repeatTilTrig 
+gen3const_v Horizontal freqs loadAmps phases #  
+gen2const Vertical
+main_v_f	(1-loadBias) 	0
+dumpf 		loadBias		0 
+
+#
+0.01 0
+endRepeat
+
+repeatTilTrig 
+gen3const_v Horizontal freqs amps phases #  
+gen2const Vertical
+main_v_f	(1-ldumpBias) 		0
+dumpf 	ldumpBias		0 % the dump tweezers
+#
+0.01 0
+endRepeat
+
+gen3const_v Horizontal freqs amps phases #  
+gen2ampRamp Vertical
+main_v_f	tanh 	(1-ldumpBias) 	ddumpbias	 	0
+dumpf 		tanh 	ldumpBias		(1-ddumpbias)	0 
+#
+3 0
+
+repeatTilTrig 
+gen3const_v Horizontal freqs amps phases #  
+gen2const Vertical
+main_v_f	ddumpBias 		0
+dumpf 		(1-ddumpbias)	0 
+#
+0.01 0
+endRepeat
+
+% TWEEZER BIAS RAMP
+gen3AmpRamp_v Horizontal freqs linRamps amps finAmps phases #  
+gen2ampRamp Vertical
+main_v_f	tanh ddumpbias 		(1-ldumpBias) 	0 
+dumpf 		tanh (1-ddumpbias) 	ldumpBias 		0 
+#
+3 0
+
+% FREQ RAMP
+gen3FreqRamp_v Horizontal 
+edgeramps freqs finFreqs finAmps phases #  
+gen2const Vertical
+main_v_f	(1-ldumpBias)	0 
+dumpf 		ldumpBias		0 
+#
+3 0
+
+% DUMP BIAS RAMP (helps with intensity init)
+gen3const_v Horizontal finFreqs finAmps cphases #   
+gen2AmpRamp Vertical
+main_v_f	lin 	(1-ldumpBias) 	tundumpBias 	0  
+dumpf 		lin 	lDumpBias 		(1-tundumpBias)	0  
+#
+0.4 0
+
+repeatTilTrig
+gen3const_v Horizontal finFreqs finAmps cphases #   
+gen2const Vertical
+main_v_f	tundumpBias 0  
+dumpf 	(1-tundumpBias)	0  
+# 
+0.01 0
+endRepeat
+
+gen3const_v Horizontal finFreqs finAmps cphases #   
+gen2AmpRamp Vertical
+main_v_f	lin 	tundumpBias 		(1-ldumpBias)	0  
+dumpf 		lin 	(1-tundumpBias) 	lDumpBias		0  
+#
+0.4 0
+
+gen3FreqRamp_v Horizontal 
+edgeramps finFreqs freqs finAmps cphases #   
+gen2const Vertical
+main_v_f	(1-lDumpBias)	0 
+dumpf 		lDumpBias		0 
+#
+3 0
+
+gen3AmpRamp_v Horizontal 
+freqs linRamps finAmps amps cphases #  
+gen2const Vertical
+main_v_f	(1-ldumpBias)	0 
+dumpf 		ldumpBias  		0 
+#
+1 0
+
+repeatTilTrig
+gen3const_v Horizontal freqs amps cphases #   
+gen2const Vertical
+main_v_f	(1-ldumpBias)	0 
+dumpf 	ldumpBias	0 % the dump tweezers 
+# 
+0.01 0
+endRepeat
+
+

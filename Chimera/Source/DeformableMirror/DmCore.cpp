@@ -124,7 +124,6 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 		DM.currentInfo.trefoil.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 		DM.currentInfo.trefoilAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 		DM.currentInfo.spherical.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
-
 		DM.currentInfo.coma.internalEvaluate(variables[seqInc], variations);
 		DM.currentInfo.comaAng.internalEvaluate(variables[seqInc], variations);
 		DM.currentInfo.astig.internalEvaluate(variables[seqInc], variations);

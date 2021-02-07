@@ -1,0 +1,42 @@
+% simple load experiment
+t = 1
+pulseon: d8 0.1
+off: diagMotRf
+off: sideMotRf
+off: repumpRf
+% make sure that the mot drops all the way for 
+% consistency between experiments.
+t += 50
+call turnonmot()
+
+t += 2000
+on: shutter795
+t += 100
+call D1greyLambdaCooling()
+t += 0.01
+off: diagMotRf
+off: sideMotRf
+off: repumpRf
+off: shutter795
+% wait for the drop
+%t += 0.01
+t += flytime
+% image
+on: diagMotRf
+on: sideMotRf
+on: repumpRf
+var repump_pow 0.26
+var repump_freq 0.46
+dac: DiagMotPower { 4.6 diagmot } % diagmot__sv
+dac: RepumpPower repump_pow
+dac: MotFreq motImagingDetuning
+dac: RepumpFreq repump_freq
+dac: SideMotPower { 1.88 sidemot } % sidemot__sv
+pulseon: scoutTrig 1
+pulseon: a15 1
+t += 1 
+off: diagMotRf
+off: sideMotRf
+off: repumpRf
+off: rf795
+t += 1

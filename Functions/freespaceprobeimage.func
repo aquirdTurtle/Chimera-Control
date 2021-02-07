@@ -11,7 +11,6 @@ def freeSpaceProbeImage():
   off: repumpRf
 
   on: andorShutter
-
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
@@ -49,7 +48,6 @@ def freeSpaceProbeImage():
   off: repumpRf
   off: andorShutter
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
-
   %t += ( - 0.745 )
   %on: andorTrig
   %t += 0.745

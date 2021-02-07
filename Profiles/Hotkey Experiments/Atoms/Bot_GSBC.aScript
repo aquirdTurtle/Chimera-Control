@@ -1,0 +1,8 @@
+% BOTTOM PULSE
+% offset amp tau t_offset total_length 
+hold 0 0.01 onceWaitTrig #
+pulse gaussian 0 botsbcamp botsbcw 
+ (axSbcPulseLen+2*opSbcPulseLen
+  +3*tbSbcPulseLen/2)
+ (2*tbSbcPulseLen+axSbcPulseLen
+  +3*opSbcPulseLen) repeat 100 #
