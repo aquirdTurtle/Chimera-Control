@@ -97,11 +97,13 @@ class QtMainWindow : public IChimeraQtWindow{
 		std::vector<calResult> getCalInfo ();
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
-		void handleNotification (QString txt, unsigned level=0, int debugLvl=0);
+		//void handleNotification (QString txt, unsigned level=0, int debugLvl=0);
+		void handleNotification(statusMsg errMsg);
 		void onRepProgress (unsigned int repNum);
-		void onErrorMessage (QString errMessage, unsigned level=0);
-		void onNormalFinish (QString finMsg, profileSettings finishedProfile );
-		void onFatalError (QString finMsg);
+		void onErrorMessage(statusMsg errMsg);
+		//void onErrorMessage (QString errMessage, unsigned level=0);
+		void onNormalFinish (statusMsg, profileSettings finishedProfile );
+		void onFatalError (statusMsg);
 
     private:
         Ui::QtMainWindow* ui;

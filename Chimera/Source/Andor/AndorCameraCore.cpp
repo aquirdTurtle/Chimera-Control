@@ -643,7 +643,7 @@ void AndorCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadworke
 	try	{
 		if (!experimentActive)	{
 			if (threadworker != nullptr) {
-				emit threadworker->notification (qstr ("Not logging Andor info!\n"), 0);
+				emit threadworker->notification({ qstr("Not logging Andor info!\n"), 0 });
 			}
 			H5::Group andorGroup (log.file.createGroup ("/Andor:Off"));
 			return;
@@ -707,7 +707,7 @@ void AndorCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadworke
 	}
 	catch (H5::Exception err){
 		if (threadworker != nullptr) {
-			emit threadworker->notification (qstr ("Failed to log andor info!!\n"), 0);
+			emit threadworker->notification({ qstr("Failed to log andor info!!\n"), 0 });
 		}
 		log.logError (err);
 		throwNested ("ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg ());

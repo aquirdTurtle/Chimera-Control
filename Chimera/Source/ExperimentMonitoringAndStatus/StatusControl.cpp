@@ -5,38 +5,45 @@
 
 void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size,
 	std::string headerText, std::vector<std::string> textColors) {
+	// fixed size que.
+	msgQue = std::deque<statusMsg>(10000);
 	int& px = loc.rx (), & py = loc.ry ();
 	if (textColors.size () == 0) {
 		thrower ("Need to set a nonzero number of colors for status control!");
 	}
-	colors = textColors;
-	//defaultColor = textColor;
-	header = new QLabel (headerText.c_str (), parent);
-	header->setFixedSize (230, 25);
-	header->move (px, py);
 
-	debugLevelLabel = new QLabel ("Debug Level", parent);
-	debugLevelLabel->setGeometry (px + 230, py, 100, 25);
+	colors = textColors;
+	header = new QLabel (headerText.c_str (), parent);
+	header->setGeometry(px, py, 215, 25);
+
+	debugLevelLabel = new QLabel ("Dbg Lvl", parent);
+	debugLevelLabel->setGeometry (px + 215, py, 60, 25);
 
 	debugLevelEdit = new CQLineEdit (parent);
-	debugLevelEdit->setGeometry (px + 330, py, 50, 25);
+	debugLevelEdit->setGeometry (px + 275, py, 50, 25);
 	debugLevelEdit->setText ("-1");
+
 	parent->connect (debugLevelEdit, &QLineEdit::textChanged, [this]() {
-		try {
-			currentLevel = boost::lexical_cast<unsigned>(str (debugLevelEdit->text ()));
+		try { 
+			currentLevel = boost::lexical_cast<unsigned>(str (debugLevelEdit->text ())); 
 		}
-		catch (boost::bad_lexical_cast&) {
-			currentLevel = 0;
+		catch (boost::bad_lexical_cast&) { 
+			currentLevel = 0; 
 		}
 		addStatusText ("Changed Debug Level to \"" + str (currentLevel) + "\"\n");
 		});
 
-	clearBtn = new QPushButton (parent);
-	clearBtn->setText ("Clear");
-	clearBtn->setFixedSize (100, 25);
-	clearBtn->move (px + 380, py);
+	redrawBtn = new QPushButton("Redraw", parent);
+	redrawBtn->setGeometry(px + 325, py, 80, 25);
+	redrawBtn->connect(redrawBtn, &QPushButton::pressed, [this]() {
+			redrawControl();
+		});
+
+	clearBtn = new QPushButton ("Clear", parent);
+	clearBtn->setGeometry(px + 405, py, 75, 25);
+
 	py += 25;
-	edit = new QPlainTextEdit (parent);
+	edit = new QTextEdit (parent);
 	edit->move (px, py);
 	edit->setFixedSize (480, size);
 	edit->setReadOnly (true);
@@ -46,42 +53,76 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 	parent->connect (clearBtn, &QPushButton::released, [this]() {clear (); });
 }
 
-void StatusControl::addStatusText (std::string text, unsigned level){
-	if (colors.size () == 0) {
-		return;
-	}
-	if (currentLevel >= level) {
-		for (auto lvl : range (level)) {
-			// visual indication of what level a message is.
-			text = "> " + text;
-		}
-		if (level >= colors.size ()) {
-			addStatusText (text, colors.back ());
-		}
-		else {
-			addStatusText (text, colors[level]);
-		}
+void StatusControl::addStatusToQue(statusMsg newMsg) {
+	msgQue.push_back(newMsg);
+	msgQue.pop_front();
+}
+
+void StatusControl::redrawControl() {
+	edit->clear();
+	for (auto msg : msgQue) {
+		addColoredStatusTextInner(msg);
 	}
 }
 
-void StatusControl::addStatusText(std::string text, std::string color){
+void StatusControl::addStatusText(statusMsg msg) {
+	addStatusToQue(msg);
+	addPlainStatusTextInner(msg);
+}
+
+void StatusControl::addPlainStatusTextInner(statusMsg msg) {
+	addPlainStatusTextInner(str(msg.msg), msg.baseLevel);
+}
+
+void StatusControl::addColoredStatusTextInner(statusMsg msg) {
+	addColoredStatusTextInner(str(msg.msg), msg.baseLevel);
+}
+
+void StatusControl::addPlainStatusTextInner (std::string text, unsigned level){
+	if (currentLevel >= level) {
+		for (auto lvl : range (level)) {
+			// visual indication of what level a message is.
+			text = ">" + text;
+		}
+		addPlainText(text);
+	}
+}
+
+void StatusControl::addColoredStatusTextInner(std::string text, unsigned level) {
+	if (colors.size() == 0) {
+		return;
+	}
+	if (currentLevel >= level) {
+		for (auto lvl : range(level)) {
+			// visual indication of what level a message is.
+			text = ">" + text;
+		}
+		addStatusTextColored(text, level > colors.size() ? colors.back() : colors[level]);
+	}
+}
+
+void StatusControl::addStatusTextColored(std::string text, std::string color){
 	QString htmlTxt = ("<font color = \"" + color + "\">" + text + "</font>").c_str();
 	htmlTxt.replace ("\r", "");
 	htmlTxt.replace ("\n", "<br/>");
-
-	//e.g. <font color = "red">This is some text!< / font>
-	//edit->appendHtml (htmlTxt);
+ 
+ 	//e.g. <font color = "red">This is some text!< / font>
+ 	//edit->appendHtml (htmlTxt);
 	edit->moveCursor (QTextCursor::End);
-	//edit->textCursor ().insertHtml (htmlTxt);
+	edit->textCursor ().insertHtml (htmlTxt);
 	//edit->insertHtml (htmlTxt);
-	edit->insertPlainText (qstr(text));
-	//edit->appendPlainText (qstr (text));
+	//edit->insertHtml(qstr(text));
 	edit->moveCursor (QTextCursor::End);
+}
+
+void StatusControl::addPlainText(std::string text) {
+	edit->insertPlainText(qstr(text));
+	edit->moveCursor(QTextCursor::End);
 }
 
 void StatusControl::clear() {
 	edit->clear ();
-	addStatusText("******************************\r\n", "#FFFFFF");
+	addStatusTextColored("**************CLEARED****************\r\n", "#FFFFFF");
 }
 
 
@@ -92,6 +133,8 @@ void StatusControl::appendTimebar() {
 	std::string timeStr = "(" + str(currentTime.tm_year + 1900) + ":" + str(currentTime.tm_mon + 1) + ":"
 		+ str(currentTime.tm_mday) + ") " + str(currentTime.tm_hour) + ":"
 		+ str(currentTime.tm_min) + ":" + str(currentTime.tm_sec);
-	addStatusText("\r\n**********" + timeStr + "**********\r\n", "#FFFFFF");
+	statusMsg timebarMsg;
+	timebarMsg.msg = qstr("\r\n**********" + timeStr + "**********\r\n");
+	addStatusText(timebarMsg);
 }
 

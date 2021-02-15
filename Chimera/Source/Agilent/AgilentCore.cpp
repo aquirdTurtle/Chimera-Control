@@ -110,7 +110,7 @@ void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, 
 		return;
 	}
 	auto notify = expWorker != nullptr // if in expworker, emit notification, else no way to notify currently. 
-		? std::function{ [expWorker] (QString note, unsigned debugLevel) {emit expWorker->notification (note, debugLevel); } }
+		? std::function{ [expWorker](QString note, unsigned debugLevel) {emit expWorker->notification({note, debugLevel}); } }
 		: std::function{ [expWorker] (QString note, unsigned debugLevel) { } };
 	try{
 		notify ("Writing Agilent output sync option: " + qstr (runSettings.synced), 2);

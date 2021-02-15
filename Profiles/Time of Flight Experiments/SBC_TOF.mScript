@@ -45,8 +45,8 @@ off: totalramanrf
 off: axialRamanShutter
 off: axialRamanShutter2
 
-off: tweezerrf
-t+= 20
+%off: tweezerrf
+%t+= 20
 
 t += 5
 

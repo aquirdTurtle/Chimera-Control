@@ -368,6 +368,7 @@
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
     <QtMoc Include="Source\ExcessDialogs\doChannelInfoDialog.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\statusMsg.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
     <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
