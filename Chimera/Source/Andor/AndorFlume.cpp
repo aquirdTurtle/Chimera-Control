@@ -143,8 +143,8 @@ float AndorFlume::getHSSpeed (int channel, int type, int index) {
 // note that the function used here could be used to get actual information about the number of images, I just only use
 // it to check whether there are any new images or not. Not sure if this is the smartest way to do this.
 unsigned AndorFlume::checkForNewImages ( ){
-	long first, last;
-	unsigned res;
+	long first=0, last=0;
+	unsigned res=0;
 	if ( !safemode ){
 		res = GetNumberNewImages (&first, &last);
 		andorErrorChecker ( res );

@@ -17,7 +17,7 @@ class ChimeraError : public std::runtime_error{
 	ChimeraError ( const std::string &arg, const char *file, int line ) : std::runtime_error ( arg )	{
 		loc = std::string ( file ) + "; line " + std::to_string ( line );
 		std::ostringstream out;
-		out << arg << "\n@ Location:" << loc;
+		out << arg << "\n{@ Location:" << loc << "}";
 		msg = out.str ( );
 		bareMsg = arg;
 	}
@@ -40,9 +40,9 @@ class ChimeraError : public std::runtime_error{
 	}
 	static std::string getErrorStackTrace ( const std::exception& e, unsigned int level = 0 ){
 		std::string msg = "Begin ChimeraError Trace:\nERROR: " + std::string ( e.what ( ) );
-		std::regex r ( "\n" );
-		msg = std::regex_replace ( msg, r, "\n" + std::string ( 2*level, ' ' ) );
-		std::string stackMsg = std::string ( 2*level, ' ' ) + msg + "\n";
+		std::regex reg ( "\n" );
+		msg = std::regex_replace ( msg, reg, "\n" + std::string ( level, '\t' ) );
+		std::string stackMsg = std::string ( level, '\t' ) + msg + "\n";
 		try	{
 			std::rethrow_if_nested ( e );
 		}

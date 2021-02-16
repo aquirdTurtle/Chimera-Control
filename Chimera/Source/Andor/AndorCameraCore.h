@@ -91,13 +91,13 @@ class AndorCameraCore : public IDeviceCore{
 		AndorFlume flume;
 		const bool safemode;
 		// 
-		bool cameraIsRunning;
+		bool cameraIsRunning=false;
 		// set either of these to true in order to break corresponding threads out of their loops.
-		bool plotThreadExitIndicator;
+		bool plotThreadExitIndicator=false;
 		bool cameraThreadExitIndicator = false;
 		bool dataSetShouldBeValid = false;
-		unsigned __int64 currentPictureNumber;
-		unsigned __int64 currentRepetitionNumber;
+		unsigned __int64 currentPictureNumber=0;
+		unsigned __int64 currentRepetitionNumber=0;
 		std::timed_mutex camThreadMutex;
 		HANDLE plottingMutex;
 		std::vector<Matrix<long> > repImages;

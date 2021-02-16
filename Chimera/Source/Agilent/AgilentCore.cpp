@@ -576,7 +576,7 @@ void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadW
 		std::string infoString = "Actual/Expected " + getDelim() + " Triggers: "
 			+ str (actualTrigs) + "/" + str (agilentExpectedTrigs) + ".";
 		if (actualTrigs != agilentExpectedTrigs){
-			emit threadWorker->warn (cstr (
+			emit threadWorker->warn (str (
 				"WARNING: Agilent " + getDelim () + " is not getting triggered by the ttl system the same "
 				"number of times a trigger command appears in the agilent channel " + str (chan + 1) + " script. "
 				+ infoString + " First seen in variation #" + str (variationInc) + ".\r\n"));
