@@ -26,7 +26,7 @@ int main (int argc, char** argv) {
 	qRegisterMetaType<calSettings> ();
 	qRegisterMetaType<parameterType> ();
 	qRegisterMetaType<std::vector<parameterType>> ();
-
+	qRegisterMetaType < statusMsg > ();
 	QtMainWindow* mainWinQt = new QtMainWindow ();
 	mainWinQt->show ();
 	splash.finish (mainWinQt);

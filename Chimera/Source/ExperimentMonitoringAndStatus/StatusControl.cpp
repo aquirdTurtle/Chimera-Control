@@ -19,7 +19,7 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 	debugLevelLabel->setGeometry (px + 215, py, 60, 25);
 
 	debugLevelEdit = new CQLineEdit (parent);
-	debugLevelEdit->setGeometry (px + 275, py, 50, 25);
+	debugLevelEdit->setGeometry (px + 275, py, 30, 25);
 	debugLevelEdit->setText ("-1");
 
 	parent->connect (debugLevelEdit, &QLineEdit::textChanged, [this]() {
@@ -30,23 +30,23 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 			currentLevel = 0; 
 		}
 		addStatusText ("Changed Debug Level to \"" + str (currentLevel) + "\"\n");
-		});
+	});
 
-	redrawBtn = new QPushButton("Redraw", parent);
-	redrawBtn->setGeometry(px + 325, py, 80, 25);
+	redrawBtn = new QPushButton("Fancy Redraw", parent);
+	redrawBtn->setGeometry(px + 305, py, 120, 25);
 	redrawBtn->connect(redrawBtn, &QPushButton::pressed, [this]() {
 			redrawControl();
 		});
 
 	clearBtn = new QPushButton ("Clear", parent);
-	clearBtn->setGeometry(px + 405, py, 75, 25);
+	clearBtn->setGeometry(px + 425, py, 55, 25);
 
 	py += 25;
 	edit = new QTextEdit (parent);
 	edit->move (px, py);
 	edit->setFixedSize (480, size);
 	edit->setReadOnly (true);
-	//edit->setStyleSheet ("QPlainTextEdit { color: " + qstr (textColors[0]) + "; }");
+	edit->setStyleSheet ("QTextEdit { color: " + qstr (textColors[0]) + "; }");
 	edit->setObjectName (qstr(headerText));
 	py += size;
 	parent->connect (clearBtn, &QPushButton::released, [this]() {clear (); });
@@ -108,12 +108,15 @@ void StatusControl::addStatusTextColored(std::string text, std::string color){
 	htmlTxt.replace ("\r", "");
 	htmlTxt.replace ("\n", "<br/>");
 	htmlTxt.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+	// de-emphasize the location information.
+	htmlTxt.replace("{", "</font><font color = \"#000000\">{");
+	htmlTxt.replace("}", qstr("}</font><font color = \""+color+"\">"));
+	if (htmlTxt.lastIndexOf("@ Location:") != -1) {
+		htmlTxt.replace("@ Location:", "</font><font color = \"#000000\">@ Location:");
+	}
  	//e.g. <font color = "red">This is some text!< / font>
- 	//edit->appendHtml (htmlTxt);
 	edit->moveCursor (QTextCursor::End);
 	edit->textCursor ().insertHtml (htmlTxt);
-	//edit->insertHtml (htmlTxt);
-	//edit->insertHtml(qstr(text));
 	edit->moveCursor (QTextCursor::End);
 }
 

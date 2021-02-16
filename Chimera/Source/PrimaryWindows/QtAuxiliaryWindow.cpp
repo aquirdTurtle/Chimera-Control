@@ -655,12 +655,12 @@ std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
 	std::string msg;
 	msg += "\nMicrowave System:\n";
-	if (!(MICROWAVE_SYSTEM_DEVICE_TYPE == microwaveDevice::NONE)){
+	if (!UW_SYSTEM_SAFEMODE){
 		msg += "\tCode System is Active!\n";
-		msg += "\t" + uwSys.getIdentity ();
+		msg += "\t" + uwSys.getIdentity () + "\n";
 	}
 	else{
-		msg += "\tCode System is disabled! Enable in \"constants.h\"";
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	return msg;
 }

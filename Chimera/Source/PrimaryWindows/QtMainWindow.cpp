@@ -126,11 +126,11 @@ void QtMainWindow::pauseExperiment () {
 void QtMainWindow::initializeWidgets (){
 	/// initialize main window controls.
 	QPoint controlLocation = { 0, 25 };
-	mainStatus.initialize (controlLocation, this, 870, "EXPERIMENT_STATUS", { "#7474FF","#4848FF","#2222EF" });
+	mainStatus.initialize (controlLocation, this, 870, "EXPERIMENT_STATUS", { "#7474FF","#4848FF","#2222EF", "#1111A0", "#000000"});
 	statBox->initialize (controlLocation, this, 960, getDevices ());
 	shortStatus.initialize (controlLocation, this);
 	controlLocation = { 480, 25 };
-	errorStatus.initialize (controlLocation, this, 870, "ERROR_STATUS", { "#FF0000", "#800000"});
+	errorStatus.initialize (controlLocation, this, 870, "ERROR_STATUS", { "#FF0000", "#800000", "#000000"});
 	controlLocation = { 960, 25 };
 	profile.initialize (controlLocation, this);
 	controlLocation = { 960, 50 };

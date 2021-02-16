@@ -261,7 +261,7 @@ void AndorCameraCore::preparationChecks () {
 			}
 			catch (ChimeraError & err2) {
 				throwNested ("Error seen while checking for new images: " + err.trace ()
-					+ ", Camera Status:" + err2.trace () + ", Camera is running bool: " + str (cameraIsRunning));
+					+ ", Camera Status: " + err2.trace () + ", Camera is running bool: " + str (cameraIsRunning));
 			}
 			throwNested ("Error seen while checking for new images: " + err.trace ()
 				+ ", Camera Status: DRV_SUCCESS, Camera is running bool: " + str (cameraIsRunning));
