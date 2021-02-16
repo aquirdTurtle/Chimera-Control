@@ -66,6 +66,7 @@ void MicrowaveSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	triggerStepTimeLabel->setGeometry (px, py += 20, 240,20);
 	triggerStepTimeEdit = new QLineEdit (parent);
 	triggerStepTimeEdit->setGeometry (px+240, py, 240, 20);
+	triggerStepTimeEdit->setText("0.5");
 	triggerStepTimeEdit->connect (triggerStepTimeEdit, &QLineEdit::textChanged, [this, parent]() {
 		try {
 			auto time = boost::lexical_cast<double>(str(triggerStepTimeEdit->text ()));

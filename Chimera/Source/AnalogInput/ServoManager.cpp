@@ -417,7 +417,7 @@ void ServoManager::calibrate( servoInfo& sv, unsigned which ){
 	if ( !sv.active ){
 		return;
 	}
-	emit notification (qstr("Running Servo "+ sv.servoName+".\n"),1);
+	emit notification (qstr("Running Servo "+ sv.servoName+".\n"));
 	double sp = sv.setPoint;
 	sv.currentlyServoing = true;
 	ttls->zeroBoard ( );

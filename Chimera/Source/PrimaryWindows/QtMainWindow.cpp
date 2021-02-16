@@ -174,7 +174,7 @@ void QtMainWindow::onAutoCalFin (QString msg, profileSettings finishedConfig){
 
 void QtMainWindow::onMachineOptRoundFin (){
 	// do normal finish
-	onNormalFinish ("", {});
+	onNormalFinish (statusMsg(), {});
 	Sleep (1000);
 	// then restart.
 	//commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
@@ -444,18 +444,16 @@ void QtMainWindow::abortMasterThread (){
 	else { thrower ("Can't abort, experiment was not running.\r\n"); }
 }
 
-void QtMainWindow::onErrorMessage (QString errMessage, unsigned level){
-	if (str(errMessage) != ""){
-		if (level > 100) {
-			level = 100;
-		}
+void QtMainWindow::onErrorMessage (statusMsg msg){
+	if (msg.msg != ""){
+		msg.baseLevel  = msg.baseLevel  > 100 ? 100 : msg.baseLevel;
 		QApplication::beep ();
-		errorStatus.addStatusText (str(errMessage), level);
+		errorStatus.addStatusText (msg);
 	}
 }
 
-void QtMainWindow::onFatalError (QString finMsg){
-	onErrorMessage (finMsg);
+void QtMainWindow::onFatalError (statusMsg msg){
+	onErrorMessage (msg);
 	autoF5_AfterFinish = false;
 	// resetting things.
 	scriptWin->setIntensityDefault ();
@@ -473,7 +471,7 @@ void QtMainWindow::onFatalError (QString finMsg){
 	scriptWin->setNiawgRunningState (false);
 }
 
-void QtMainWindow::onNormalFinish (QString finMsg, profileSettings finishedProfile) {
+void QtMainWindow::onNormalFinish (statusMsg finMsg, profileSettings finishedProfile) {
 	handleNotification (finMsg);
 	scriptWin->setIntensityDefault ();
 	setShortStatus ("Passively Outputting Default Waveform");
@@ -552,8 +550,8 @@ void QtMainWindow::handleColorboxUpdate (QString color, QString systemDelim){
 	dmWin->changeBoxColor (delimStr, colorstr);
 }
 
-void QtMainWindow::handleNotification (QString txt, unsigned level, int debugMod){
-	mainStatus.addStatusText (str(txt), (0 > int(level) + debugMod) ? 0 : level + debugMod);
+void QtMainWindow::handleNotification (statusMsg msg){
+	mainStatus.addStatusText (msg);
 }
 
 QThread* QtMainWindow::getExpThread () {

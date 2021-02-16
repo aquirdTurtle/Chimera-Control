@@ -4068,14 +4068,14 @@ void NiawgCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 			+ std::string (niawgMachineScript.begin (), niawgMachineScript.end ()) + "\n\n";
 		debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
 		boost::replace_all (debugStr, "\n", "\r\n");
-		emit threadworker->notification (qstr (debugStr), 2+debugLevel);
+		emit threadworker->notification({ qstr(debugStr), 2 });
 		debugStr = "Human Script: " + expNiawgStream.str () + "\n\n";
 		debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
 		boost::replace_all (debugStr, "\n", "\r\n");
-		emit threadworker->notification (qstr (debugStr), 2 + debugLevel);
+		emit threadworker->notification({ qstr(debugStr), 2});
 		writeStaticNiawg (expOutput, params, 0, totalVaraitions);
-		emit threadworker->warn (qstr(niawgWarnings), 1 + debugLevel);
-		emit threadworker->notification (qstr (getOutputSummary (expOutput)), 2 + debugLevel);
+		emit threadworker->warn({ qstr(niawgWarnings), 1 });
+		emit threadworker->notification({ qstr(getOutputSummary(expOutput)), 2 });
 	}
 }
 
@@ -4083,7 +4083,7 @@ void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& p
 	std::string niawgWarnings;
 	if (experimentActive){
 		programNiawg (niawgWarnings, varInc, expRerngOptions, params, expOutput);
-		emit threadworker->warn (qstr (niawgWarnings), 1 + debugLevel);
+		emit threadworker->warn({ qstr(niawgWarnings), 1});
 		if (expRerngOptions.active)	{
 			turnOffRerng ();
 			// input->conditionVariableForRerng->notify_all ();

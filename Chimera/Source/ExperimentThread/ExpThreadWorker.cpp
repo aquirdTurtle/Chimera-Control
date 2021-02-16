@@ -39,7 +39,7 @@ void ExpThreadWorker::experimentThreadProcedure () {
 		ConfigStream cStream (input->profile.configFilePath (), true);
 		loadExperimentRuntime (cStream, expRuntime);
 		if (input->expType != ExperimentType::LoadMot) {
-			emit notification ("Loading Master Runtime...\n", 1);
+			emit notification({ "Loading Master Runtime...\n", 1 });
 			input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
 		}
 		for (auto& device : input->devices.list) {
@@ -55,8 +55,8 @@ void ExpThreadWorker::experimentThreadProcedure () {
 		if (input->expType != ExperimentType::LoadMot) {
 			for (auto& device : input->devices.list) {
 				if (device.get ().experimentActive) {
-					emit notification (qstr ("Logging Devce " + device.get ().getDelim ()
-						+ " Settings...\n"), 1);
+					emit notification({ qstr("Logging Devce " + device.get().getDelim()
+						+ " Settings...\n"), 1 });
 					device.get ().logSettings (input->logger, this);
 				}
 			}
@@ -315,8 +315,8 @@ double ExpThreadWorker::convertToTime (timeType time, std::vector<parameterType>
 
 void ExpThreadWorker::handleDebugPlots (DoCore& ttls, AoSystem& aoSys, unsigned variation) {
 	emit doAoData (ttls.getPlotData (variation), aoSys.getPlotData (variation));
-	emit notification (qstr (ttls.getTtlSequenceMessage (variation)), 2);
-	emit notification (qstr (aoSys.getDacSequenceMessage (variation)), 2);
+	emit notification({ qstr(ttls.getTtlSequenceMessage(variation)), 2 });
+	emit notification({ qstr(aoSys.getDacSequenceMessage(variation)), 2 });
 }
 
 bool ExpThreadWorker::runningStatus () {
@@ -815,7 +815,7 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 					+ str (variationInc) + "\r\n");
 			}
 			if (variationInc == 0) {
-				emit notification (qstr (infoString), 2);
+				emit notification({ qstr(infoString), 2 });
 			}
 		}
 		auto& niawg = input->devices.getSingleDevice<NiawgCore> ();
@@ -833,7 +833,7 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 				niawgMismatch = true;
 			}
 			if (variationInc == 0) {
-				emit notification (qstr (infoString), 2);
+				emit notification({ qstr(infoString), 2 });
 			}
 		}
 		/// check Microwave System
@@ -841,17 +841,18 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 		if (!uwaveMismatch) {
 			auto actualTrigs = input->ttls.countTriggers (uwaveCore.getUWaveTriggerLine (), variationInc);
 			auto uwaveExpectedTrigs = uwaveCore.getNumTriggers (uwaveCore.experimentSettings);
-			std::string infoString = "Actual/Expected Microwave Triggers: " + str (actualTrigs) + "/"
-				+ str (uwaveExpectedTrigs) + ".";
+			statusMsg infoMsg;
+			infoMsg.msg = "Actual/Expected Microwave Triggers: " + qstr (actualTrigs) + "/"
+				+ qstr (uwaveExpectedTrigs) + ".";
 			if (actualTrigs != uwaveExpectedTrigs && uwaveExpectedTrigs != 0 && uwaveExpectedTrigs != 1) {
-				emit warn (cstr (
+				emit warn (qstr (
 					"WARNING: the Microwave System is not getting triggered by the ttl system the same number"
-					" of times a trigger command appears in the master script. " + infoString + " First "
-					"instance seen variation " + str (variationInc) + ".\r\n"));
+					" of times a trigger command appears in the master script. " + infoMsg.msg + " First "
+					"instance seen variation " + qstr (variationInc) + ".\r\n"));
 				uwaveMismatch = true;
 			}
 			if (variationInc == 0) {
-				emit notification (qstr (infoString), 2);
+				emit notification (infoMsg);
 			}
 			/// check Agilents
 			for (auto& agilent : input->devices.getDevicesByClass<AgilentCore> ()) {
@@ -918,9 +919,9 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 		analyzeMasterScript (input->ttls, input->aoSys, runtime.expParams, runtime.masterScript,
 			runtime.mainOpts.atomSkipThreshold != UINT_MAX, warnings, operationTime, loadSkipTime);
 		emit warn (cstr (warnings));
-		emit notification ("Calcualting DO system variations...\n", 1);
+		emit notification({ "Calcualting DO system variations...\n", 1 });
 		input->ttls.calculateVariations (runtime.expParams, this);
-		emit notification ("Calcualting AO system variations...\n", 1);
+		emit notification({ "Calcualting AO system variations...\n", 1 });
 		input->aoSys.calculateVariations (runtime.expParams, this, input->calibrations);
 		emit notification ("Running final ado checks...\n");
 		for (auto variationInc : range (variations)) {
@@ -931,14 +932,14 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, runtime.expParams);
 			input->aoSys.checkTimingsWork (variationInc);
 		}
-		emit notification (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str (), 1);
+		emit notification({ ("Programmed time per repetition: " + str(input->ttls.getTotalTime(0)) + "\r\n").c_str(), 1 });
 		unsigned __int64 totalTime = 0;
 		for (auto variationNumber : range (variations)) {
 			totalTime += unsigned __int64 (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
 		}
-		emit notification (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str (), 1);
-		emit notification (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str (), 1);
-		emit notification (("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n").c_str (), 1);
+		emit notification({ ("Programmed Total Experiment time: " + str(totalTime) + "\r\n").c_str(), 1 });
+		emit notification({ ("Number of TTL Events in experiment: " + str(input->ttls.getNumberEvents(0)) + "\r\n").c_str(), 1 });
+		emit notification({ ("Number of DAC Events in experiment: " + str(input->aoSys.getNumberEvents(0)) + "\r\n").c_str(), 1 });
 	}
 }
 
@@ -1041,7 +1042,7 @@ void ExpThreadWorker::normalFinish (ExperimentType& expType, bool runMaster,
 
 void ExpThreadWorker::startRep (unsigned repInc, unsigned variationInc, bool skip) {
 	if (true /*runMaster*/) {
-		emit notification (qstr ("Starting Repetition #" + qstr (repInc) + "\n"), 2);
+		emit notification({ qstr("Starting Repetition #" + qstr(repInc) + "\n"), 2 });
 		emit repUpdate (repInc + 1);
 		input->aoSys.resetDacs (variationInc, skip);
 		input->ttls.ftdi_trigger ();
@@ -1051,7 +1052,7 @@ void ExpThreadWorker::startRep (unsigned repInc, unsigned variationInc, bool ski
 
 void ExpThreadWorker::deviceLoadExpSettings (IDeviceCore& device, ConfigStream& cStream) {
 	try {
-		emit notification ("Loading Settings for device " + qstr (device.getDelim ()) + "...\n", 1);
+		emit notification({ "Loading Settings for device " + qstr(device.getDelim()) + "...\n", 1 });
 		emit updateBoxColor ("White", device.getDelim ().c_str ());
 		device.loadExpSettings (cStream);
 	}
@@ -1065,7 +1066,7 @@ void ExpThreadWorker::deviceProgramVariation (IDeviceCore& device, std::vector<p
 	unsigned variationInc) {
 	if (device.experimentActive) {
 		try {
-			emit notification (qstr ("Programming Devce " + device.getDelim () + "...\n"), 1);
+			emit notification({ qstr("Programming Devce " + device.getDelim() + "...\n"), 1 });
 			device.programVariation (variationInc, expParams, this);
 			emit updateBoxColor ("Green", device.getDelim ().c_str ());
 		}
@@ -1079,8 +1080,8 @@ void ExpThreadWorker::deviceProgramVariation (IDeviceCore& device, std::vector<p
 void ExpThreadWorker::deviceCalculateVariations (IDeviceCore& device, std::vector<parameterType>& expParams) {
 	if (device.experimentActive) {
 		try {
-			emit notification (qstr ("Calculating Variations for device " + device.getDelim ()
-				+ "...\n"), 1);
+			emit notification({ qstr("Calculating Variations for device " + device.getDelim()
+				+ "...\n"), 1 });
 			emit updateBoxColor ("Yellow", device.getDelim ().c_str ());
 			device.calculateVariations (expParams, this);
 		}

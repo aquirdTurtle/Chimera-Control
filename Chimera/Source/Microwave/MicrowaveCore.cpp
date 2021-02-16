@@ -51,7 +51,7 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 		}
 	}
 	if (threadworker != nullptr) {
-		emit threadworker->notification ("Windfreak list setting programmed: " + qstr (getCurrentList ()), 2);
+		emit threadworker->notification({ "Windfreak list setting programmed: " + qstr(getCurrentList()), 2 });
 	}
 }
 
@@ -105,7 +105,7 @@ void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, Exp
 		experimentSettings.list[freqInc].power.internalEvaluate (params, variations);
 	}
 	if (threadworker != nullptr) {
-		emit threadworker->notification (qstr ("Microwave List Setting: " + getCurrentList ()), 1);
+		emit threadworker->notification({ qstr("Microwave List Setting: " + getCurrentList()), 1 });
 	}
 }
 

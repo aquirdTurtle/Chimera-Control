@@ -52,14 +52,12 @@ AoSystem::AoSystem(IChimeraQtWindow* parent, bool aoSafemode) : IChimeraSystem(p
 	}
 }
 
-
 void AoSystem::standardNonExperiemntStartDacsSequence( ){
 	updateEdits( );
 	organizeDacCommands( 0 );
 	makeFinalDataFormat( 0 );
 	resetDacs (0, false);
 }
-
 
 void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap ){
 	ttls.resetTtlEvents( );
@@ -69,7 +67,6 @@ void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap ){
 	ttls.standardNonExperimentStartDoSequence(initSnap);
 	emit notification ("Forced Analog Output Values Complete.\n");
 }
-
 
 void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap){
 	resetDacEvents( );
@@ -81,9 +78,8 @@ void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap){
 	}
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
-	emit notification ("Zero'd Analog Outputs.\n", 2);
+	emit notification({ "Zero'd Analog Outputs.\n", 2 });
 }
-
 
 std::array<AoInfo, 24> AoSystem::getDacInfo( ){
 	std::array<AoInfo, 24> info;
@@ -92,7 +88,6 @@ std::array<AoInfo, 24> AoSystem::getDacInfo( ){
 	}
 	return info;
 }
-
 
 void AoSystem::setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSnapshot initSnap){
 	ttls.resetTtlEvents( );
@@ -107,9 +102,8 @@ void AoSystem::setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSna
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
 	updateEdits( );
-	emit notification ("Set single dac #" + qstr(dacNumber) + " to value " + qstr(val) + "\n", 2);
+	emit notification({ "Set single dac #" + qstr(dacNumber) + " to value " + qstr(val) + "\n", 2 });
 }
-
 
 void AoSystem::handleOpenConfig(ConfigStream& openFile){
 	unsigned dacInc = 0;
@@ -119,7 +113,7 @@ void AoSystem::handleOpenConfig(ConfigStream& openFile){
 			openFile >> trash;
 		}
 	}
-	emit notification ("AO system finished opening config.\n", 2);
+	emit notification({ "AO system finished opening config.\n", 2 });
 }
 
 void AoSystem::standardExperimentPrep ( unsigned variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
@@ -156,14 +150,12 @@ std::string AoSystem::getDacSequenceMessage( unsigned variation ){
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void AoSystem::handleEditChange ( unsigned dacNumber ){
 	if ( dacNumber >= outputs.size ( ) ){
 		thrower ( "attempted to handle dac edit change, but the dac number reported doesn't exist!" );
 	}
 	outputs[ dacNumber ].handleEdit ( roundToDacPrecision );
 }
-
 
 bool AoSystem::isValidDACName(std::string name){
 	for (auto dacInc : range(getNumberOfDacs()) ){
@@ -177,11 +169,9 @@ bool AoSystem::isValidDACName(std::string name){
 	return false;
 }
 
-
 void AoSystem::setDefaultValue(unsigned dacNum, double val){
 	outputs[ dacNum ].info.defaultVal = val;
 }
-
 
 double AoSystem::getDefaultValue(unsigned dacNum){
 	return outputs[dacNum].info.defaultVal;
@@ -243,7 +233,6 @@ void AoSystem::handleRoundToDac( ){
 	}
 }
 
-
 /*
  * get the text from every edit and prepare a change. If fails to get text from edit, if useDefalt this will set such
  * dacs to zero.
@@ -263,13 +252,11 @@ void AoSystem::handleSetDacsButtonPress(DoCore& ttls, bool useDefault ){
 	}
 }
 
-
 void AoSystem::updateEdits( ){
 	for ( auto& dac : outputs )	{
 		dac.updateEdit ( roundToDacPrecision );
 	}
 }
-
 
 void AoSystem::organizeDacCommands(unsigned variation){
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
@@ -319,7 +306,6 @@ void AoSystem::organizeDacCommands(unsigned variation){
 		}
 	}
 }
-
 
 void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, unsigned variation ){
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.

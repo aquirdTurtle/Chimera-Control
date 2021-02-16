@@ -594,8 +594,8 @@ void CalibrationManager::updateCalibrationView (calSettings& cal) {
 double CalibrationManager::calibrationFunction (double val, calResult res, IChimeraSystem* parent) {
 	if (val < res.calmin - 1e-6) {
 		if (parent != nullptr) {
-			emit parent->warning ("Warning: Tried to set calibrated value below calibration range. Assuming that you want the "
-								  "minimum value the calibration can provide.");
+			emit parent->warning (qstr("Warning: Tried to set calibrated value below calibration range. Assuming that you want the "
+								  "minimum value the calibration can provide."));
 		}
 		val = res.calmin;
 	}

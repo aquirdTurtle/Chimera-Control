@@ -716,6 +716,9 @@
     <ClInclude Include="Source\AnalogInput\calInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\statusMsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Source\LowLevel\Atom.ico" />

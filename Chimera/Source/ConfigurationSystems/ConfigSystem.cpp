@@ -227,7 +227,7 @@ void ConfigSystem::saveConfiguration(IChimeraQtWindow* win){
 	configSaveFile << saveStream.str ();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
-	emit notification ("Finished Saving Configuration.\n", 0);
+	emit notification({ "Finished Saving Configuration.\n", 0 });
 }
 
 /*
@@ -268,7 +268,7 @@ void ConfigSystem::saveConfigurationAs(IChimeraQtWindow* win){
  	configSaveFile << configSaveStream.str ();
  	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
-	emit notification ("Finished Saving Configuration.\n", 0);
+	emit notification({ "Finished Saving Configuration.\n", 0 });
 }
 
 void ConfigSystem::renameConfiguration(){

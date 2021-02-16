@@ -13,6 +13,7 @@
 #include "LowLevel/resource.h"
 #include "GeneralUtilityFunctions/Thrower.h"
 #include "GeneralUtilityFunctions/range.h"
+#include <ExperimentMonitoringAndStatus/statusMsg.h>
 
 #include <fstream>
 #include <string>

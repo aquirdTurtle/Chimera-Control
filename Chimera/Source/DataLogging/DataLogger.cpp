@@ -586,7 +586,7 @@ void DataLogger::assertClosed () {
 	}
 	andorDataSetShouldBeValid = false;
 	fileIsOpen = false;
-	emit notification ("Closing HDF5 File and associated structures.\n", 0);
+	emit notification({ "Closing HDF5 File and associated structures.\n", 0 });
 }
 
 void DataLogger::normalCloseFile(){

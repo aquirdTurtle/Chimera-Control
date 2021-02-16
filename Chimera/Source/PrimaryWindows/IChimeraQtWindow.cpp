@@ -13,12 +13,12 @@
 
 IChimeraQtWindow::IChimeraQtWindow (QWidget* parent) : QMainWindow(parent) {}
 
-void IChimeraQtWindow::reportErr (QString errStr, unsigned errorLevel){
-	mainWin->onErrorMessage (errStr, errorLevel);
+void IChimeraQtWindow::reportErr (statusMsg msg){
+	mainWin->onErrorMessage (msg);
 }
 
-void IChimeraQtWindow::reportStatus (QString statusStr, unsigned notificationLevel){
-	mainWin->handleNotification (statusStr, notificationLevel);
+void IChimeraQtWindow::reportStatus (statusMsg msg){
+	mainWin->handleNotification (msg);
 }
 
 void IChimeraQtWindow::loadFriends ( QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,

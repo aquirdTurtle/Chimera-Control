@@ -29,6 +29,6 @@ class MicrowaveCore : public IDeviceCore{
 		void setTrigTime (double time);
 
 	private:
-		double triggerTime = 0.01;
+		double triggerTime = 0.5;
 		const std::pair<DoRows::which, unsigned> uwaveTriggerLine = { DoRows::which::D, 0 };
 };
