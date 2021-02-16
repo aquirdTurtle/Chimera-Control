@@ -11,7 +11,6 @@
 
 void AlertSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	auto& px = pos.rx (), & py = pos.ry ();
-	alertMessageID = RegisterWindowMessage( "ID_NOT_LOADING_ATOMS" );
 
 	title = new QLabel ("ALERT SYSTEM", parent);
 	title->setGeometry (px, py, 480, 25);

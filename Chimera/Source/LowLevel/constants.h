@@ -19,8 +19,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-#define MARK_NEW_DESKTOP
-//#define MASTER_COMPUTER
+//#define MARK_NEW_DESKTOP
+#define MASTER_COMPUTER
 //#define MARKS_LAPTOP 
 //#define ANALYSIS_COMPUTER 
 //#define HOME_DESKTOP

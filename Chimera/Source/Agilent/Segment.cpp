@@ -185,7 +185,7 @@ void Segment::analyzeRampFile (rampInfo& ramp, long totalSamples) {
 		try {
 			ramp.rampFileVals.push_back (boost::lexical_cast<double>(word));
 		}
-		catch (boost::bad_lexical_cast & err) {
+		catch (boost::bad_lexical_cast &) {
 			thrower ("Failed to convert ramp file to doubles!");
 		}
 	}

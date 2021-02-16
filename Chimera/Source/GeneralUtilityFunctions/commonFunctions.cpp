@@ -470,7 +470,7 @@ namespace commonFunctions
 		catch ( ChimeraError& except ){
 			errBox ( "The NIAWG did not exit smoothly: " + except.trace ( ) );
 		}
-		PostQuitMessage ( 1 );
+		//PostQuitMessage ( 1 );
 	}
 
 
