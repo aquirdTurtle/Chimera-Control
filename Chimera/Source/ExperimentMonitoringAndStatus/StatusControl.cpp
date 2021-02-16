@@ -6,7 +6,6 @@
 void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size,
 	std::string headerText, std::vector<std::string> textColors) {
 	// fixed size que.
-	msgQue = std::deque<statusMsg>(10000);
 	int& px = loc.rx (), & py = loc.ry ();
 	if (textColors.size () == 0) {
 		thrower ("Need to set a nonzero number of colors for status control!");
@@ -54,8 +53,11 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 }
 
 void StatusControl::addStatusToQue(statusMsg newMsg) {
+	statusMsg test = { "test\t\n!",0 };
 	msgQue.push_back(newMsg);
-	msgQue.pop_front();
+	if (msgQue.size() > maxQueSize) {
+		msgQue.pop_front();
+	}
 }
 
 void StatusControl::redrawControl() {
@@ -105,7 +107,7 @@ void StatusControl::addStatusTextColored(std::string text, std::string color){
 	QString htmlTxt = ("<font color = \"" + color + "\">" + text + "</font>").c_str();
 	htmlTxt.replace ("\r", "");
 	htmlTxt.replace ("\n", "<br/>");
- 
+	htmlTxt.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
  	//e.g. <font color = "red">This is some text!< / font>
  	//edit->appendHtml (htmlTxt);
 	edit->moveCursor (QTextCursor::End);
@@ -116,6 +118,9 @@ void StatusControl::addStatusTextColored(std::string text, std::string color){
 }
 
 void StatusControl::addPlainText(std::string text) {
+	if (!edit) {
+		return;
+	}
 	edit->insertPlainText(qstr(text));
 	edit->moveCursor(QTextCursor::End);
 }

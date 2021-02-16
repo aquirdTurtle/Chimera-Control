@@ -642,11 +642,11 @@ std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){
 
 std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 	std::string msg;
-	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
-	msg += "Tektronix 1:\n\t" + topBottomTek.queryIdentity ();
-	msg += "Tektronix 2:\n\t" + eoAxialTek.queryIdentity ();
+	msg += "---------------------------------------------------------------------- VISA Devices";
+	msg += "\nTektronix 1:\n\t" + topBottomTek.queryIdentity ();
+	msg += "\nTektronix 2:\n\t" + eoAxialTek.queryIdentity ();
 	for (auto& agilent : agilents){
-		msg += agilent.getCore ().configDelim + ":\n\t" + agilent.getDeviceIdentity ();
+		msg += "\n"+agilent.getCore ().configDelim + ":\n\t" + agilent.getDeviceIdentity ();
 	}
 	return msg;
 }

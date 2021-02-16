@@ -120,7 +120,7 @@ void QtScriptWindow::checkScriptSaves (){
 
 std::string QtScriptWindow::getSystemStatusString (){
 	std::string status = "Intensity Agilent:\n\t" + intensityAgilent.getDeviceIdentity ();
-	status = "NIAWG:\n";
+	status = "\nNIAWG:\n";
 	if (!NIAWG_SAFEMODE){
 		status += "\tCode System is Active!\n";
 		try{

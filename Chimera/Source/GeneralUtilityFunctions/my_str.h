@@ -9,7 +9,7 @@
 
 template <typename T> QString qstr (T input, const int precision = 13, bool eatZeros = false, bool toLower = false,
 	bool zeroPad = false, bool useScientificNotation = false) {
-	return QString(str (input, precision, eatZeros, toLower, zeroPad, useScientificNotation).c_str ());
+	return QString(str(input, precision, eatZeros, toLower, zeroPad, useScientificNotation).c_str());
 }
 
 // this can replace str() and str(), as well as providing functionality to set the precision of
