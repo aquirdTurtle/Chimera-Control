@@ -72,43 +72,43 @@ class DataAnalysisControl : public IChimeraSystem {
 		unsigned unofficialPicsPerRep = 1;
 		// real time plotting
 		unsigned long updateFrequency;
-		QLabel* updateFrequencyLabel1;
-		QLabel* updateFrequencyLabel2;
-		CQLineEdit* updateFrequencyEdit;
+		QLabel* updateFrequencyLabel1=nullptr;
+		QLabel* updateFrequencyLabel2 = nullptr;
+		CQLineEdit* updateFrequencyEdit = nullptr;
 
-		QLabel* header;
-		QTableWidget* plotListview;
+		QLabel* header = nullptr;
+		QTableWidget* plotListview = nullptr;
 		std::vector<tinyPlotInfo> allTinyPlots;
 		
 		// other data analysis
-		QLabel* currentDataSetNumberText;
-		QLabel* currentDataSetNumberDisp;
+		QLabel* currentDataSetNumberText = nullptr;
+		QLabel* currentDataSetNumberDisp = nullptr;
 
-		CQComboBox* gridSelector;
+		CQComboBox* gridSelector = nullptr;
 
-		QLabel* tlRowLabel;
-		CQLineEdit* tlRowEdit;
-		QLabel* tlColLabel;
-		CQLineEdit* tlColEdit;
-		QLabel* gridSpacingText;
-		CQLineEdit* gridSpacing;
-		QLabel* gridWidthText;
-		CQLineEdit* gridWidth;
-		QLabel* gridHeightText;
-		CQLineEdit* gridHeight;
+		QLabel* tlRowLabel = nullptr;
+		CQLineEdit* tlRowEdit = nullptr;
+		QLabel* tlColLabel = nullptr;
+		CQLineEdit* tlColEdit = nullptr;
+		QLabel* gridSpacingText = nullptr;
+		CQLineEdit* gridSpacing = nullptr;
+		QLabel* gridWidthText = nullptr;
+		CQLineEdit* gridWidth = nullptr;
+		QLabel* gridHeightText = nullptr;
+		CQLineEdit* gridHeight = nullptr;
 
-		CQPushButton* doBumpAnalysis;
-		CQCheckBox* autoBumpAnalysis;
-		CQLineEdit* bumpEditParam;
+		CQPushButton* doBumpAnalysis = nullptr;
+		CQCheckBox* autoBumpAnalysis = nullptr;
+		CQLineEdit* bumpEditParam = nullptr;
 
-		CQCheckBox* autoThresholdAnalysisButton;
-		CQCheckBox* displayGridBtn;
+		CQCheckBox* autoThresholdAnalysisButton = nullptr;
+		CQCheckBox* displayGridBtn = nullptr;
 
-		QLabel* plotTimerTxt;
-		CQLineEdit* plotTimerEdit;
+		QLabel* plotTimerTxt = nullptr;
+		CQLineEdit* plotTimerEdit = nullptr;
 		std::atomic<unsigned> plotTime=5000;
 
-		CQPushButton* deleteGrid;
+		CQPushButton* deleteGrid = nullptr;
 
 };
 

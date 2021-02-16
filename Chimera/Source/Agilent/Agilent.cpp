@@ -51,7 +51,7 @@ void Agilent::updateSavedStatus (bool isSaved){
 
 void Agilent::initialize( QPoint& loc, std::string headerText, unsigned editHeight, IChimeraQtWindow* win, unsigned width ){
 	auto& px = loc.rx (), & py = loc.ry ();
-	LONG wi = LONG( width );
+	long wi = long( width );
 	core.initialize ();
 	header = new QLabel (cstr (headerText), win);
 	header->setGeometry (px, py, wi, 25);

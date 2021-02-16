@@ -1,7 +1,7 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "GeneralFlumes/VisaFlume.h"
-#include "Plotting/PlotCtrl.h"
+#include "Plotting/QCustomPlotCtrl.h"
 #include <qobject.h>
 #include <QChart>
 #include <QChartView>
@@ -31,10 +31,11 @@ class ScopeViewer : public QObject{
 		const std::string usbAddress;
 		const std::string scopeName;
 		bool initializationFailed=false;
-
+		std::string name;
 		float yoffset, ymult;
 		VisaFlume visa;
-		PlotCtrl viewPlot;
+		//PlotCtrl viewPlot;
+		QCustomPlotCtrl viewPlot;
 		std::vector<plotDataVec> data_pdv;
 		std::vector<QtCharts::QLineSeries*> data_t;
 		QPushButton* updateDataBtn;

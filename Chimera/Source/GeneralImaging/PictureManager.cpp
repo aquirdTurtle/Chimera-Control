@@ -85,12 +85,6 @@ void PictureManager::setNumberPicturesActive( int numberActive ){
 	}
 }
 
-void PictureManager::handleEditChange( unsigned id ){
-	for (auto& pic : pictures){
-		pic.handleEditChange( id );
-	}
-}
-
 void PictureManager::setAutoScalePicturesOption(bool autoScaleOption){
 	autoScalePictures = autoScaleOption;
 }

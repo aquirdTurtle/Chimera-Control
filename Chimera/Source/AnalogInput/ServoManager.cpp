@@ -223,7 +223,7 @@ void ServoManager::handleOpenMasterConfig( ConfigStream& configStream ){
 			unitsCombo->setCurrentIndex (index);
 		}
 	}
-	LONG numServosInFile;
+	long numServosInFile;
 	configStream >> numServosInFile;
 	servos.clear ( );
 	for ( auto servoNum : range ( numServosInFile ) ){

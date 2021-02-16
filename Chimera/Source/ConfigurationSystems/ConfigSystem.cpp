@@ -301,7 +301,7 @@ void ConfigSystem::deleteConfiguration(){
 		thrower ( "The Configuration has not yet been selected! Please select a configuration or create a new one before "
 				 "trying to rename it." );
 	}
-	auto answer = QMessageBox::question ( NULL, qstr ("Delete Config?"),
+	auto answer = QMessageBox::question ( nullptr, qstr ("Delete Config?"),
 		qstr ("Are you sure you want to delete the current configuration: " 
 			+ currentProfile.configuration));
 	if (answer == QMessageBox::No) {
@@ -320,7 +320,7 @@ void ConfigSystem::deleteConfiguration(){
 }
 
 void ConfigSystem::updateConfigurationSavedStatus(bool isSaved){
-	if ( configurationSavedIndicator == NULL ){
+	if ( configurationSavedIndicator == nullptr ){
 		return;
 	}
 	configurationIsSaved = isSaved;
@@ -341,7 +341,7 @@ bool ConfigSystem::configurationSettingsReadyCheck(IChimeraQtWindow* win){
 
 bool ConfigSystem::checkConfigurationSave( std::string prompt, IChimeraQtWindow* win){
 	if (!configurationIsSaved){
-		auto answer = QMessageBox::question (NULL, qstr ("Check Save?"), qstr(prompt), QMessageBox::Yes 
+		auto answer = QMessageBox::question (nullptr, qstr ("Check Save?"), qstr(prompt), QMessageBox::Yes 
 			| QMessageBox::No | QMessageBox::Cancel );
 
 
@@ -396,7 +396,7 @@ std::vector<std::string> ConfigSystem::searchForFiles( std::string locationToSea
 	WIN32_FIND_DATA fd;
 	HANDLE hFind;
 	if (extensions == "*"){
-		hFind = FindFirstFileEx( cstr(search_path), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, NULL, 0 );
+		hFind = FindFirstFileEx( cstr(search_path), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, nullptr, 0 );
 	}
 	else{
 		hFind = FindFirstFile( cstr(search_path), &fd );

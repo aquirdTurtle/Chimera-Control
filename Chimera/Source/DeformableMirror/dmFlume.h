@@ -2,8 +2,7 @@
 #include "BmcApi.h"
 #include "ParameterSystem/Expression.h"
 
-class DmFlume 
-{
+class DmFlume {
 	public:
 		DmFlume(bool safemode_option);
 		~DmFlume();

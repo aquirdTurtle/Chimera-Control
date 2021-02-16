@@ -49,7 +49,7 @@ TekCore& TektronixAfgControl::getCore (){
 
 
 void TektronixAfgControl::initialize (QPoint& loc, IChimeraQtWindow* parent, std::string headerText,
-	std::string channel1Text, std::string channel2Text, LONG width) {
+	std::string channel1Text, std::string channel2Text, long width) {
 	auto& px = loc.rx (), & py = loc.ry ();
 	header = new QLabel (("Tektronix " + headerText).c_str (), parent);
 	header->setGeometry (px, py, width, 25);

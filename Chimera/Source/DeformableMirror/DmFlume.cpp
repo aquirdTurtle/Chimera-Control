@@ -96,7 +96,7 @@ void DmFlume::getArray(double* vectorPointer, unsigned int length) {
 void DmFlume::LoadMap(unsigned int* MAP) {
 	if (!safemode) {
 		BMCRC err = NO_ERR;
-		err = BMCLoadMap(&hdm, NULL, MAP);
+		err = BMCLoadMap(&hdm, nullptr, MAP);
 		if (err != NO_ERR) {
 			thrower(BMCErrorString(err));
 		}

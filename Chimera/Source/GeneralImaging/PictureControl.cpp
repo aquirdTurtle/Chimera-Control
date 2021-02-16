@@ -99,14 +99,14 @@ void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWi
 	maxHeight = height;
 	if ( histOption ){
 		QPoint pt{ 300,0 };
-		vertGraph = new PlotCtrl ( 1, plotStyle::VertHist, std::vector<int>(), "", true );
-		vertGraph->init (pt, 65, 860, parent );
+		vertGraph = new QCustomPlotCtrl( 1, plotStyle::VertHist, std::vector<int>(), true );
+		vertGraph->init (pt, 65, 860, parent, "" );
 		px += 65;
 	}
 	if ( histOption ){
-		horGraph = new PlotCtrl ( 1, plotStyle::HistPlot, std::vector<int> ( ), "", true );
-		QPoint pt{ 365, LONG (860) };
-		horGraph->init ( pt, 1565 - 50, 65, parent );
+		horGraph = new QCustomPlotCtrl( 1, plotStyle::HistPlot, std::vector<int> ( ), true );
+		QPoint pt{ 365, long (860) };
+		horGraph->init ( pt, 1565 - 50, 65, parent, "");
 	}
 	pictureObject = new ImageLabel (parent);
 	pictureObject->setGeometry (px, py, width, height);
@@ -231,27 +231,9 @@ void PictureControl::updatePalette( QVector<QRgb> palette ){
 	imagePalette = palette;
 }
 
-
-/*
- * called when the user changes either the min or max edit.
- */
-void PictureControl::handleEditChange( int id ){
-	if ( id == sliderMax.getEditId() ){
-		sliderMax.handleEdit ( );
-	}
-	if ( id == sliderMin.getEditId() ){
-		sliderMin.handleEdit ( );
-	}
-}
-
-
 std::pair<unsigned, unsigned> PictureControl::getSliderLocations(){
 	return { sliderMin.getValue (), sliderMax.getValue() };
 }
-
-
-
-
 
 /*
  * Recalculate the grid of pixels, which needs to be done e.g. when changing number of pictures or re-sizing the 

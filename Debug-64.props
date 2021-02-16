@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>NIDAQmx.lib;ni4882.obj;niFgen.lib;atmcd64m.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python37_d.lib;python37.lib;libhdf5_hl_cpp_D.lib;libhdf5_hl_D.lib;libhdf5_tools_D.lib;libszip_D.lib;libzlib_D.lib;libhdf5_cpp_D.lib;libhdf5_D.lib;ftd2xx.lib;visa64.lib;visa32.lib;nivisa64.lib;nifgen.lib;MDT_COMMAND_LIB_x64.lib;BMC3.lib;Qt5Widgetsd.lib;Qt5Guid.lib;Qt5Cored.lib;Qt5Chartsd.lib</AdditionalDependencies>
+      <AdditionalDependencies>NIDAQmx.lib;niFgen.lib;atmcd64m.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python37_d.lib;python37.lib;libhdf5_hl_cpp_D.lib;libhdf5_hl_D.lib;libhdf5_tools_D.lib;libszip_D.lib;libzlib_D.lib;libhdf5_cpp_D.lib;libhdf5_D.lib;ftd2xx.lib;visa64.lib;visa32.lib;nivisa64.lib;nifgen.lib;MDT_COMMAND_LIB_x64.lib;BMC3.lib;Qt5Widgetsd.lib;Qt5Guid.lib;Qt5Cored.lib;Qt5Chartsd.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>

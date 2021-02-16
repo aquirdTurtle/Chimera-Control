@@ -110,9 +110,9 @@ class ConfigSystem : public IChimeraSystem {
 		// Version 5.12: Added pic scale factor
 		const Version version = Version( "5.12" );
 
-		QCheckBox* configurationSavedIndicator;
-		QPushButton* selectConfigButton;
-		QLabel* configDisplay;
+		QCheckBox* configurationSavedIndicator=nullptr;
+		QPushButton* selectConfigButton = nullptr;
+		QLabel* configDisplay = nullptr;
 };
 
 template <class sysType>

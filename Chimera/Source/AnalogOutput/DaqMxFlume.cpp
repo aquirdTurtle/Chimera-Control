@@ -64,7 +64,7 @@ void DaqMxFlume::readAnalogF64( TaskHandle taskHandle, std::vector<float64> &rea
 		// *16 in the size because number of 
 		int result = DAQmxReadAnalogF64( taskHandle, readData.size() / AiSystem::NUMBER_AI_CHANNELS, 10.0,
 										 DAQmx_Val_GroupByChannel, readData.data(), 
-										 readData.size(), &sampsPerChanRead, NULL);
+										 readData.size(), &sampsPerChanRead, nullptr);
 		if ( result )
 		{
 			thrower ( "daqCreateAiVoltageChan Failed! (" + str( result ) + "): "
@@ -168,7 +168,7 @@ void DaqMxFlume::writeAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool3
 	{
 		// the last argument must be null as of the writing of this wrapper. may be used in the future for something else.
 		int result = DAQmxWriteAnalogF64( handle, numSampsPerChan, autoStart, timeout, dataLayout, writeArray,
-										  sampsPerChanWritten, NULL );
+										  sampsPerChanWritten, nullptr );
 		if ( result )
 		{
 			thrower ( "writeAnalogF64 Failed! (" + str( result ) + "): "

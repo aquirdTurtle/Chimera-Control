@@ -5,6 +5,7 @@
 #include <QWidget.h>
 #include <qstring.h>
 #include <AnalogInput/calInfo.h>
+#include <Plotting/QCustomPlotCtrl.h>
 
 class CalibrationManager; 
 class AiSystem;
@@ -16,13 +17,12 @@ class PlotCtrl;
 
 struct CalibrationThreadInput {
 	CalibrationThreadInput () {}
-	//CalibrationManager* manager;
 	AiSystem* ai;
 	AoSystem* ao;
 	DoSystem* ttls;
 	std::vector<std::reference_wrapper<AgilentCore>> agilents;
 	NewPythonHandler* pythonHandler;
-	PlotCtrl* calibrationViewer;
+	QCustomPlotCtrl* calibrationViewer;
 	QWidget* parentWin;
 	std::vector<std::reference_wrapper<calSettings>> calibrations;
 };

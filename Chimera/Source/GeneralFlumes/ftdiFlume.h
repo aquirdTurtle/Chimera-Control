@@ -14,11 +14,11 @@ class ftdiFlume
 		ftdiFlume (const ftdiFlume&) = delete;
 
 		ftdiFlume( bool safemode_option );
-		DWORD write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=NULL );
+		unsigned long write( std::vector<unsigned char> dataBuffer, unsigned long amountToWrite=0 );
 		unsigned getNumDevices( );
-		std::vector<UINT8> read ( DWORD readSize );
+		std::vector<UINT8> read ( unsigned long readSize );
 		void close( );
-		DWORD trigger();
+		unsigned long trigger();
 		std::string getErrorText( int errCode );
 		std::string getDeviceInfoList ( );
 		bool getSafemodeSetting();

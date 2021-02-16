@@ -4,7 +4,7 @@
 #include <qcheckbox.h>
 #include <qlineedit.h>
 
-void TektronixChannelControl::initialize (QPoint loc, IChimeraQtWindow* parent, std::string channelText, LONG width){
+void TektronixChannelControl::initialize (QPoint loc, IChimeraQtWindow* parent, std::string channelText, long width){
 	auto& px = loc.rx (), & py = loc.ry ();
 	channelLabel = new QLabel (cstr (channelText), parent);
 	channelLabel->setGeometry (px, py, width, 20);

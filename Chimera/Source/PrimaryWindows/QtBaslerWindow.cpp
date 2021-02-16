@@ -77,15 +77,6 @@ void QtBaslerWindow::handleSoftwareTrigger (){
 	}
 }
 
-void QtBaslerWindow::pictureRangeEditChange (unsigned id){
-	try{
-		mainWin->updateConfigurationSavedStatus (false);
-		picManager.handleEditChange (id);
-	}
-	catch (ChimeraError& err){
-		reportErr ("Error! " + err.qtrace ());
-	}
-}
 
 void QtBaslerWindow::handleDisarmPress (){
 	try{

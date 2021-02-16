@@ -28,7 +28,7 @@ class QtBaslerWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
-        explicit QtBaslerWindow (QWidget* parent=NULL);
+        explicit QtBaslerWindow (QWidget* parent=nullptr);
         ~QtBaslerWindow ();
 		void initializeWidgets ();
 		void handleBaslerAutoscaleSelection ();
@@ -42,7 +42,6 @@ class QtBaslerWindow : public IChimeraQtWindow{
 		bool baslerCameraIsRunning ();
 		bool baslerCameraIsContinuous ();
 		void handlePrepareRequest (baslerSettings* settings);
-		void pictureRangeEditChange (unsigned id);
 		void handleSoftwareTrigger ();
 		void windowOpenConfig (ConfigStream& configFile);
 		void windowSaveConfig (ConfigStream& configFile);

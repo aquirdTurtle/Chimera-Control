@@ -71,7 +71,7 @@ class AiSystem : public IDeviceCore{
 		// float64 should just be a double type.
 		std::array<float64, NUMBER_AI_CHANNELS> currentValues;
 		std::vector<float64> aquisitionData;
-		TaskHandle analogInTask0 = NULL;
+		TaskHandle analogInTask0 = nullptr;
 		DaqMxFlume daqmx;
 		const std::string boardName = "dev2";
 };

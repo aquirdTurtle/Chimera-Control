@@ -19,7 +19,6 @@ class ColorBox{
 	public:
 		void initialize( QPoint& pos, IChimeraQtWindow* parent, int length, DeviceList devices, unsigned numRows=1);
 		void changeColor (std::string delim, std::string color);
-		CBrush* handleColoring( int id, CDC* pDC );
 		bool initialized = false;
 	private:
 		std::vector<boxInfo> boxes;

@@ -51,8 +51,8 @@ struct AndorRunSettings{
 struct AndorCameraSettings{
 	AndorRunSettings andor;
 	// not directly programmed to camera
-	std::array<std::vector<int>, 4> thresholds;
-	std::array<int, 4> palleteNumbers;
+	std::array<std::vector<int>, 4> thresholds = { std::vector<int>() };
+	std::array<int, 4> palleteNumbers = { 0 };
 	int picScaleFactor = 50;
 	double mostRecentTemp;
 };

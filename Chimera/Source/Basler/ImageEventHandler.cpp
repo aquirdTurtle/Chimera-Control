@@ -11,7 +11,7 @@ ImageEventHandler::ImageEventHandler (IChimeraQtWindow* parentHandle) : Pylon::C
 }
 
 void ImageEventHandler::OnImageGrabbed (Pylon::CInstantCamera& camera, const Pylon::CGrabResultPtr& grabResult) {
-	if (worker == NULL) {
+	if (worker == nullptr) {
 		worker = new BaslerGrabThreadWorker;
 		parent->connect ( worker, &BaslerGrabThreadWorker::newBaslerImage,
 						  parent->basWin, &QtBaslerWindow::handleNewPics  );

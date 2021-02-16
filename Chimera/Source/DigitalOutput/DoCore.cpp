@@ -42,7 +42,7 @@ void DoCore::ftdi_disconnect (){
 }
 
 
-DWORD DoCore::ftdi_trigger (){
+unsigned long DoCore::ftdi_trigger (){
 	std::vector<unsigned char> dataBuffer = { 161, 0, 0, 0, 0, 0, 1 };
 	if (connectType == ftdiConnectionOption::Serial){
 		unsigned long totalBytesSent = 0;
@@ -61,7 +61,7 @@ DWORD DoCore::ftdi_trigger (){
 /*
 * Takes data from "mem" structure and writes to the dio board.
 */
-DWORD DoCore::ftdi_write (unsigned variation, bool loadSkip){
+unsigned long DoCore::ftdi_write (unsigned variation, bool loadSkip){
 	if (connectType == ftdiConnectionOption::Serial || connectType == ftdiConnectionOption::Async){
 		auto& buf = loadSkip ? finFtdiBuffers_loadSkip (variation) : finFtdiBuffers (variation);
 		// please note that Serial mode has not been thoroughly tested (by me, MOB at least)!
@@ -396,7 +396,7 @@ unsigned DoCore::countTriggers (std::pair<DoRows::which, unsigned> which, unsign
 }
 
 
-DWORD DoCore::ftdi_ForceOutput (DoRows::which row, int number, int state, std::array<std::array<bool, 16>, 4> status)
+unsigned long DoCore::ftdi_ForceOutput (DoRows::which row, int number, int state, std::array<std::array<bool, 16>, 4> status)
 {
 	//outputs (number, row).set (state);
 	resetTtlEvents ();

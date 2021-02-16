@@ -82,9 +82,9 @@ void IChimeraQtWindow::initializeMenu (){
 	connect (saveAll, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_SAVEALL, this); });
 	fileM->addAction (saveAll);
 
-	auto* exit = new QAction ("Exit Program\tAlt-F4", this);
-	connect (exit, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_CLOSE, this); });
-	fileM->addAction (exit);
+	//auto* exit = new QAction ("Exit Program\tAlt-F4", this);
+	//connect (exit, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_CLOSE, this); });
+	//fileM->addAction (exit);
 
 	/// RUN
 	auto runMenuM = menubar->addMenu ("&Run Menu");

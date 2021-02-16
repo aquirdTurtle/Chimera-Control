@@ -50,7 +50,8 @@ class CalibrationManager : public IChimeraSystem {
 		CQCheckBox* expAutoCalButton;
 		QTableWidget* calibrationTable;
 		QPushButton* cancelCalButton;
-		PlotCtrl calibrationViewer;
+		QCustomPlotCtrl calibrationViewer;
+		//PlotCtrl calibrationViewer;
 		void updateCalibrationView (calSettings& cal);
 		void handleSaveMasterConfigIndvCal (std::stringstream& configStream, calSettings& servo);
 		calSettings handleOpenMasterConfigIndvCal (ConfigStream& configStream);

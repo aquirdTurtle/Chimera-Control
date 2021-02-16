@@ -1,8 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "afxwin.h"
-//#include "fileapi.h"
-// don't think I've every really used this.
+#include "windows.h"
 class WinSerialFlume {
 	public:
 		// THIS CLASS IS NOT COPYABLE.

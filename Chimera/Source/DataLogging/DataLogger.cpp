@@ -260,20 +260,21 @@ void DataLogger::logFunctions( H5::Group& group ){
 		// Re-add the entries back in and figure out which one is the current one.
 		std::vector<std::string> names;
 		std::string search_path = FUNCTIONS_FOLDER_LOCATION + "\\" + "*." + Script::FUNCTION_EXTENSION;
-		WIN32_FIND_DATA fd;
-		HANDLE hFind;
-		hFind = FindFirstFile( cstr( search_path ), &fd );
-		if ( hFind != INVALID_HANDLE_VALUE ){
-			do{
-				// if looking for folders
-				if ( !(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
-				{
-					names.push_back( fd.cFileName );
-				}
-			} while ( FindNextFile( hFind, &fd ) );
-			FindClose( hFind );
-		}
-		
+
+		//WIN32_FIND_DATA fd;
+		//HANDLE hFind;
+		//hFind = FindFirstFile( cstr( search_path ), &fd );
+		//if ( hFind != INVALID_HANDLE_VALUE ){
+		//	do{
+		//		// if looking for folders
+		//		if ( !(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
+		//		{
+		//			names.push_back( fd.cFileName );
+		//		}
+		//	} while ( FindNextFile( hFind, &fd ) );
+		//	FindClose( hFind );
+		//}
+		//
 		for ( auto name : names ){
 			std::ifstream functionFile( FUNCTIONS_FOLDER_LOCATION + "\\" + name );
 			std::stringstream stream;
@@ -334,7 +335,7 @@ std::string DataLogger::getFullError (H5::Exception& err) {
 	FILE* pFile;
 	// note the "w", so this file is constantly overwritten.
 	fopen_s (&pFile, "TempH5Log.txt", "w");
-	if (pFile != NULL) {
+	if (pFile != nullptr) {
 		err.printErrorStack (pFile);
 		fclose (pFile);
 	}
@@ -351,7 +352,7 @@ std::string DataLogger::getFullError (H5::Exception& err) {
 void DataLogger::logError ( H5::Exception& err ){
 	FILE * pFile;
 	fopen_s ( &pFile, "H5ErrLog.txt", "a" );
-	if ( pFile != NULL ){
+	if ( pFile != nullptr ){
 		err.printErrorStack ( pFile );
 		fclose ( pFile );
 	}
@@ -376,7 +377,7 @@ void DataLogger::logMasterRuntime ( unsigned repNumber,  std::vector<parameterTy
 
 void DataLogger::logMasterInput( ExperimentThreadInput* input ){
 	try{
-		if ( input == NULL ){
+		if ( input == nullptr ){
 			H5::Group runParametersGroup( file.createGroup( "/Master-Input:NA" ) );
 			return;
 		}
@@ -458,7 +459,7 @@ void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims){
 			hsize_t dims[3];
 			auto fn = file.getFileName ();
 			try {
-				H5Sget_simple_extent_dims (AndorPicureSetDataSpace.getId (), dims, NULL);
+				H5Sget_simple_extent_dims (AndorPicureSetDataSpace.getId (), dims, nullptr);
 			}
 			catch (H5::Exception &) {
 				throwNested ("Failed to write andor pic data to HDF5 file! Filename: \"" + fn + "\", currentAndorPicNumber: "

@@ -15,13 +15,11 @@ class LongQSlider{
 		void handleEdit();
 		double getValue ( );
 		void setValue (int value, bool updateEdit=true );
-		int getSliderId ( );
-		void reposition ( QPoint loc, LONG totalheight );
-		unsigned getEditId ( );
+		void reposition ( QPoint loc, long totalheight );
 		void hide ( int hideornot );
-		QSlider* slider;
-		CQLineEdit* edit;
-		QLabel* header;
+		QSlider* slider = nullptr;
+		CQLineEdit* edit = nullptr;
+		QLabel* header = nullptr;
 	private:
 		double currentValue;
 		const double maxVal = 1000;

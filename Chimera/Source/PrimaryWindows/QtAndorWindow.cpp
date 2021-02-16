@@ -45,8 +45,8 @@ void QtAndorWindow::initializeWidgets (){
 	position = { 480, 25 };
 	stats.initialize (position, this);
 	for (auto pltInc : range (6)){
-		mainAnalysisPlots.push_back (new PlotCtrl (1, plotStyle::BinomialDataPlot, { 0,0,0,0 }, "INACTIVE", false, false));
-		mainAnalysisPlots.back ()->init (position, 315, 130, this);
+		mainAnalysisPlots.push_back (new QCustomPlotCtrl(1, plotStyle::BinomialDataPlot, { 0,0,0,0 }, false, false));
+		mainAnalysisPlots.back ()->init (position, 315, 130, this, "INACTIVE");
 	}
 	position = { 797, 25 };
 	timer.initialize (position, this);

@@ -15,9 +15,9 @@ class AlertSystem
 		AlertSystem() : alertMessageID{ 0 }
 		{
 			// load the music!
-			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
+			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), nullptr, 0, nullptr );
 		}
-		~AlertSystem() { mciSendString( "close mp3", NULL, 0, NULL ); }
+		~AlertSystem() { mciSendString( "close mp3", nullptr, 0, nullptr ); }
 		void initialize( QPoint& positions, IChimeraQtWindow* parent );
 		void alertMainThread( int level );
 		void soundAlert();

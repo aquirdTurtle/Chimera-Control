@@ -5,14 +5,6 @@
 //
 
 #pragma once
-#include "LowLevel/targetver.h"
-/// MFC Stuff
-// some CString constructors will be explicit
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      
-// Exclude rarely-used stuff from Windows headers
-#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN            
-#endif
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
 #include <stdio.h>
 #include <tchar.h>

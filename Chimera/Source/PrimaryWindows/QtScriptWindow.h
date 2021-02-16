@@ -24,7 +24,7 @@ class QtScriptWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
-        explicit QtScriptWindow (QWidget* parent=NULL);
+        explicit QtScriptWindow (QWidget* parent=nullptr);
         ~QtScriptWindow ();
 		void initializeWidgets ();
 

@@ -21,7 +21,6 @@ class AnalogOutput
 		AoInfo info;
 		void setName ( std::string name );
 		void disable ( );
-		bool handleArrow ( CWnd* focus, bool up );
 	private:
 		unsigned dacNum;
 		CQLineEdit* edit;

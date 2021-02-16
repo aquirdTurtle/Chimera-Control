@@ -9,13 +9,13 @@ ftdiFlume::ftdiFlume( bool safemode_option ) : safemode(safemode_option )
 unsigned ftdiFlume::getNumDevices( )
 {
 
-	DWORD numDevs=1;
+	unsigned long numDevs=1;
 	if ( !safemode )
 	{
 //#ifdef _WIN64
 		numDevs = 0;
 		FT_STATUS ftStatus;
-		ftStatus = FT_ListDevices( &numDevs, NULL, FT_LIST_NUMBER_ONLY );
+		ftStatus = FT_ListDevices( &numDevs, nullptr, FT_LIST_NUMBER_ONLY );
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "ERROR: Error listing devices ftdi using FT_ListDevices! Status was \"" + getErrorText( ftStatus ) 
@@ -75,7 +75,7 @@ std::string ftdiFlume::getDeviceInfoList ( )
 	if ( !safemode )
 	{
 		FT_STATUS ftStatus;
-		DWORD numDevs;
+		unsigned long numDevs;
 		// create the device information list
 		ftStatus = FT_CreateDeviceInfoList ( &numDevs );
 		if ( ftStatus != FT_OK )
@@ -127,12 +127,12 @@ void ftdiFlume::setUsbParams( )
 	}
 }
 
-DWORD ftdiFlume::trigger() {
+unsigned long ftdiFlume::trigger() {
 	
 		FT_STATUS ftStatus;
 		std::vector<unsigned char> dataBuffer(7);
 		unsigned long dwNumberOfBytesSent = 0;
-		DWORD BytesWritten = dataBuffer.size();
+		unsigned long BytesWritten = dataBuffer.size();
 		
 		dataBuffer[0] = 161;
 		dataBuffer[1] = 0;
@@ -152,15 +152,15 @@ DWORD ftdiFlume::trigger() {
 		return BytesWritten;
 }
 
-DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite )
+unsigned long ftdiFlume::write( std::vector<unsigned char> dataBuffer, unsigned long amountToWrite )
 {
-	DWORD BytesWritten=dataBuffer.size();
+	unsigned long BytesWritten=dataBuffer.size();
 
 	if ( !safemode )
 	{
 //#ifdef _WIN64
 		FT_STATUS ftStatus;
-		if ( amountToWrite == NULL )
+		if ( amountToWrite == 0 )
 		{
 			amountToWrite = sizeof( dataBuffer );
 		}
@@ -177,10 +177,10 @@ DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWri
 	return BytesWritten;
 }
 
-std::vector<UINT8> ftdiFlume::read ( DWORD readSize )
+std::vector<UINT8> ftdiFlume::read ( unsigned long readSize )
 {
 	std::vector<UINT8> readData(readSize);
-	DWORD amountRead;
+	unsigned long amountRead;
 	if ( !safemode )
 	{
 		auto status = FT_Read ( ftAsyncHandle, &readData[ 0 ], readSize, &amountRead );

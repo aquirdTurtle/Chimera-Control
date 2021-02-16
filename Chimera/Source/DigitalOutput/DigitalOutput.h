@@ -28,7 +28,7 @@ class DigitalOutput
 	private:
 		DoRows::which row;
 		unsigned num;
-		bool status;
+		bool status=0;
 };
 
 

@@ -15,7 +15,6 @@
 #include "GeneralObjects/RunInfo.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "Microwave/MicrowaveSystem.h"
-#include "GeneralFlumes/GpibFlume.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
 #include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"
@@ -27,6 +26,7 @@
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include <Agilent/whichAg.h>
+#include <Plotting/QCustomPlotCtrl.h>
 
 #include <QMainWindow>
 #include <QTimer>
@@ -39,7 +39,7 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
-        explicit QtAuxiliaryWindow (QWidget* parent=NULL);
+        explicit QtAuxiliaryWindow (QWidget* parent=nullptr);
         ~QtAuxiliaryWindow ();
 
 		void initializeWidgets ();
@@ -110,8 +110,8 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		DdsSystem dds;
 		PiezoController piezo1, piezo2, piezo3;
 
-		std::vector<PlotCtrl*> aoPlots;
-		std::vector<PlotCtrl*> ttlPlots;
+		std::vector<QCustomPlotCtrl*> aoPlots;
+		std::vector<QCustomPlotCtrl*> ttlPlots;
 		unsigned NUM_DAC_PLTS = 3;
 		unsigned NUM_TTL_PLTS = 4;
 

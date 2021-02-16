@@ -8,7 +8,7 @@
 
 class TektronixChannelControl{
 	public:
-		void initialize (QPoint loc, IChimeraQtWindow* parent, std::string channel1Text, LONG width);
+		void initialize (QPoint loc, IChimeraQtWindow* parent, std::string channel1Text, long width);
 		tektronixChannelOutput getTekChannelSettings ();
 		void setSettings (tektronixChannelOutput info);
 		void handleEnabledStatus ();

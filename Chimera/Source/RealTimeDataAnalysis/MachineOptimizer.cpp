@@ -217,7 +217,7 @@ void MachineOptimizer::hillClimbingUpdate ( AllExperimentInput& input, dataPoint
 {
 	// handle first value case, should only happen once in entire experiment.
 	auto& param = optStatus.currParam;
-	if ( param == NULL )
+	if ( param == nullptr )
 	{
 		updateCurrRoundDisplay ( str ( roundCount ) );
 		// initial 
@@ -509,7 +509,7 @@ void MachineOptimizer::handleListViewClick ( )
 void MachineOptimizer::reset ( )
 {
 	optStatus.currParam.reset ( );
-	optStatus.currParam = NULL;
+	optStatus.currParam = nullptr;
 	optCount = 0;
 	roundCount = 1;
 	updateCurrRoundDisplay ( "---" );

@@ -118,7 +118,7 @@ void QtMainWindow::setStyleSheets (){
 }
 
 void QtMainWindow::pauseExperiment () {
-	if (expWorker != NULL) {
+	if (expWorker != nullptr) {
 		expWorker->pause ();
 	}
 }
@@ -181,7 +181,7 @@ void QtMainWindow::onMachineOptRoundFin (){
 }
 
 void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
-	input->skipNext = NULL;
+	input->skipNext = nullptr;
 	input->expType = ExperimentType::CameraCal;
 }
 
@@ -380,7 +380,7 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.parentFolderName = "MOT";
 	input->calibrations = calManager.getCalibrationInfo ();
 	// the mot procedure doesn't need the NIAWG at all.
-	input->skipNext = NULL;
+	input->skipNext = nullptr;
 }
 
 bool QtMainWindow::masterIsRunning () { return experimentIsRunning; }

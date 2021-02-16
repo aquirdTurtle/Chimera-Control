@@ -260,7 +260,7 @@ class NiawgCore : public IDeviceCore {
 		std::string rerngWaveName = "rearrangeWaveform";
 		std::vector<double> rerngWaveVals;
 		HANDLE rerngThreadHandle;
-		static unsigned __stdcall rerngThreadProcedure( LPVOID input );
+		//static unsigned __stdcall rerngThreadProcedure( LPVOID input );
 		unsigned triggersInScript=0;
 		// true = active;
 		std::atomic<bool> threadStateSignal;

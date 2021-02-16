@@ -8,9 +8,9 @@
 #include <Plotting/ScopeThreadWorker.h>
 #include <qpushbutton.h>
 
-ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name ) :
-	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name ), viewPlot(traceNumIn,
-		plotStyle::OscilloscopePlot, std::vector<int>(), name) {
+ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name_ ) :
+	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name_ ), viewPlot(traceNumIn,
+		plotStyle::OscilloscopePlot, std::vector<int>()) {
 	try{
 		if (safemode) { ymult = 1.0; }
 		data_pdv.resize (numTraces);
@@ -21,7 +21,7 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned trace
 	}
 	catch ( ChimeraError& err ){
 		/*
-		auto answer = QMessageBox::question (NULL, "Scope Init Failed!", qstr("Failed to initialize " + scopeName 
+		auto answer = QMessageBox::question (nullptr, "Scope Init Failed!", qstr("Failed to initialize " + scopeName 
 			+ ". " + err.trace() + ". Try again?"), QMessageBox::Yes | QMessageBox::No);
 		while (answer == QMessageBox::Yes) {
 			try {
@@ -32,7 +32,7 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned trace
 				break;
 			}
 			catch (ChimeraError & err) {
-				answer = QMessageBox::question (NULL, "Scope Init Failed!", qstr ("Failed to initialize " + scopeName
+				answer = QMessageBox::question (nullptr, "Scope Init Failed!", qstr ("Failed to initialize " + scopeName
 					+ ". " + err.trace () + ". Try again?"), QMessageBox::Yes | QMessageBox::No);
 			}
 		}*/
@@ -59,7 +59,7 @@ void ScopeViewer::initialize( QPoint& pos, unsigned width, unsigned height, IChi
 	if ( initializationFailed )	{
 		title += " (Initialization Failed)";
 	}
-	viewPlot.init (pos, width, height, parent);
+	viewPlot.init (pos, width, height, parent, qstr(scopeName));
 	updateDataBtn = new QPushButton ("Update Data", parent);
 	updateDataBtn->setGeometry (pos.x (), pos.y (), width, 20);
 	pos.ry () += 20;

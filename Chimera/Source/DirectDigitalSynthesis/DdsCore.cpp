@@ -173,7 +173,7 @@ void DdsCore::forceRampsConsistent ( ){
 
 // a wrapper around the ftFlume open
 void DdsCore::connectasync ( ){
-	DWORD numDevs = ftFlume.getNumDevices ( );
+	unsigned long numDevs = ftFlume.getNumDevices ( );
 	if ( numDevs > 0 ){
 		// hard coded for now but you can get the connected serial numbers via the getDeviceInfoList function.
 		ftFlume.open ( "FT1FJ8PEB" );

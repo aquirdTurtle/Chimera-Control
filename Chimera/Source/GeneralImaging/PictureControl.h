@@ -10,6 +10,8 @@
 #include <qlabel.h>
 #include "ImageLabel.h"
 #include <GeneralObjects/Matrix.h>
+#include <Plotting/QCustomPlotCtrl.h>
+
 /*
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
  * picture. Unlike many classes in my program, this is /not/ built to be a singleton. Instead, there should be one 
@@ -43,7 +45,6 @@ class PictureControl : public QWidget{
 		softwareAccumulationOption getSoftwareAccumulationOption ();
 
 		void drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter);
-		void handleEditChange( int id );
 		void updatePalette(QVector<QRgb> pallete );
 		void redrawImage();
 		void setActive( bool activeState );
@@ -67,8 +68,8 @@ class PictureControl : public QWidget{
 		unsigned accumNum;
 		const bool histOption;
 		std::vector<plotDataVec> horData, vertData;
-		PlotCtrl* horGraph;
-		PlotCtrl* vertGraph;
+		QCustomPlotCtrl* horGraph = nullptr;
+		QCustomPlotCtrl* vertGraph = nullptr;
 		bool mostRecentAutoScale;
 		int mostRecentAutoMin;
 		int mostRecentAutoMax;
@@ -96,15 +97,15 @@ class PictureControl : public QWidget{
 		QVector<QRgb> imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<RECT>> grid;
-		ImageLabel* pictureObject;
-		QPixmap* pixmap;
+		ImageLabel* pictureObject = nullptr;
+		QPixmap* pixmap = nullptr;
 
 		LongQSlider sliderMax;
 		LongQSlider sliderMin;
 
 		//Control<CPushButton> myButton;
-		QLabel* coordinatesText;
-		QLabel* coordinatesDisp;
-		QLabel* valueText;
-		QLabel* valueDisp;
+		QLabel* coordinatesText = nullptr;
+		QLabel* coordinatesDisp = nullptr;
+		QLabel* valueText = nullptr;
+		QLabel* valueDisp = nullptr;
 };

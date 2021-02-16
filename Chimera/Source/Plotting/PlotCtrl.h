@@ -51,7 +51,7 @@ class PlotCtrl : public QObject {
 		void initializeCalData (calSettings cal);
 		void removeData ();
 		QtCharts::QScatterSeries* getCalData ();
-		void init( QPoint& topLeftLoc, LONG width, LONG height, IChimeraQtWindow* parent );
+		void init( QPoint& topLeftLoc, long width, long height, IChimeraQtWindow* parent );
 		dataPoint getMainAnalysisResult ( );
 		void resetChart ();
 		void setStyle (plotStyle newStyle);

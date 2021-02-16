@@ -78,7 +78,7 @@ void PiezoController::updateCtrl ( ){
 	edits.z->setEnabled ( ctrl );
 }
 
-void PiezoController::initialize ( QPoint& pos, IChimeraQtWindow* parent, LONG width, piezoChan<std::string> names ){
+void PiezoController::initialize ( QPoint& pos, IChimeraQtWindow* parent, long width, piezoChan<std::string> names ){
 	auto& px = pos.rx (), & py = pos.ry ();
 	core.initialize ( );
 

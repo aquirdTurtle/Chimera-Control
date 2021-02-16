@@ -3,7 +3,7 @@
 
 
 void DigitalOutput::updateStatus ( ){
-	if ( check == NULL )
+	if ( check == nullptr )
 	{
 		return;
 	}

@@ -72,39 +72,39 @@ class AndorCameraSettingsControl{
 		double getAccumulationCycleTime( );
 		unsigned getAccumulationNumber( );
 		imageParameters readImageParameters( );
-		QLabel* header;
-		QPushButton* programNow;
-		QCheckBox* viewRunningSettings;
-		CQCheckBox* controlAndorCameraCheck;
+		QLabel* header = nullptr;
+		QPushButton* programNow = nullptr;
+		QCheckBox* viewRunningSettings = nullptr;
+		CQCheckBox* controlAndorCameraCheck = nullptr;
 		// Hardware Accumulation Parameters
-		QLabel* accumulationCycleTimeLabel;
-		CQLineEdit* accumulationCycleTimeEdit;
-		QLabel* accumulationNumberLabel;
-		CQLineEdit* accumulationNumberEdit;
+		QLabel* accumulationCycleTimeLabel = nullptr;
+		CQLineEdit* accumulationCycleTimeEdit = nullptr;
+		QLabel* accumulationNumberLabel = nullptr;
+		CQLineEdit* accumulationNumberEdit = nullptr;
 		// 
-		CQComboBox* cameraModeCombo;
+		CQComboBox* cameraModeCombo = nullptr;
 		
-		CQComboBox* frameTransferModeCombo;
-		CQComboBox* verticalShiftSpeedCombo;
-		CQComboBox* horizontalShiftSpeedCombo;
+		CQComboBox* frameTransferModeCombo = nullptr;
+		CQComboBox* verticalShiftSpeedCombo = nullptr;
+		CQComboBox* horizontalShiftSpeedCombo = nullptr;
 
-		QLabel* emGainLabel;
-		CQLineEdit* emGainEdit;
-		CQPushButton* emGainBtn;
-		QLabel* emGainDisplay;
-		CQComboBox* triggerCombo;
+		QLabel* emGainLabel = nullptr;
+		CQLineEdit* emGainEdit = nullptr;
+		CQPushButton* emGainBtn = nullptr;
+		QLabel* emGainDisplay = nullptr;
+		CQComboBox* triggerCombo = nullptr;
 		// Temperature
-		CQPushButton* setTemperatureButton;
-		CQPushButton* temperatureOffButton;
-		CQLineEdit* temperatureEdit;
-		QLabel* temperatureDisplay;
-		QLabel* temperatureMsg;
+		CQPushButton* setTemperatureButton = nullptr;
+		CQPushButton* temperatureOffButton = nullptr;
+		CQLineEdit* temperatureEdit = nullptr;
+		QLabel* temperatureDisplay = nullptr;
+		QLabel* temperatureMsg = nullptr;
 
 		// Kinetic Cycle Time
-		CQLineEdit* kineticCycleTimeEdit;
-		QLabel* kineticCycleTimeLabel;
-		QLabel* minKineticCycleTimeDisp;
-		QLabel* minKineticCycleTimeLabel;
+		CQLineEdit* kineticCycleTimeEdit = nullptr;
+		QLabel* kineticCycleTimeLabel = nullptr;
+		QLabel* minKineticCycleTimeDisp = nullptr;
+		QLabel* minKineticCycleTimeLabel = nullptr;
 		// two subclassed groups.
 		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;

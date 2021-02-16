@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "Microwave/MicrowaveSystem.h"
-#include "GeneralFlumes/GpibFlume.h"
 #include "LowLevel/constants.h"
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include <qheaderview.h>
@@ -72,7 +71,7 @@ void MicrowaveSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 			auto time = boost::lexical_cast<double>(str(triggerStepTimeEdit->text ()));
 			core.setTrigTime (time);
 		}
-		catch (boost::bad_lexical_cast & err) {} // probably just happens while user is trying to type
+		catch (boost::bad_lexical_cast &) {} // probably just happens while user is trying to type
 		});
 	
 	uwListListview = new QTableWidget (parent);

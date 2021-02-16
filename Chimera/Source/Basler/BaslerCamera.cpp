@@ -285,7 +285,7 @@ void BaslerCameraCore::armCamera( ){
 	input->frameRate = runSettings.frameRate;
 	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
 	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
-		_beginthread( triggerThread, NULL, input );
+		_beginthread( triggerThread, 0, input );
 	}
 }
 

@@ -18,7 +18,7 @@ class QtDeformableMirrorWindow : public IChimeraQtWindow {
     Q_OBJECT
 		 
     public:
-        explicit QtDeformableMirrorWindow (QWidget* parent=NULL);
+        explicit QtDeformableMirrorWindow (QWidget* parent=nullptr);
         ~QtDeformableMirrorWindow ();
 
         void initializeWidgets ();
@@ -27,7 +27,6 @@ class QtDeformableMirrorWindow : public IChimeraQtWindow {
         void windowSaveConfig (ConfigStream& newFile);
         void fillExpDeviceList (DeviceList& list);
 
-        void handlePistonChange (unsigned id);
         void handleAddAbberations ();
         
     private:

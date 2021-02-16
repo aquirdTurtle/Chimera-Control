@@ -102,15 +102,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Microwave\RsgFlume.cpp">
-      <Filter>MicrowaveSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
@@ -310,10 +301,14 @@
     <ClCompile Include="Source\AnalogInput\CalibrationThreadWorker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Plotting\QCustomPlotCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_Party\QCustomPlot\qcustomplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="longnam.h">
-    </ClInclude>
     <ClInclude Include="FTDI\ftd2xx.h">
       <Filter>DIO</Filter>
     </ClInclude>
@@ -448,12 +443,6 @@
     <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Microwave\RsgFlume.h">
-      <Filter>MicrowaveSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
@@ -486,17 +475,8 @@
     <ClInclude Include="Source\Plotting\dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Microwave\RsgFlume.h">
-      <Filter>MicrowaveSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
@@ -727,9 +707,6 @@
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\NIAWG\rampInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -900,6 +877,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\Plotting\QCustomPlotCtrl.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="3rd_Party\QCustomPlot\qcustomplot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

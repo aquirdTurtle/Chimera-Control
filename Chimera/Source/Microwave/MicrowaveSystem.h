@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "GeneralFlumes/GpibFlume.h"
 #include "Microwave/MicrowaveCore.h"
 #include "Microwave/MicrowaveSettings.h"
 #include "ConfigurationSystems/Version.h"

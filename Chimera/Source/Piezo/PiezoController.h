@@ -18,7 +18,7 @@ class PiezoController : public IChimeraSystem {
 		PiezoController (const PiezoController&) = delete;
 
 		PiezoController (IChimeraQtWindow* parent, piezoSetupInfo info);
-		void initialize ( QPoint& pos, IChimeraQtWindow* parent, LONG width, piezoChan<std::string> names );
+		void initialize ( QPoint& pos, IChimeraQtWindow* parent, long width, piezoChan<std::string> names );
 		std::string getDeviceInfo ( );
 		void updateCurrentValues ( );
 		void handleOpenConfig (ConfigStream& configFile);

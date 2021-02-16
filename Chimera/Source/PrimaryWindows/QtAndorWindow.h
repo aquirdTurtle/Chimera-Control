@@ -23,6 +23,7 @@
 #include "GeneralObjects/Queues.h"
 #include <Piezo/PiezoController.h>
 #include <Python/NewPythonHandler.h>
+#include <Plotting/QCustomPlotCtrl.h>
 #include <bitset>
 
 class AnalysisThreadWorker;
@@ -36,7 +37,7 @@ class QtAndorWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
-        explicit QtAndorWindow (QWidget* parent=NULL);
+        explicit QtAndorWindow (QWidget* parent=nullptr);
         ~QtAndorWindow ();
 
 		void initializeWidgets ();
@@ -121,7 +122,7 @@ class QtAndorWindow : public IChimeraQtWindow{
 		DataAnalysisControl analysisHandler;
 		NewPythonHandler pythonHandler;
 		DataLogger dataHandler;
-		std::vector<PlotCtrl*> mainAnalysisPlots;
+		std::vector<QCustomPlotCtrl*> mainAnalysisPlots;
 		coordinate selectedPixel = { 0,0 };
 		
 		// some picture menu options

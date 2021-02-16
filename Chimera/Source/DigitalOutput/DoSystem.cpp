@@ -18,7 +18,7 @@
 // #include "Dio64.h"
 DoSystem::DoSystem( IChimeraQtWindow* parent, bool ftSafemode, bool serialSafemode ) 
 	: core(ftSafemode, serialSafemode), IChimeraSystem(parent){
-	for (auto& out : outputs) { out.set(0); }
+	//for (auto& out : outputs) { out.set(0); }
 }
 
 DoSystem::~DoSystem() { }

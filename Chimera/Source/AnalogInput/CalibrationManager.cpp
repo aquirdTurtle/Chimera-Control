@@ -10,8 +10,7 @@
 #include <qapplication.h>
 
 CalibrationManager::CalibrationManager (IChimeraQtWindow* parent) : IChimeraSystem (parent), 
-calibrationViewer(1, plotStyle::CalibrationPlot,std::vector<int>(),"Calibration View",false,false) {}
-
+calibrationViewer(1, plotStyle::CalibrationPlot,std::vector<int>(),false,false) {}
 
 void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai_in, AoSystem* ao_in,
 									 DoSystem* ttls_in, std::vector<std::reference_wrapper<AgilentCore>> agilents_in,
@@ -19,7 +18,9 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 	auto& px = pos.rx (), & py = pos.ry ();
 	px += 480;
 	py -= 300;
-	calibrationViewer.init (pos, 480, 300, parent);
+	calibrationViewer.init (pos, 480, 300, parent, "Calibration View");
+	calibrationViewer.plot->xAxis->setLabel("Control Voltage (V)");
+	calibrationViewer.plot->yAxis->setLabel("Photodetector Result Voltage (V)");
 	px += -480;
 	calsHeader = new QLabel ("CALIBRATION MANAGER", parent);
 	calsHeader->setGeometry (px, py, 280, 20);
@@ -235,7 +236,7 @@ void CalibrationManager::handleContextMenu (const QPoint& pos) {
 	auto* setHistorical = new QAction ("Set Historical Fit", calibrationTable);
 	calibrationTable->connect (setHistorical, &QAction::triggered, [this, item]() {
 		try {
-			auto answer = QMessageBox::question (NULL, qstr ("Are You Sure?"), qstr ("Are You Sure?"), QMessageBox::Yes
+			auto answer = QMessageBox::question (nullptr, qstr ("Are You Sure?"), qstr ("Are You Sure?"), QMessageBox::Yes
 				| QMessageBox::No);
 			if (answer == QMessageBox::Yes) {
 				calibrations[item->row ()].historicalResult = calibrations[item->row ()].result;
@@ -517,8 +518,9 @@ void CalibrationManager::standardStartThread (std::vector<std::reference_wrapper
 			calibrationViewer.initializeCalData (cal);
 		});
 	connect (threadWorker, &CalibrationThreadWorker::newCalibrationDataPoint, this, [this](QPointF pt) {
-			auto chartData = calibrationViewer.getCalData ();
-			*chartData << pt;
+			auto* chartData = calibrationViewer.getCalData ();
+			chartData->addData(pt.x(), pt.y());
+			//*chartData << pt;
 		});
 	connect (threadWorker, &CalibrationThreadWorker::finishedCalibration, this, [this](calSettings cal) {
 			updateCalibrationView (cal);

@@ -24,8 +24,8 @@ class DoCore
 		void fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, unsigned offset, unsigned count, ftdiPt pt);
 		void ftdi_connectasync (const char devSerial[]);
 		void ftdi_disconnect ();
-		DWORD ftdi_write (unsigned variation, bool loadSkipf);
-		DWORD ftdi_trigger ();
+		unsigned long ftdi_write (unsigned variation, bool loadSkipf);
+		unsigned long ftdi_trigger ();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot ();
 		std::string getDoSystemInfo ();
 		void standardNonExperimentStartDoSequence (DoSnapshot initSnap);
@@ -42,7 +42,7 @@ class DoCore
 		std::string getTtlSequenceMessage (unsigned variation);
 		std::vector<double> getFinalTimes ();
 		unsigned countTriggers (std::pair<DoRows::which, unsigned> which, unsigned variation);
-		DWORD ftdi_ForceOutput (DoRows::which row, int number, int state, std::array<std::array<bool, 16>, 4> status);
+		unsigned long ftdi_ForceOutput (DoRows::which row, int number, int state, std::array<std::array<bool, 16>, 4> status);
 		// returns -1 if not a name.
 		bool isValidTTLName (std::string name);
 		int getNameIdentifier (std::string name, DoRows::which& row, unsigned& number);

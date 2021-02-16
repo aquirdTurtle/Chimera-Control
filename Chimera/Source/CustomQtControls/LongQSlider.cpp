@@ -3,7 +3,7 @@
 #include "LongQSlider.h"
 #include "boost/lexical_cast.hpp"
 
-void LongQSlider::reposition (QPoint loc, LONG totalHeight){
+void LongQSlider::reposition (QPoint loc, long totalHeight){
 	if (!header || !edit || !slider){
 		return;
 	}
@@ -25,9 +25,6 @@ void LongQSlider::hide ( int hideornot ) {
 	slider->setVisible (hideornot);
 }
 
-unsigned LongQSlider::getEditId ( ){
-	return NULL;
-}
 
 void LongQSlider::initialize ( QPoint& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText ){
 	auto& px = loc.rx (), & py = loc.ry ();
@@ -58,10 +55,6 @@ void LongQSlider::initialize ( QPoint& loc, IChimeraQtWindow* parent, int width,
 		handleSlider (value); 
 		parent->configUpdated ();
 		});
-}
-
-int LongQSlider::getSliderId ( ){
-	return NULL;
 }
 
 double LongQSlider::getValue ( ){

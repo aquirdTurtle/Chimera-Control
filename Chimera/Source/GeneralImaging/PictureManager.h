@@ -26,7 +26,6 @@ class PictureManager {
 						 std::vector<atomGrid> grids, unsigned pictureNumber,
 						 bool includingAnalysisMarkers, QPainter& painter);
 		void createPalettes( );
-		void handleEditChange( unsigned id );
 		softwareAccumulationOption getSoftwareAccumulationOpt (unsigned whichPicControl);
 		void setAlwaysShowGrid(bool showOption, QPainter& painter);
 		void redrawPictures(coordinate selectedLocation, std::vector<atomGrid> gridInfo, bool forceGrid, 

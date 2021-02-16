@@ -14,7 +14,7 @@ void WinSerialFlume::resetConnection (){
 
 void WinSerialFlume::open ( std::string fileAddr ){
 	if ( !safemode ) {
-		serialPortHandle = CreateFile (("\\\\.\\" + fileAddr).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+		serialPortHandle = CreateFile (("\\\\.\\" + fileAddr).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
 		if ( serialPortHandle == INVALID_HANDLE_VALUE ) {
 			thrower ( "WinSerialFlume Failed to initialize serial port \"" + portAddress + "\"!" );
 		}
@@ -54,7 +54,7 @@ void WinSerialFlume::write( std::string msg ){
 		if ( serialPortHandle == INVALID_HANDLE_VALUE ){
 			thrower ( "Tried to write serial without a valid handle! did flume initailize properly?" );
 		}
-		if ( WriteFile ( serialPortHandle, &buffer[ 0 ], buffer.size(), &numberOfBytesWritten, NULL ) != 0 ){
+		if ( WriteFile ( serialPortHandle, &buffer[ 0 ], buffer.size(), &numberOfBytesWritten, nullptr ) != 0 ){
 			if ( numberOfBytesWritten != buffer.size() ){
 				thrower ( "Bad value for numberOfBytesWritten: " + str ( numberOfBytesWritten ) );
 			}
@@ -68,7 +68,7 @@ void WinSerialFlume::write( std::string msg ){
 
 std::string WinSerialFlume::read ( ){
 	std::vector<char> buf;
-	DWORD numBytesRead;
+	unsigned long numBytesRead;
 	if ( !safemode ) {
 		int err;
 		char readChar;

@@ -9,7 +9,7 @@
 void PictureStats::initialize( QPoint& pos, IChimeraQtWindow* parent )
 {
 	auto& px = pos.rx (), & py = pos.ry ();
-	LONG size = 315;
+	long size = 315;
 	pictureStatsHeader = new QLabel ("Raw Counts", parent);
 	pictureStatsHeader->setGeometry (px, py, size, 25);
 	repetitionIndicator = new QLabel ("Repetition ?/?", parent);

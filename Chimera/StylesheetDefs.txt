@@ -31,7 +31,7 @@ $green:     #859900;
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Dark Solarized
 
 @MainTextColor #6c71c4
-@NeutralTextColor rgba( 200, 200, 200, 255 )
+@NeutralTextColor #c8c8c8
 @DefaultFontSize 11pt
 @StaticBackground #073642
 @InteractableBackground #002b36

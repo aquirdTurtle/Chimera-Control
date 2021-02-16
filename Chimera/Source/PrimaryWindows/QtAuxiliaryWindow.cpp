@@ -75,7 +75,7 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		// initialize plot controls.
 		unsigned dacPlotSize = 500 / NUM_DAC_PLTS;
 		for (auto dacPltCount : range (aoPlots.size ())){
-			std::string titleTxt;
+			QString titleTxt;
 			switch (dacPltCount){
 			case 0:
 				titleTxt = "DACs: 0-7";
@@ -87,15 +87,16 @@ void QtAuxiliaryWindow::initializeWidgets (){
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl (8, plotStyle::DacPlot, std::vector<int> (), titleTxt);
-			aoPlots[dacPltCount]->init (loc, 480, dacPlotSize, this);
+			//aoPlots[dacPltCount] = new QCustomPlotCtrl(8, plotStyle::DacPlot, std::vector<int> (), titleTxt);
+			aoPlots[dacPltCount] = new QCustomPlotCtrl(8, plotStyle::DacPlot, std::vector<int>());
+			aoPlots[dacPltCount]->init (loc, 480, dacPlotSize, this, titleTxt);
 		}
 		// ttl plots are similar to aoSys.
 		ttlPlots.resize (NUM_TTL_PLTS);
 		unsigned ttlPlotSize = 500 / NUM_TTL_PLTS;
 		for (auto ttlPltCount : range (ttlPlots.size ())){
 			// currently assuming 4 ttl plots...
-			std::string titleTxt;
+			QString titleTxt;
 			switch (ttlPltCount){
 			case 0:
 				titleTxt = "Ttls: Row A";
@@ -110,8 +111,8 @@ void QtAuxiliaryWindow::initializeWidgets (){
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl (16, plotStyle::TtlPlot, std::vector<int> (), titleTxt);
-			ttlPlots[ttlPltCount]->init (loc, 480, ttlPlotSize, this);
+			ttlPlots[ttlPltCount] = new QCustomPlotCtrl(16, plotStyle::TtlPlot, std::vector<int> ());
+			ttlPlots[ttlPltCount]->init (loc, 480, ttlPlotSize, this, titleTxt);
 		}
 	}
 	catch (ChimeraError& err){
@@ -400,7 +401,7 @@ AiSystem& QtAuxiliaryWindow::getAiSys () {
 
 void QtAuxiliaryWindow::handleAbort (){
 	if (optimizer.isInMiddleOfOptimizing ()){
-		auto answer = QMessageBox::question (NULL, qstr ("Save Opt?"), qstr ("Save Optimization Data?"), 
+		auto answer = QMessageBox::question (nullptr, qstr ("Save Opt?"), qstr ("Save Optimization Data?"), 
 			QMessageBox::Yes | QMessageBox::No);
 		if (answer == QMessageBox::Yes){
 			optimizer.onFinOpt ();
@@ -523,7 +524,7 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 		int varNum;
 		configStream >> varNum;
 		if (varNum < 0 || varNum > 1000){
-			auto answer = QMessageBox::question (NULL, qstr ("Suspicious?"), qstr ("Variable number retrieved from "
+			auto answer = QMessageBox::question (nullptr, qstr ("Suspicious?"), qstr ("Variable number retrieved from "
 				"file appears suspicious. The number is " + str (varNum) + ". Is this accurate?"), QMessageBox::Yes
 				| QMessageBox::No);
 			if (answer == QMessageBox::No){

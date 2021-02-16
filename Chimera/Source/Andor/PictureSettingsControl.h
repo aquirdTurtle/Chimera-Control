@@ -59,26 +59,26 @@ class PictureSettingsControl {
 		andorPicSettingsGroup currentPicSettings;
 		unsigned unofficialPicsPerRep=1;
 		/// Grid of PictureOptions
-		QLabel* totalPicNumberLabel;
-		QLabel* pictureLabel;
-		QLabel* exposureLabel;
-		QLabel* thresholdLabel;
-		QLabel* colormapLabel;
-		QLabel* displayTypeLabel;
-		QLabel* softwareAccumulationLabel;
-		QLabel* picScaleFactorLabel;
-		QLineEdit* picScaleFactorEdit;
+		QLabel* totalPicNumberLabel = nullptr;
+		QLabel* pictureLabel = nullptr;
+		QLabel* exposureLabel = nullptr;
+		QLabel* thresholdLabel = nullptr;
+		QLabel* colormapLabel = nullptr;
+		QLabel* displayTypeLabel = nullptr;
+		QLabel* softwareAccumulationLabel = nullptr;
+		QLabel* picScaleFactorLabel = nullptr;
+		QLineEdit* picScaleFactorEdit = nullptr;
 
-		CQComboBox* transformationModeCombo;
+		CQComboBox* transformationModeCombo=nullptr;
 		// 
-		std::array<CQRadioButton*, 4> totalNumberChoice;
-		std::array<QLabel*, 4> pictureNumbers;
-		std::array<CQLineEdit*, 4> exposureEdits;
-		std::array<CQLineEdit*, 4> thresholdEdits;
-		std::array<CQComboBox*, 4> colormapCombos;
-		std::array<CQComboBox*, 4> displayTypeCombos;
-		std::array<CQCheckBox*, 4> softwareAccumulateAll;
-		std::array<CQLineEdit*, 4> softwareAccumulateNum;
+		std::array<CQRadioButton*, 4> totalNumberChoice = { nullptr };
+		std::array<QLabel*, 4> pictureNumbers = { nullptr };
+		std::array<CQLineEdit*, 4> exposureEdits = { nullptr };
+		std::array<CQLineEdit*, 4> thresholdEdits = { nullptr };
+		std::array<CQComboBox*, 4> colormapCombos = { nullptr };
+		std::array<CQComboBox*, 4> displayTypeCombos = { nullptr };
+		std::array<CQCheckBox*, 4> softwareAccumulateAll = { nullptr };
+		std::array<CQLineEdit*, 4> softwareAccumulateNum = { nullptr };
 };
 
 

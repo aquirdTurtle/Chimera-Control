@@ -58,7 +58,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -88,7 +88,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>msvc2019_64</QtInstall>
-    <QtModules>core;gui;uitools;widgets;charts</QtModules>
+    <QtModules>core;gui;uitools;widgets;charts;printsupport</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'" Label="QtSettings">
@@ -170,6 +170,9 @@
     <QtModules>core;gui;uitools;widgets;charts</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>msvc2019_64</QtInstall>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -222,7 +225,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;NO_WARN_MBCS_MFC_DEPRECATION;_DEBUG;_CONSOLE;_LIB;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -327,6 +330,7 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <QtMoc Include="3rd_Party\QCustomPlot\qcustomplot.h" />
     <ClInclude Include="MOC\moc_predefs.h" />
     <ClInclude Include="Source\Agilent\AgilentCore.h" />
     <ClInclude Include="Source\Agilent\whichAg.h" />
@@ -447,6 +451,7 @@
     </QtMoc>
     <ClInclude Include="Source\NIAWG\rampInfo.h" />
     <ClInclude Include="Source\Piezo\piezoChan.h" />
+    <QtMoc Include="Source\Plotting\QCustomPlotCtrl.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtScriptWindow.h -o MOC\moc_QtScriptWindow.cpp</Command>
@@ -554,7 +559,6 @@
     <ClInclude Include="Source\Piezo\PiezoType.h" />
     <ClInclude Include="Source\GeneralObjects\Queues.h" />
     <ClInclude Include="Source\Microwave\MicrowaveCore.h" />
-    <ClInclude Include="Source\Microwave\RsgFlume.h" />
     <ClInclude Include="Source\Agilent\SegmentEnd.h" />
     <ClInclude Include="Source\Piezo\SerialPiezoFlume.h" />
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
@@ -582,7 +586,6 @@
     <ClInclude Include="Source\Plotting\PlotDataSet.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.h" />
     <ClInclude Include="Source\NIAWG\Fgen.h" />
-    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h" />
     <ClInclude Include="Source\GeneralImaging\imageParameters.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h" />
     <ClInclude Include="Source\Andor\AndorCameraCore.h" />
@@ -648,6 +651,9 @@
     <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="3rd_Party\QCustomPlot\qcustomplot.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Agilent\Agilent.cpp" />
     <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp" />
@@ -696,6 +702,7 @@
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
     <ClCompile Include="Source\CustomQtControls\LongQSlider.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
+    <ClCompile Include="Source\Plotting\QCustomPlotCtrl.cpp" />
     <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
@@ -715,7 +722,6 @@
     <ClCompile Include="Source\Piezo\PiezoFlume.cpp" />
     <ClCompile Include="Source\NIAWG\Rearrangement\rerngOptionStructures.cpp" />
     <ClCompile Include="Source\Microwave\MicrowaveCore.cpp" />
-    <ClCompile Include="Source\Microwave\RsgFlume.cpp" />
     <ClCompile Include="Source\Agilent\SegmentEnd.cpp" />
     <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp" />
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
@@ -738,7 +744,6 @@
     <ClCompile Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.cpp" />
     <ClCompile Include="Source\NIAWG\Fgen.cpp" />
-    <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\MasterConfiguration.cpp" />

@@ -11,7 +11,7 @@ AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE ) {
  */
 void AiSystem::initDaqmx( ){
 	daqmx.createTask( "Analog-Input", analogInTask0 );
-	daqmx.createAiVoltageChan( analogInTask0, cstr(boardName + "/ai0:7"), "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
+	daqmx.createAiVoltageChan( analogInTask0, cstr(boardName + "/ai0:7"), "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, nullptr );
 }
 
 
@@ -59,7 +59,7 @@ void AiSystem::initialize (QPoint& loc, IChimeraQtWindow* parent) {
 	py += 20;
 	// there's a single label first, hence the +1.
 	long dacInc = 0, collumnInc = 0, numCols=4;
-	LONG colSize = LONG(480 / numCols);
+	long colSize = long(480 / numCols);
 	for ( auto& disp : voltDisplays ){
 		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols ){	// then next column. 
 			collumnInc++;
@@ -71,7 +71,7 @@ void AiSystem::initialize (QPoint& loc, IChimeraQtWindow* parent) {
 		dacInc++;
 	}
 	collumnInc = 0;
-	py -= LONG (20 * voltDisplays.size( ) / numCols);
+	py -= long(20 * voltDisplays.size( ) / numCols);
 
 	for ( auto dacInc : range( NUMBER_AI_CHANNELS ) ){
 		auto& label = dacLabels[dacInc];

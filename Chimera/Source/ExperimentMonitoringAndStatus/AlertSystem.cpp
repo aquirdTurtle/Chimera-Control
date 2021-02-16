@@ -120,13 +120,13 @@ bool AlertSystem::wantsMotAlerts ( )
 
 void AlertSystem::playSound()
 {
-	mciSendString("play mp3 from 0", NULL, 0, NULL);
+	mciSendString("play mp3 from 0", nullptr, 0, nullptr);
 }
 
 
 void AlertSystem::stopSound()
 {
-	mciSendString("stop mp3", NULL, 0, NULL);
+	mciSendString("stop mp3", nullptr, 0, nullptr);
 }
 
 

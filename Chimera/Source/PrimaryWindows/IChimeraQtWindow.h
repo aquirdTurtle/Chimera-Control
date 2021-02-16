@@ -23,7 +23,7 @@ namespace Ui {
 class IChimeraQtWindow : public QMainWindow{
 	Q_OBJECT
 	public:
-		explicit IChimeraQtWindow (QWidget* parent = NULL);
+		explicit IChimeraQtWindow (QWidget* parent = nullptr);
 		~IChimeraQtWindow () {};
 		// any chimera window should override these functions in order to handle
 		virtual void windowOpenConfig (ConfigStream& configFile)=0;
@@ -40,12 +40,12 @@ class IChimeraQtWindow : public QMainWindow{
 		void reportStatus (QString statusStr, unsigned notificationLevel=0);
 
 		std::vector<IChimeraQtWindow*> winList();
-		QtMainWindow* mainWin = NULL;
-		QtScriptWindow* scriptWin = NULL;
-		QtAndorWindow* andorWin = NULL;
-		QtAuxiliaryWindow* auxWin = NULL;
-		QtBaslerWindow* basWin = NULL;
-		QtDeformableMirrorWindow* dmWin = NULL;
+		QtMainWindow* mainWin = nullptr;
+		QtScriptWindow* scriptWin = nullptr;
+		QtAndorWindow* andorWin = nullptr;
+		QtAuxiliaryWindow* auxWin = nullptr;
+		QtBaslerWindow* basWin = nullptr;
+		QtDeformableMirrorWindow* dmWin = nullptr;
 		static constexpr unsigned numWindows = 6;
 		ColorBox* statBox;
 		virtual void changeBoxColor (std::string sysDelim, std::string color);

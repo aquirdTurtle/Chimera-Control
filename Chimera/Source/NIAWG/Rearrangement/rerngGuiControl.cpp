@@ -110,7 +110,6 @@ rerngGuiOptions rerngGuiControl::getParams( )
 	tempParams.outputIndv = outputIndividualEvents->isChecked ( );
 	tempParams.preprogram = preprogramMoves->isChecked ( );
 	tempParams.useCalibration = useCalibration->isChecked( );
-	CString tempTxt;
 	try
 	{
 		tempParams.flashingRate = str (flashingRateEdit->text ());

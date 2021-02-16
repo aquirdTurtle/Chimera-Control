@@ -825,10 +825,10 @@ void NiawgCore::openWaveformFiles(){
 	for (unsigned folderInc = 0; folderInc < WAVEFORM_TYPE_FOLDERS.size(); folderInc++){
 		std::string folderPath = LIB_PATH + WAVEFORM_TYPE_FOLDERS[folderInc];
 		folderPath.resize( folderPath.size() - 1 );
-		DWORD ftyp = GetFileAttributesA( cstr(folderPath) );
+		unsigned long ftyp = GetFileAttributesA( cstr(folderPath) );
 		if (ftyp == INVALID_FILE_ATTRIBUTES || !(ftyp & FILE_ATTRIBUTE_DIRECTORY)){
 			// create directory
-			if (!CreateDirectory( cstr(folderPath), NULL )){
+			if (!CreateDirectory( cstr(folderPath), nullptr )){
 				thrower ( "Error Creating directory for waveform library system. Error was windows error " 
 						 + str( GetLastError()) + ", Path was " + folderPath);
 			}
@@ -2725,8 +2725,8 @@ void NiawgCore::startRerngThread( atomQueue* atomQueue, waveInfoForm& wave,
 	}
 	unsigned rearrangerId;
 	// start the thread with ~10MB of memory (it may get rounded to some page size)
-	rerngThreadHandle = (HANDLE)_beginthreadex( 0, 1e7, NiawgCore::rerngThreadProcedure, (void*)input,
-												STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
+	//rerngThreadHandle = (HANDLE)_beginthreadex( 0, 1e7, NiawgCore::rerngThreadProcedure, (void*)input,
+	//											STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
 	if ( !rerngThreadHandle ){
 		errBox( "beginThreadEx error: " + str( GetLastError( ) ) );
 	}
@@ -2872,7 +2872,7 @@ niawgPair<std::vector<unsigned>> NiawgCore::findLazyPosition ( Matrix<bool> sour
 	return indexes;
 }
 
-unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
+//unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
 	//rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	//std::vector<bool> triedRearranging;
 	//std::vector<double> streamTime, triggerTime, resetPositionTime, /*picHandlingTime, picGrabTime,*/ rerngCalcTime, 
@@ -3270,7 +3270,7 @@ unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
 	////input->comm.sendStatus( "Exiting rearranging thread.\r\n" );
 	//delete input;
 	//return 0;
-}
+//}
 
 Matrix<bool> NiawgCore::calculateFinalTarget ( Matrix<bool> target, niawgPair<unsigned long> finalPos, unsigned rows, unsigned cols ){
 	// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
@@ -3433,21 +3433,21 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 
 	// each element of u represents one of the sources, and the value of that element is the distance of that source to 
 	// the closest target.
-	std::vector<double> u( numSources );
+	std::vector<double> u_( numSources );
 	// v is more complicated.
-	std::vector<double> v( numTargets );
+	std::vector<double> v_( numTargets );
 	// 
 	for (int sourceInc = 0; sourceInc < numSources; sourceInc++){
-		u[sourceInc] = cost(sourceInc,0);
+		u_[sourceInc] = cost(sourceInc,0);
 		for (int targetInc = 1; targetInc < numTargets; targetInc++){
-			u[sourceInc] = min( u[sourceInc], cost(sourceInc, targetInc) );
+			//u_[sourceInc] = min( u_[sourceInc], cost(sourceInc, targetInc) );
 		}
 	}
 
 	for (int targetInc = 0; targetInc < numTargets; targetInc++){
-		v[targetInc] = cost(0,targetInc) - u[0];
+		v_[targetInc] = cost(0,targetInc) - u_[0];
 		for (int sourceInc = 1; sourceInc < numSources; sourceInc++){
-			v[targetInc] = min( v[targetInc], cost(sourceInc,targetInc) - u[sourceInc] );
+			//v_[targetInc] = min( v_[targetInc], cost(sourceInc,targetInc) - u_[sourceInc] );
 		}
 	}
 
@@ -3463,7 +3463,7 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 				// already matched.
 				continue;
 			}
-			if (fabs( cost(sourceInc,targetInc) - u[sourceInc] - v[targetInc] ) < 1e-10){
+			if (fabs( cost(sourceInc,targetInc) - u_[sourceInc] - v_[targetInc] ) < 1e-10){
 				sourceMates[sourceInc] = targetInc;
 				targetMates[targetInc] = sourceInc;
 				numberMated++;
@@ -3493,7 +3493,7 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 		fill( dad.begin(), dad.end(), -1 );
 		fill( seen.begin(), seen.end(), false );
 		for (auto targetInc : range(numTargets)){
-			dist[targetInc] = cost(currentUnmatchedSource,targetInc) - u[currentUnmatchedSource] - v[targetInc];
+			dist[targetInc] = cost(currentUnmatchedSource,targetInc) - u_[currentUnmatchedSource] - v_[targetInc];
 		}
 
 		int closestTarget = 0;
@@ -3524,7 +3524,7 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 				}
 
 				const double new_dist = dist[closestTarget] + cost( closestTargetMate,targetInc)
-					- u[closestTargetMate] - v[targetInc];
+					- u_[closestTargetMate] - v_[targetInc];
 				if (dist[targetInc] > new_dist){
 					dist[targetInc] = new_dist;
 					dad[targetInc] = closestTarget;
@@ -3539,11 +3539,11 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 			}
 
 			const int closestTargetMate = targetMates[targetInc];
-			v[targetInc] += dist[targetInc] - dist[closestTarget];
-			u[closestTargetMate] -= dist[targetInc] - dist[closestTarget];
+			v_[targetInc] += dist[targetInc] - dist[closestTarget];
+			u_[closestTargetMate] -= dist[targetInc] - dist[closestTarget];
 		}
 
-		u[currentUnmatchedSource] += dist[closestTarget];
+		u_[currentUnmatchedSource] += dist[closestTarget];
 		// augment along path
 		while (dad[closestTarget] >= 0){
 			const int d = dad[closestTarget];

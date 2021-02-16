@@ -181,7 +181,7 @@ void DmControl::initializeTable(QPoint& pos, int width, int height, IChimeraQtWi
 	sphereMag->setGeometry (px, py += height, width, height);
 	sphereAngle = new QLineEdit (parent);
 	sphereAngle->setGeometry (px + width, py, width, height);
-	sphericalLabel = new QLabel ("Trefoil", parent);
+	sphericalLabel = new QLabel ("Spherical", parent);
 	sphericalLabel->setGeometry (px + 2 * width, py, width, height);
 
 	applyCorrections = new QPushButton ("Apply Corrections", parent);
@@ -217,7 +217,7 @@ void DmControl::initialize( QPoint loc, IChimeraQtWindow* parent, int count, std
 					{px - (2 * width), py + 11 * width}, 
 					{px, py + 12 * width } };
 	px -= 4 * width;
-	py += 12 * width;
+	py += 13 * width;
 	int numCollumns[13] = { 5, 9, 11, 11, 13, 13, 13, 13, 13, 11, 11, 9, 5 };
 	int editNum = 0;
 	for (int rowInc : range(13)){
