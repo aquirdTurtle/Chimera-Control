@@ -17,6 +17,11 @@ void IChimeraQtWindow::reportErr (statusMsg msg){
 	mainWin->onErrorMessage (msg);
 }
 
+void IChimeraQtWindow::reportWarning(statusMsg msg) {
+	msg.baseLevel += 1;
+	mainWin->onErrorMessage(msg);
+}
+
 void IChimeraQtWindow::reportStatus (statusMsg msg){
 	mainWin->handleNotification (msg);
 }

@@ -5,10 +5,10 @@
 #include "Andor/CameraImageDimensions.h"
 #include "Andor/AndorRunSettings.h"
 #include "Basler/BaslerSettingsControl.h"
-#include "AnalogInput/ServoManager.h"
 #include "AnalogInput/servoInfo.h"
 #include "Tektronix/TektronixStructures.h"
 #include <Piezo/piezoChan.h>
+#include <GeneralObjects/Matrix.h>
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
@@ -17,6 +17,8 @@
 #include <string>
 #include <functional>
 
+class DoCore;
+class AoSystem;
 struct ExperimentThreadInput;
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
@@ -30,7 +32,7 @@ class DataLogger : public IChimeraSystem {
 		void initializeDataFiles( std::string specialName="", bool needsCal=true);
 		void writeAndorPic( Matrix<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image );
-		void writeVolts ( unsigned currentVoltNumber, std::vector<float64> data );
+		void writeVolts ( unsigned currentVoltNumber, std::vector<double> data );
 		void assertCalibrationFilesExist ();
 		void logServoInfo (std::vector<servoInfo> servos);
 		void logMasterInput( ExperimentThreadInput* input );

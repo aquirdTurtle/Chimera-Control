@@ -103,17 +103,16 @@ std::string AgilentCore::getDeviceIdentity (){
 	return msg;
 }
 
-
 void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, deviceOutputInfo runSettings, 
 							  ExpThreadWorker* expWorker){
 	if (!connected ()){
 		return;
 	}
-	auto notify = expWorker != nullptr // if in expworker, emit notification, else no way to notify currently. 
-		? std::function{ [expWorker](QString note, unsigned debugLevel) {emit expWorker->notification({note, debugLevel}); } }
-		: std::function{ [expWorker] (QString note, unsigned debugLevel) { } };
+	//auto notify = expWorker != nullptr // if in expworker, emit notification, else no way to notify currently. 
+	//	? std::function{ [expWorker](QString note, unsigned debugLevel) {emit expWorker->notification({note, debugLevel}); } }
+	//	: std::function{ [expWorker] (QString note, unsigned debugLevel) { } };
 	try{
-		notify ("Writing Agilent output sync option: " + qstr (runSettings.synced), 2);
+		notify({ "Writing Agilent output sync option: " + qstr(runSettings.synced), 2 }, expWorker);
 		visaFlume.write ("OUTPut:SYNC " + str (runSettings.synced));
 	}
 	catch (ChimeraError&){
@@ -127,27 +126,27 @@ void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, 
 				case AgilentChannelMode::which::No_Control:
 					break;
 				case AgilentChannelMode::which::Output_Off:
-					notify (stdNote + "Output off.\n",1);
+					notify({ stdNote + "Output off.\n",1 }, expWorker);
 					outputOff (chan + 1);
 					break;
 				case AgilentChannelMode::which::DC:
-					notify (stdNote + " DC Voltage.\n", 1);
+					notify({ stdNote + " DC Voltage.\n", 1 }, expWorker);
 					setDC (chan + 1, channel.dc, var);
 					break;
 				case AgilentChannelMode::which::Sine:
-					notify (stdNote + " Sine Wave.\n", 1);
+					notify({ stdNote + " Sine Wave.\n", 1 }, expWorker);
 					setSine (chan + 1, channel.sine, var);
 					break;
 				case AgilentChannelMode::which::Square:
-					notify (stdNote + " Square Wave.\n", 1);
+					notify({ stdNote + " Square Wave.\n", 1 }, expWorker);
 					setSquare (chan + 1, channel.square, var);
 					break;
 				case AgilentChannelMode::which::Preloaded:
-					notify (stdNote + " Preloaded Wave.\n", 1);
+					notify({ stdNote + " Preloaded Wave.\n", 1 }, expWorker);
 					setExistingWaveform (chan + 1, channel.preloadedArb);
 					break;
 				case AgilentChannelMode::which::Script:
-					notify (stdNote + " Script \"" + qstr(channel.scriptedArb.fileAddress) + "\"\n", 1);
+					notify({ stdNote + " Script \"" + qstr(channel.scriptedArb.fileAddress) + "\"\n", 1 }, expWorker);
 					handleScriptVariation (var, channel.scriptedArb, chan + 1, params);
 					setScriptOutput (var, channel.scriptedArb, chan + 1);
 					break;

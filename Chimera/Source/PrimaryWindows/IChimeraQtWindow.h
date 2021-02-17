@@ -37,6 +37,7 @@ class IChimeraQtWindow : public QMainWindow{
 		void loadFriends (QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
 						  QtBaslerWindow* basWin_, QtDeformableMirrorWindow* dmWindow_, QtAndorWindow* andorWin_);
 		void reportErr (statusMsg msg);
+		void reportWarning(statusMsg msg);
 		void reportStatus (statusMsg msg);
 
 		std::vector<IChimeraQtWindow*> winList();

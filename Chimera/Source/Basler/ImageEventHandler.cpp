@@ -24,11 +24,6 @@ void ImageEventHandler::OnImageGrabbed (Pylon::CInstantCamera& camera, const Pyl
 			long vertBinNumber = grabResult->GetHeight ();
 			Matrix<long> imageMatrix(vertBinNumber, width,
 				std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));
-			/*imageMatrix->updateString ();
-			for (auto& elem : *imageMatrix) {
-				elem *= long (256.0 / 1024.0);
-			}
-			imageMatrix->updateString ();*/
 			emit worker->newBaslerImage (imageMatrix);
 		}
 		else {

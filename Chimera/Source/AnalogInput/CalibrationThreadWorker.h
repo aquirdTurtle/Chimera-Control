@@ -35,10 +35,13 @@ class CalibrationThreadWorker : public QObject {
 	public Q_SLOTS:
 		void runAll ();
 		void calibrate (calSettings& cal, unsigned which);
-	Q_SIGNALS:
-		void notification (QString msg, unsigned baseLvl = 0, int debugLvl=0);
+Q_SIGNALS:
+		void notification(statusMsg);
+		void warn(statusMsg);
+		void error(statusMsg);
+		/*void notification (QString msg, unsigned baseLvl = 0, int debugLvl=0);
 		void warn (QString msg, unsigned debugLvl = 1);
-		void error (QString msg, unsigned debugLvl = 0);
+		void error (QString msg, unsigned debugLvl = 0);*/
 		void calibrationChanged ();
 		void startingNewCalibration (calSettings cal);
 		void newCalibrationDataPoint (QPointF point);

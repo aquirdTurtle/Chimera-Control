@@ -26,14 +26,13 @@ class StatusControl{
 		
 	private:
 		void addPlainStatusTextInner(statusMsg newMsg);
-		void addPlainStatusTextInner(std::string text, unsigned level = 0);
 		void addColoredStatusTextInner(statusMsg newMsg);
-		void addColoredStatusTextInner(std::string text, unsigned level = 0);
 		QLabel* header=nullptr;
 		QLabel* debugLevelLabel = nullptr;
 		CQLineEdit* debugLevelEdit = nullptr;
 		QTextEdit* edit = nullptr;
 		unsigned currentLevel=-1;
+		bool indicateOrigin = true;
 		QPushButton* clearBtn = nullptr;
 		QPushButton* redrawBtn = nullptr;
 		std::vector<std::string> colors;

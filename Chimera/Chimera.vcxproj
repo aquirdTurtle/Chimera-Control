@@ -618,7 +618,6 @@
     <ClInclude Include="Source\Agilent\Segment.h" />
     <ClInclude Include="Source\Agilent\segmentStructs.h" />
     <ClInclude Include="Source\AnalogInput\servoInfo.h" />
-    <ClInclude Include="Source\AnalogInput\ServoManager.h" />
     <ClInclude Include="Source\Python\SmsTextingControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h" />
@@ -693,6 +692,7 @@
     <ClCompile Include="Source\GeneralImaging\PictureStats.cpp" />
     <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
     <ClCompile Include="Source\GeneralObjects\IChimeraSystem.cpp" />
+    <ClCompile Include="Source\GeneralObjects\IDeviceCore.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgSystem.cpp" />
     <ClCompile Include="Source\GeneralObjects\CodeTimer.cpp" />
@@ -763,7 +763,6 @@
     <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp" />
     <ClCompile Include="Source\Scripts\ScriptStream.cpp" />
     <ClCompile Include="Source\Agilent\Segment.cpp" />
-    <ClCompile Include="Source\AnalogInput\ServoManager.cpp" />
     <ClCompile Include="Source\Python\SmsTextingControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />

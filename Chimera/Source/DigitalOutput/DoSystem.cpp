@@ -92,7 +92,7 @@ void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 		try{
 			parent->configUpdated ();
 			handleHoldPress ();
-			emit notification({ "Handling Hold Press.\n", 2 });
+			emit notification({ "Handling Hold Press.\n", 2, "DO_SYSTEM" });
 		}
 		catch (ChimeraError& exception){
 			emit error ("TTL Hold Handler Failed: " + exception.qtrace () + "\n");
@@ -107,10 +107,10 @@ void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 		try	{
 			zeroBoard ();
 			parent->configUpdated();
-			emit notification({ "Zero'd DOs.\n",2 });
+			emit notification({ "Zero'd DOs.\n",2, "DO_SYSTEM" });
 		}
 		catch (ChimeraError& exception) {
-			emit notification({ "Failed to Zero DOs!!!\n",1 });
+			emit notification({ "Failed to Zero DOs!!!\n",1, "DO_SYSTEM" });
 			emit error(exception.qtrace ());
 		}
 	});
@@ -139,7 +139,7 @@ void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 				try {
 					handleTTLPress (out);
 					emit notification({ "Handled DO " + qstr(DoRows::toStr(out.getPosition().first)) + ","
-									  + qstr(out.getPosition().second) + " State Change.\n", 2 });
+									  + qstr(out.getPosition().second) + " State Change.\n", 2, "DO_SYSTEM" });
 					parent->configUpdated ();
 				}
 				catch (ChimeraError& exception)	{

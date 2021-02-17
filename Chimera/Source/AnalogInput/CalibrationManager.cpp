@@ -263,7 +263,7 @@ std::vector<calResult> CalibrationManager::getCalibrationInfo (){
 }
 
 void CalibrationManager::handleSaveMasterConfig (std::stringstream& configStream) {
-	configStream << "\nCALIBRATION_MANAGER" 
+	configStream << "\n" << systemDelim
 		<< "\n/*Auto Cal Checked: */ " << expAutoCalButton->isChecked ()
 		<< "\n/*Calibration Number: */ " << calibrations.size ();
 	for (auto& cal : calibrations) {
@@ -486,7 +486,7 @@ bool CalibrationManager::wantsExpAutoCal () {
 }
 
 void CalibrationManager::runAllThreaded () {
-	emit notification ("Running All Calibrations.\n");
+	emit notification({ str("Running All Calibrations.\n"),0,systemDelim });
 	std::vector<std::reference_wrapper<calSettings>> calInput;
 	for (auto& cal : calibrations) {
 		calInput.push_back (cal);
@@ -510,16 +510,17 @@ void CalibrationManager::standardStartThread (std::vector<std::reference_wrapper
 
 	threadWorker->moveToThread (thread);
 	connect (threadWorker, &CalibrationThreadWorker::notification, this, &IChimeraSystem::notification);
-	connect (threadWorker, &CalibrationThreadWorker::warn, this, &IChimeraSystem::error);
+	connect (threadWorker, &CalibrationThreadWorker::warn, this, &IChimeraSystem::warning);
 	connect (threadWorker, &CalibrationThreadWorker::error, this, &IChimeraSystem::error);
 	connect (threadWorker, &CalibrationThreadWorker::calibrationChanged, this, [this]() { refreshListview (); });
 	connect (threadWorker, &CalibrationThreadWorker::startingNewCalibration, this, [this](calSettings cal) {
-			calibrationViewer.removeData ();
-			calibrationViewer.initializeCalData (cal);
+		updateCalibrationView(cal);
+		calibrationViewer.initializeCalData (cal);
 		});
 	connect (threadWorker, &CalibrationThreadWorker::newCalibrationDataPoint, this, [this](QPointF pt) {
 			auto* chartData = calibrationViewer.getCalData ();
 			chartData->addData(pt.x(), pt.y());
+			calibrationViewer.plot->replot();
 			//*chartData << pt;
 		});
 	connect (threadWorker, &CalibrationThreadWorker::finishedCalibration, this, [this](calSettings cal) {

@@ -290,7 +290,7 @@ void DmControl::updateEditColor (QLineEdit* edit) {
 }
 
 void DmControl::programNow() {
-	emit notification ("Programming DM!");
+	emit notification({ "Programming DM!", 0, core.getDelim() });
 	std::vector<double> values;
 	for (auto actNum : range(137)) {
 		std::string s2 = str(actuatorEdits[actNum]->text(), 4, false, true);
@@ -313,7 +313,7 @@ void DmControl::programNow() {
 }
 
 void DmControl::setMirror(std::vector<double> valArray) {
-	emit notification (qstr ("Loading Value Array onto DM.\n"));
+	emit notification ({str ("Loading Value Array onto DM.\n"), 0, core.getDelim() });
 	core.loadArray(valArray.data());
 	updateButtons(); //pass an array and program it
 }
@@ -338,8 +338,8 @@ void DmControl::loadProfile(){
 	loadProfile (str (profileSelector->itemText (id)));
 }
 
-void DmControl::loadProfile(std:: string filename){
-	emit notification (qstr ("Loading DM Profile " + filename + "\n"));
+void DmControl::loadProfile(std::string filename) {
+	emit notification({str("Loading DM Profile " + filename + "\n"), 0, core.getDelim()});
 	std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
 	if (!file.is_open()) {
 		thrower("File did not open");

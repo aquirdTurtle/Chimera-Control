@@ -126,11 +126,11 @@ class QtAndorWindow : public IChimeraQtWindow{
 		coordinate selectedPixel = { 0,0 };
 		
 		// some picture menu options
-		bool autoScalePictureData;
-		bool alwaysShowGrid;
-		bool specialLessThanMin;
-		bool specialGreaterThanMax;
-		bool realTimePic;
+		bool autoScalePictureData=false;
+		bool alwaysShowGrid=false;
+		bool specialLessThanMin=false;
+		bool specialGreaterThanMax=false;
+		bool realTimePic=false;
 		// plotting stuff;
 		std::atomic<HANDLE> plotThreadHandle;
 		std::condition_variable rearrangerConditionVariable;

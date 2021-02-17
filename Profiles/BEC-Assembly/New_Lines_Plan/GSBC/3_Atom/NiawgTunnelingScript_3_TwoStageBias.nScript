@@ -10,7 +10,7 @@ var main_v_f 81
 var dumpf 117 
 var spacing 5
 
- var_v 3 linRamps [ lin lin lin ]    
+var_v 3 linRamps [ lin lin lin ]    
 var_v 3 edgeramps [ lin nr lin ] 
 var_v 3 freqs [ 69 81 93 ] 
 var_v 3 finFreqs [ (81-spacing) 81 (81+spacing) ] 

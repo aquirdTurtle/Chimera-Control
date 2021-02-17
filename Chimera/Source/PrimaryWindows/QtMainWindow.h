@@ -9,7 +9,6 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraQtWindow.h"
 #include <AnalogInput/CalibrationManager.h>
-#include <AnalogInput/ServoManager.h>
 #include "ConfigurationSystems/ConfigSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
@@ -97,11 +96,9 @@ class QtMainWindow : public IChimeraQtWindow{
 		std::vector<calResult> getCalInfo ();
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
-		//void handleNotification (QString txt, unsigned level=0, int debugLvl=0);
 		void handleNotification(statusMsg errMsg);
 		void onRepProgress (unsigned int repNum);
 		void onErrorMessage(statusMsg errMsg);
-		//void onErrorMessage (QString errMessage, unsigned level=0);
 		void onNormalFinish (statusMsg, profileSettings finishedProfile );
 		void onFatalError (statusMsg);
 
@@ -131,8 +128,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		ScopeViewer masterRepumpScope, motScope, expScope;
 		//
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
-		unsigned autoCalNum = 0;
-
-		
+		unsigned autoCalNum = 0;	
 };
 

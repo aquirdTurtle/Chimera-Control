@@ -32,7 +32,7 @@ void DataLogger::deleteFile(){
 		thrower ("Failed to delete h5 file! Error code: " + str(GetLastError()) + ".\r\n");
 	}
 	else{
-		emit notification( "Deleted h5 file located at \"" + qstr(fileAddress) + "\"\r\n" );
+		emit notification({ "Deleted h5 file located at \"" + qstr(fileAddress) + "\"\r\n", 0, "DATA_LOGGER"});
 	}
 }
 
@@ -499,7 +499,7 @@ void DataLogger::initializeAiLogging( unsigned numSnapshots ){
 }
  
  
-void DataLogger::writeVolts( unsigned currentVoltNumber, std::vector<float64> data ){
+void DataLogger::writeVolts( unsigned currentVoltNumber, std::vector<double> data ){
 	if ( fileIsOpen == false ){
 		thrower ( "Tried to write to h5 file, but the file is closed!\r\n" );
 	}
@@ -586,7 +586,7 @@ void DataLogger::assertClosed () {
 	}
 	andorDataSetShouldBeValid = false;
 	fileIsOpen = false;
-	emit notification({ "Closing HDF5 File and associated structures.\n", 0 });
+	emit notification({ "Closing HDF5 File and associated structures.\n", 0, "DATA_LOGGER" });
 }
 
 void DataLogger::normalCloseFile(){

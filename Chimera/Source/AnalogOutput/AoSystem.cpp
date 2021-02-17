@@ -65,7 +65,7 @@ void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap ){
 	handleSetDacsButtonPress( ttls );
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence(initSnap);
-	emit notification ("Forced Analog Output Values Complete.\n");
+	emit notification({ "Forced Analog Output Values Complete.\n", 0, "AO_SYSTEM" });
 }
 
 void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap){
@@ -78,7 +78,7 @@ void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap){
 	}
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
-	emit notification({ "Zero'd Analog Outputs.\n", 2 });
+	emit notification({ "Zero'd Analog Outputs.\n", 2, "AO_SYSTEM" });
 }
 
 std::array<AoInfo, 24> AoSystem::getDacInfo( ){
@@ -102,7 +102,7 @@ void AoSystem::setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSna
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
 	updateEdits( );
-	emit notification({ "Set single dac #" + qstr(dacNumber) + " to value " + qstr(val) + "\n", 2 });
+	emit notification({ "Set single dac #" + qstr(dacNumber) + " to value " + qstr(val) + "\n", 2, "AO_SYSTEM" });
 }
 
 void AoSystem::handleOpenConfig(ConfigStream& openFile){
@@ -113,7 +113,7 @@ void AoSystem::handleOpenConfig(ConfigStream& openFile){
 			openFile >> trash;
 		}
 	}
-	emit notification({ "AO system finished opening config.\n", 2 });
+	emit notification({ "AO system finished opening config.\n", 2, "AO_SYSTEM" });
 }
 
 void AoSystem::standardExperimentPrep ( unsigned variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 

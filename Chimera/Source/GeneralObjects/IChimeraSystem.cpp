@@ -6,7 +6,7 @@
 IChimeraSystem::IChimeraSystem (IChimeraQtWindow* parent_in) {
 	parentWin = parent_in;
 	connect (this, &IChimeraSystem::error, parentWin, &IChimeraQtWindow::reportErr);
-	connect (this, &IChimeraSystem::warning, parentWin, &IChimeraQtWindow::reportErr);
+	connect (this, &IChimeraSystem::warning, parentWin, &IChimeraQtWindow::reportWarning);
 	connect (this, &IChimeraSystem::notification, parentWin, &IChimeraQtWindow::reportStatus);
 }
 

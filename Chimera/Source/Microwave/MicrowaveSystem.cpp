@@ -132,7 +132,7 @@ void MicrowaveSystem::programNow(std::vector<parameterType> constants){
 
 	core.calculateVariations (constants, nullptr);
 	core.programVariation (0, constants, nullptr);
-	emit notification ("Finished programming microwave system!\n");
+	emit notification({ "Finished programming microwave system!\n", 0, core.getDelim() });
 }
 
 

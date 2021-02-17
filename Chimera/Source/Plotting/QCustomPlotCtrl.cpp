@@ -43,7 +43,10 @@ dataPoint QCustomPlotCtrl::getMainAnalysisResult() {
 }
 
 QCPGraph* QCustomPlotCtrl::getCalData() {
-	return plot->graph();
+	if (plot->graphCount() == 0) {
+		plot->addGraph();
+	}
+	return plot->graph(0);
 }
 
 void QCustomPlotCtrl::removeData() {
@@ -51,40 +54,23 @@ void QCustomPlotCtrl::removeData() {
 }
 
 void QCustomPlotCtrl::initializeCalData(calSettings cal) {
-	plot->clearGraphs();
+	if (plot->graphCount() == 0) {
+		plot->addGraph();
+	}
+	plot->graph(0)->setPen(QColor(Qt::white));
+	plot->graph(0)->setLineStyle(QCPGraph::lsNone);
+	plot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+	plot->graph(0)->setData({}, {});
+	//plot->clearGraphs();
 	//view->chart()->removeAllSeries();
 	//calibrationData = new QtCharts::QScatterSeries(view->chart());
 	//calibrationData->setBorderColor(Qt::black);
 	//calibrationData->setMarkerSize(8.0);
 	//calibrationData->setColor(QColor(255, 255, 255));
 	//calibrationData->setName("Calibration Data");
-	//view->chart()->addSeries(calibrationData);
 	//double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
-	//// set the range based on the previous calibration
-	//for (auto xpt : cal.result.ctrlVals) {
-	//	xmin = xpt < xmin ? xpt : xmin;
-	//	xmax = xpt > xmax ? xpt : xmax;
-	//}
-	//for (auto ypt : cal.result.resVals) {
-	//	ymin = ypt < ymin ? ypt : ymin;
-	//	ymax = ypt > ymax ? ypt : ymax;
-	//}
 	//resetChart();
-	//if (!view->chart()->axes(Qt::Horizontal)[0]) {
-	//	return;
-	//}
-	//if (xmax == xmin) {
-	//	view->chart()->axes(Qt::Horizontal)[0]->setRange(xmin - 1, xmin + 1);
-	//}
-	//else {
-	//	view->chart()->axes(Qt::Horizontal)[0]->setRange(xmin - (xmax - xmin) / 20, xmax + (xmax - xmin) / 20);
-	//}
-	//if (ymax == ymin) {
-	//	view->chart()->axes(Qt::Vertical)[0]->setRange(ymin - 1, ymin + 1);
-	//}
-	//else {
-	//	view->chart()->axes(Qt::Vertical)[0]->setRange(ymin - (ymax - ymin) / 20, ymax + (ymax - ymin) / 20);
-	//}
+
 }
 
 void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
@@ -104,10 +90,11 @@ void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
 			calYdata.append(newLineData[count].y);
 		}
 		plot->addGraph();
-		plot->graph()->setName("Data");
-		plot->graph()->setPen(QColor(Qt::white));
-		plot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
-		plot->graph()->setData(calXdata, calYdata);
+		plot->graph(0)->setName("Data");
+		plot->graph(0)->setLineStyle(QCPGraph::lsNone);
+		plot->graph(0)->setPen(QColor(Qt::white));
+		plot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+		plot->graph(0)->setData(calXdata, calYdata);
 		// second line
 		auto& newLineData2 = newData[1];
 		QVector<double> fitXdata, fitYdata;
@@ -116,9 +103,9 @@ void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
 			fitYdata.append(newLineData2[count].y);
 		}
 		plot->addGraph();
-		plot->graph()->setPen(QColor(Qt::red));
-		plot->graph()->addData(fitXdata, fitYdata);
-		plot->graph()->setName("Fit");
+		plot->graph(1)->setPen(QColor(Qt::red));
+		plot->graph(1)->setData(fitXdata, fitYdata);
+		plot->graph(1)->setName("Fit");
 		// third line
 		auto& newLineData3 = newData[2];
 		QVector<double> histCalXdata, histCalYdata;
@@ -127,35 +114,44 @@ void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
 			histCalYdata.append(newLineData3[count].y);
 		}
 		plot->addGraph();
-		plot->graph()->setName("Historical Fit");
-		plot->graph()->setPen(QColor("orange"));
-		plot->graph()->addData(fitXdata, fitYdata);
+		plot->graph(2)->setName("Historical Fit");
+		plot->graph(2)->setPen(QColor("orange"));
+		plot->graph(2)->setData(histCalXdata, histCalYdata);
 	}
 	else if (style == plotStyle::BinomialDataPlot) {
 		if (newData.size() == 0 || !plot) {
 			return;
 		}
-		unsigned lineCount = 0;
 		for (auto traceNum : range(newData.size())) {
 			auto& newLine = newData[traceNum];
-			QVector<double> newXdata, newYdata;
-
+			QVector<double> newXdata, newYdata, yerrData;
 			for (auto count : range(newLine.size())) {
 				newXdata.append(newLine[count].x);
 				newYdata.append(newLine[count].y);
+				yerrData.append(newLine[count].err);
 			}
-
 			plot->addGraph();
-			plot->graph()->setName("DSet " + qstr(traceNum + 1));
-			if (lineCount == newData.size() - 1) {
+			QCPErrorBars* errorBars = new QCPErrorBars(plot->xAxis, plot->yAxis);
+			errorBars->removeFromLegend();
+			errorBars->setAntialiased(false);
+			errorBars->setDataPlottable(plot->graph());
+			if (traceNum == newData.size() - 1) {
+				plot->graph()->setName("Avg.");
 				plot->graph()->setPen(QColor(Qt::white));
+				errorBars->setPen(QColor(Qt::white));
+				plot->graph()->setScatterStyle(QCPScatterStyle::ssDisc);
 			}
 			else {
-				auto gcolor = GIST_RAINBOW_RGB[lineCount * GIST_RAINBOW_RGB.size() / newData.size()];
-				plot->graph()->setPen(QColor(gcolor[0], gcolor[1], gcolor[2], 100));
-			}
-			plot->graph()->setName("Historical Fit");
-			plot->graph()->addData(newXdata, newYdata);
+				plot->graph()->setName("DSet " + qstr(traceNum + 1));
+				auto gcolor = GIST_RAINBOW_RGB[traceNum * GIST_RAINBOW_RGB.size() / newData.size()];
+				auto qtColor = QColor(gcolor[0], gcolor[1], gcolor[2], 100);
+				plot->graph()->setPen(qtColor);
+				errorBars->setPen(qtColor);
+				plot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
+			}			
+			plot->graph()->setLineStyle(QCPGraph::lsNone);
+			plot->graph()->setData(newXdata, newYdata);
+			errorBars->setData(yerrData);
 		}
 	}
 	else if (style == plotStyle::HistPlot) {
@@ -208,9 +204,8 @@ void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
 			plot->graph()->addData(newXdata, newYdata);
 		}
 	}
-	plot->rescaleAxes();
-	plot->replot();
 	resetChart();
+	plot->replot();
 }
 
 void QCustomPlotCtrl::setTitle(std::string newTitle) {
@@ -231,6 +226,19 @@ void QCustomPlotCtrl::resetChart() {
 	}
 	else {
 		plot->legend->setVisible(true);
+	}
+	
+	if (style == plotStyle::BinomialDataPlot) {
+		plot->yAxis->setRange({ 0,1 });
+		plot->xAxis->rescale();
+	}
+	else if (style == plotStyle::HistPlot) {
+		plot->yAxis->rescale();
+		plot->yAxis->setRangeLower(0);
+		plot->xAxis->rescale();
+	}
+	else {
+		plot->rescaleAxes();
 	}
 
 	auto defs = chimeraStyleSheets::getDefs();

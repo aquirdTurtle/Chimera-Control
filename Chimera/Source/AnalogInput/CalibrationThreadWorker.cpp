@@ -45,7 +45,7 @@ void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {
 	}
 	auto& result = cal.result;
 	emit startingNewCalibration (cal);
-	emit notification (qstr ("Running Calibration " + result.calibrationName + ".\n"), 1);
+	emit notification({ qstr("Running Calibration " + result.calibrationName + ".\n"), 1, qstr("CALIBRATION_THREAD_WORKER")});
 	cal.currentlyCalibrating = true;
 	input.ttls->zeroBoard ();
 	input.ao->zeroDacs (input.ttls->getCore (), { 0, input.ttls->getCurrentStatus () });

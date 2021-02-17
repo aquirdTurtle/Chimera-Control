@@ -284,7 +284,7 @@ void Script::saveScript(std::string configPath, RunInfo info){
 	scriptFullAddress = configPath + scriptName + extension;
 	scriptPath = configPath;
 	updateSavedStatus(true);
-	emit notification({ "Finished saving script.\n", 0 });
+	emit notification({ "Finished saving script.\n", 0, deviceType });
 }
 
 //
@@ -316,7 +316,7 @@ void Script::saveScriptAs(std::string location, RunInfo info){
 	scriptFullAddress = location;
 	updateScriptNameText(location);
 	updateSavedStatus(true);
-	emit notification({ "Finished saving script.\n", 0 });
+	emit notification({ "Finished saving script.\n", 0, deviceType });
 }
 
 //
@@ -535,7 +535,7 @@ void Script::loadFile(std::string pathToFile){
 	// put the default into the new control.
 	edit->setText(cstr(fileText));
 	openFile.close();
-	emit notification({ qstr("Finished loading " + deviceType + " file\n"),1 });
+	emit notification({ qstr("Finished loading " + deviceType + " file\n"),1, qstr(deviceType) });
 }
 
 
@@ -643,7 +643,7 @@ void Script::saveAsFunction(){
 		//
 	}
 	else{
-		emit notification ( "Overwriting function definition for function at " + qstr(path) + "...\r\n" );
+		emit notification({ "Overwriting function definition for function at " + qstr(path) + "...\r\n", 0, qstr(deviceType) });
 		fclose ( file );
 	}
 	std::fstream functionFile(path, std::ios::out);
@@ -659,7 +659,7 @@ void Script::saveAsFunction(){
 		availableFunctionsCombo.combo->setCurrentIndex (index);
 	}
 	updateSavedStatus( true );
-	emit notification({ "Finished saving script as a function.\n",0 });
+	emit notification({ "Finished saving script as a function.\n",0, deviceType});
 }
 
 void Script::setEnabled ( bool enabled, bool functionsEnabled ){

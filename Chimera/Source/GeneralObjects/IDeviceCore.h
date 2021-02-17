@@ -19,6 +19,7 @@ class IDeviceCore : public QObject{
 		virtual void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) = 0;
 		virtual void programVariation (unsigned variation, std::vector<parameterType>& params, 
 										ExpThreadWorker* threadworker) = 0;
+		void notify(statusMsg msg, ExpThreadWorker* threadworker);
 		virtual void normalFinish () = 0;
 		virtual void errorFinish () = 0;
 		virtual std::string getDelim()=0;

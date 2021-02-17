@@ -186,9 +186,6 @@
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AnalogInput\ServoManager.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralObjects\CodeTimer.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
@@ -305,6 +302,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3rd_Party\QCustomPlot\qcustomplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralObjects\IDeviceCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -605,9 +605,6 @@
     </ClInclude>
     <ClInclude Include="Source\ConfigurationSystems\NoteSystem.h">
       <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AnalogInput\ServoManager.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\AnalogInput\servoInfo.h">
       <Filter>Auxiliary Window</Filter>

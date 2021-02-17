@@ -123,7 +123,7 @@ void ConfigSystem::openConfigFromPath( std::string pathToConfig, IChimeraQtWindo
 		errBox( "ERROR: Unhandled error while opening configuration files!\n\n" + err.trace() );
 	}
 	updateConfigurationSavedStatus ( true );
-	emit notification ("Finished opening config.\n");
+	emit notification({ "Finished opening config.\n", 0, "CONFIGURATION_SYSTEM" });
 }
 
 void ConfigSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version minVer ){
@@ -227,7 +227,7 @@ void ConfigSystem::saveConfiguration(IChimeraQtWindow* win){
 	configSaveFile << saveStream.str ();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
-	emit notification({ "Finished Saving Configuration.\n", 0 });
+	emit notification({ "Finished Saving Configuration.\n", 0 , "CONFIGURATION_SYSTEM" });
 }
 
 /*
@@ -268,7 +268,7 @@ void ConfigSystem::saveConfigurationAs(IChimeraQtWindow* win){
  	configSaveFile << configSaveStream.str ();
  	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
-	emit notification({ "Finished Saving Configuration.\n", 0 });
+	emit notification({ "Finished Saving Configuration.\n", 0, "CONFIGURATION_SYSTEM" });
 }
 
 void ConfigSystem::renameConfiguration(){

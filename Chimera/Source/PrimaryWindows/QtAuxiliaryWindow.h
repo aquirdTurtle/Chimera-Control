@@ -21,7 +21,6 @@
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
 #include "Tektronix/TektronixAfgControl.h"
 #include "AnalogInput/AiSystem.h"
-#include "AnalogInput/ServoManager.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"

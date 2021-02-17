@@ -14,6 +14,7 @@ struct ExpRuntimeData {
 	std::vector<parameterType> expParams;
 };
 
+
 class ExpThreadWorker : public QObject {
     Q_OBJECT
 
@@ -93,6 +94,8 @@ class ExpThreadWorker : public QObject {
 		std::atomic<bool> isPaused = false;
 		std::atomic<bool> isAborting = false;
 		std::atomic<bool>& experimentIsRunning;
+		void notify(statusMsg msg);
+
     public Q_SLOTS:
         void process ();
     Q_SIGNALS:

@@ -354,9 +354,6 @@ softwareAccumulationOption PictureControl::getSoftwareAccumulationOption () {
 	return saOption;
 }
 
-/* 
-  Version of this from the Basler camera control Code. I will consolidate these shortly.
-*/
 void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
 								  bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber,
 								  bool includingAnalysisMarkers ){
@@ -422,7 +419,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 	int dataHeight = grid[ 0 ].size ( );
 	int totalGridSize = dataWidth * dataHeight;
 	if (drawData.size ( ) != totalGridSize ){
-		thrower  ( "Picture data didn't match grid size!" );
+		thrower  ( "Picture data size " + str(drawData.size()) + " didn't match grid size " + str(totalGridSize) + "!" );
 	}
 	
 	float yscale = ( 256.0f ) / (float) colorRange;

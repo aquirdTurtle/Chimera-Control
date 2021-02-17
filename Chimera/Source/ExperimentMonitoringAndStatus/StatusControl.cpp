@@ -53,7 +53,6 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 }
 
 void StatusControl::addStatusToQue(statusMsg newMsg) {
-	statusMsg test = { "test\t\n!",0 };
 	msgQue.push_back(newMsg);
 	if (msgQue.size() > maxQueSize) {
 		msgQue.pop_front();
@@ -63,6 +62,7 @@ void StatusControl::addStatusToQue(statusMsg newMsg) {
 void StatusControl::redrawControl() {
 	edit->clear();
 	for (auto msg : msgQue) {
+		// importantly add here without re-adding to queue. 
 		addColoredStatusTextInner(msg);
 	}
 }
@@ -73,48 +73,49 @@ void StatusControl::addStatusText(statusMsg msg) {
 }
 
 void StatusControl::addPlainStatusTextInner(statusMsg msg) {
-	addPlainStatusTextInner(str(msg.msg), msg.baseLevel);
+	if (currentLevel >= msg.baseLevel) {
+		std::string finText = str(msg.msg);
+		for (auto lvl : range(msg.baseLevel)) {
+			// visual indication of what level a message is.
+			finText = ">" + finText;
+		}
+		addPlainText(finText);
+	}
 }
 
 void StatusControl::addColoredStatusTextInner(statusMsg msg) {
-	addColoredStatusTextInner(str(msg.msg), msg.baseLevel);
-}
-
-void StatusControl::addPlainStatusTextInner (std::string text, unsigned level){
-	if (currentLevel >= level) {
-		for (auto lvl : range (level)) {
-			// visual indication of what level a message is.
-			text = ">" + text;
-		}
-		addPlainText(text);
-	}
-}
-
-void StatusControl::addColoredStatusTextInner(std::string text, unsigned level) {
 	if (colors.size() == 0) {
 		return;
 	}
-	if (currentLevel >= level) {
-		for (auto lvl : range(level)) {
-			// visual indication of what level a message is.
-			text = ">" + text;
+	if (currentLevel >= msg.baseLevel) {
+		std::string finText = str(msg.msg);
+		if (indicateOrigin) {
+			finText = "[" + str(msg.systemDelim) + "]: " + finText;
 		}
-		addStatusTextColored(text, level > colors.size() ? colors.back() : colors[level]);
+		for (auto lvl : range(msg.baseLevel)) {
+			// visual indication of what level a message is.
+			finText = ">" + finText;
+		}
+		if (finText.substr(0, 10) == "**********") {
+			addStatusTextColored(finText, "#FFFFFF");
+		}
+		addStatusTextColored(finText, msg.baseLevel > colors.size() ? colors.back() : colors[msg.baseLevel]);
 	}
 }
 
 void StatusControl::addStatusTextColored(std::string text, std::string color){
 	QString htmlTxt = ("<font color = \"" + color + "\">" + text + "</font>").c_str();
+	//e.g. <font color = "red">This is some text!< / font>
 	htmlTxt.replace ("\r", "");
 	htmlTxt.replace ("\n", "<br/>");
+	// html is weird and doesn't have proper tab support. 
 	htmlTxt.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 	// de-emphasize the location information.
 	htmlTxt.replace("{", "</font><font color = \"#000000\">{");
 	htmlTxt.replace("}", qstr("}</font><font color = \""+color+"\">"));
-	if (htmlTxt.lastIndexOf("@ Location:") != -1) {
+	/*if (htmlTxt.lastIndexOf("@ Location:") != -1) {
 		htmlTxt.replace("@ Location:", "</font><font color = \"#000000\">@ Location:");
-	}
- 	//e.g. <font color = "red">This is some text!< / font>
+	}*/
 	edit->moveCursor (QTextCursor::End);
 	edit->textCursor ().insertHtml (htmlTxt);
 	edit->moveCursor (QTextCursor::End);

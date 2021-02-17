@@ -4068,14 +4068,14 @@ void NiawgCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 			+ std::string (niawgMachineScript.begin (), niawgMachineScript.end ()) + "\n\n";
 		debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
 		boost::replace_all (debugStr, "\n", "\r\n");
-		emit threadworker->notification({ qstr(debugStr), 2 });
+		notify({ qstr(debugStr), 2 }, threadworker);
 		debugStr = "Human Script: " + expNiawgStream.str () + "\n\n";
 		debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
 		boost::replace_all (debugStr, "\n", "\r\n");
-		emit threadworker->notification({ qstr(debugStr), 2});
+		notify({ qstr(debugStr), 2 }, threadworker);
 		writeStaticNiawg (expOutput, params, 0, totalVaraitions);
-		emit threadworker->warn({ qstr(niawgWarnings), 1 });
-		emit threadworker->notification({ qstr(getOutputSummary(expOutput)), 2 });
+		emit threadworker->warn({ str(niawgWarnings), 1, getDelim() });
+		notify({ qstr(getOutputSummary(expOutput)), 2 }, threadworker);
 	}
 }
 
