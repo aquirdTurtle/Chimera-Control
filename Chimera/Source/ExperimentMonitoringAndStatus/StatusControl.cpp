@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "StatusControl.h"
 #include <PrimaryWindows/IChimeraQtWindow.h>
+#include "StatusOptionsWindow.h"
 
 void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size,
 	std::string headerText, std::vector<std::string> textColors) {
@@ -15,22 +16,18 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 	header = new QLabel (headerText.c_str (), parent);
 	header->setGeometry(px, py, 215, 25);
 
-	debugLevelLabel = new QLabel ("Dbg Lvl", parent);
-	debugLevelLabel->setGeometry (px + 215, py, 60, 25);
-
-	debugLevelEdit = new CQLineEdit (parent);
-	debugLevelEdit->setGeometry (px + 275, py, 30, 25);
-	debugLevelEdit->setText ("-1");
-
-	parent->connect (debugLevelEdit, &QLineEdit::textChanged, [this]() {
-		try { 
-			currentLevel = boost::lexical_cast<unsigned>(str (debugLevelEdit->text ())); 
+	options = new QPushButton("Options", parent);
+	options->setGeometry(px+215, py, 90, 25);
+	options->connect(options, &QPushButton::pressed, [this, parent]() {
+		try {
+			// edit existing plot file using the plot designer.
+			StatusOptionsWindow* dialog = new StatusOptionsWindow(parent, &opts);
+			dialog->setStyleSheet(chimeraStyleSheets::stdStyleSheet());
+			dialog->exec();
 		}
-		catch (boost::bad_lexical_cast&) { 
-			currentLevel = 0; 
-		}
-		addStatusText ("Changed Debug Level to \"" + str (currentLevel) + "\"\n");
-	});
+		catch (ChimeraError& err) {
+			errBox(err.trace());
+		}});
 
 	redrawBtn = new QPushButton("Fancy Redraw", parent);
 	redrawBtn->setGeometry(px + 305, py, 120, 25);
@@ -73,7 +70,7 @@ void StatusControl::addStatusText(statusMsg msg) {
 }
 
 void StatusControl::addPlainStatusTextInner(statusMsg msg) {
-	if (currentLevel >= msg.baseLevel) {
+	if (opts.debugLvl >= msg.baseLevel) {
 		std::string finText = str(msg.msg);
 		for (auto lvl : range(msg.baseLevel)) {
 			// visual indication of what level a message is.
@@ -87,9 +84,9 @@ void StatusControl::addColoredStatusTextInner(statusMsg msg) {
 	if (colors.size() == 0) {
 		return;
 	}
-	if (currentLevel >= msg.baseLevel) {
+	if (opts.debugLvl >= msg.baseLevel) {
 		std::string finText = str(msg.msg);
-		if (indicateOrigin) {
+		if (opts.showOrigin) {
 			finText = "[" + str(msg.systemDelim) + "]: " + finText;
 		}
 		for (auto lvl : range(msg.baseLevel)) {

@@ -372,7 +372,9 @@
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
     <QtMoc Include="Source\ExcessDialogs\doChannelInfoDialog.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControlOptions.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\statusMsg.h" />
+    <QtMoc Include="Source\ExperimentMonitoringAndStatus\StatusOptionsWindow.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
     <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
@@ -684,6 +686,7 @@
     <ClCompile Include="Source\Basler\BaslerCamera.cpp" />
     <ClCompile Include="Source\Basler\BaslerSettings.cpp" />
     <ClCompile Include="Source\Basler\BaslerSettingsControl.cpp" />
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusOptionsWindow.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
     <ClCompile Include="Source\GeneralFlumes\QtSerialFlume.cpp" />
     <ClCompile Include="Source\GeneralImaging\ImageLabel.cpp" />
@@ -831,6 +834,9 @@
     </QtMoc>
     <None Include="Source\GeneralFlumes\WinSerialFlume.h" />
     <None Include="stylesheet.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="Source\ExperimentMonitoringAndStatus\StatusControlOptionDlg.ui" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

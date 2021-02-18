@@ -19,8 +19,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-//#define MARK_NEW_DESKTOP
-#define MASTER_COMPUTER
+#define MARK_NEW_DESKTOP
+//#define MASTER_COMPUTER
 //#define MARKS_LAPTOP 
 //#define ANALYSIS_COMPUTER 
 //#define HOME_DESKTOP
@@ -105,7 +105,6 @@ const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + "\\flatProfile.txt";
 	constexpr bool DM_SAFEMODE = false;
 
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM10";
-	//constexpr short UW_SYSTEM_ADDRESS = 28;
 	constexpr bool UW_SYSTEM_SAFEMODE = false;
 	constexpr bool DOFTDI_SAFEMODE = false;
 	constexpr bool DDS_SAFEMODE = false;

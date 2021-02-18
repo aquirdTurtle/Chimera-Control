@@ -9,6 +9,7 @@
 #include <PrimaryWindows/IChimeraQtWindow.h>
 #include <qplaintextedit.h>
 #include <queue>
+#include <ExperimentMonitoringAndStatus/StatusControlOptions.h>
 
 class StatusControl{
 	public:
@@ -28,13 +29,12 @@ class StatusControl{
 		void addPlainStatusTextInner(statusMsg newMsg);
 		void addColoredStatusTextInner(statusMsg newMsg);
 		QLabel* header=nullptr;
-		QLabel* debugLevelLabel = nullptr;
-		CQLineEdit* debugLevelEdit = nullptr;
 		QTextEdit* edit = nullptr;
-		unsigned currentLevel=-1;
-		bool indicateOrigin = true;
+		StatusControlOptions opts;
 		QPushButton* clearBtn = nullptr;
 		QPushButton* redrawBtn = nullptr;
+		QPushButton* options = nullptr;
+
 		std::vector<std::string> colors;
 		std::deque<statusMsg> msgQue;
 		const unsigned maxQueSize=100000;

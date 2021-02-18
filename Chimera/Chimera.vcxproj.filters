@@ -307,6 +307,9 @@
     <ClCompile Include="Source\GeneralObjects\IDeviceCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusOptionsWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FTDI\ftd2xx.h">
@@ -716,6 +719,9 @@
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\statusMsg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControlOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Source\LowLevel\Atom.ico" />
@@ -798,6 +804,11 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
   </ItemGroup>
@@ -885,5 +896,13 @@
     <QtMoc Include="3rd_Party\QCustomPlot\qcustomplot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Source\ExperimentMonitoringAndStatus\StatusOptionsWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="Source\ExperimentMonitoringAndStatus\StatusControlOptionDlg.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
 </Project>
