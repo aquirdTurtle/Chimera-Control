@@ -21,7 +21,7 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 	options->connect(options, &QPushButton::pressed, [this, parent]() {
 		try {
 			// edit existing plot file using the plot designer.
-			StatusOptionsWindow* dialog = new StatusOptionsWindow(parent, &opts);
+			StatusOptionsWindow* dialog = new StatusOptionsWindow(parent, &opts, msgHistory);
 			dialog->setStyleSheet(chimeraStyleSheets::stdStyleSheet());
 			dialog->exec();
 		}
@@ -50,15 +50,15 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 }
 
 void StatusControl::addStatusToQue(statusMsg newMsg) {
-	msgQue.push_back(newMsg);
-	if (msgQue.size() > maxQueSize) {
-		msgQue.pop_front();
+	msgHistory.push_back(newMsg);
+	if (msgHistory.size() > maxQueSize) {
+		msgHistory.pop_front();
 	}
 }
 
 void StatusControl::redrawControl() {
 	edit->clear();
-	for (auto msg : msgQue) {
+	for (auto msg : msgHistory) {
 		// importantly add here without re-adding to queue. 
 		addColoredStatusTextInner(msg);
 	}
