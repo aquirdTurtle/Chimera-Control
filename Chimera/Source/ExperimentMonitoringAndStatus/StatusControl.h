@@ -9,33 +9,31 @@
 #include <PrimaryWindows/IChimeraQtWindow.h>
 #include <qplaintextedit.h>
 #include <queue>
+#include <ExperimentMonitoringAndStatus/StatusControlOptions.h>
 
 class StatusControl{
 	public:
 		void initialize(QPoint& loc, IChimeraQtWindow* parent, long size, std::string headerText,
 			std::vector<std::string> textColors);
-
-		// void addStatusText(std::string text, unsigned level = 0);
-		void addStatusTextColored(std::string text, std::string colorStr);
-		void addPlainText(std::string text);
-		void addStatusText (statusMsg newMsg);
-		void addStatusToQue(statusMsg newMsg);
+		void addStatusText(statusMsg newMsg);
 		void clear();
 		void appendTimebar();
 		void redrawControl();
 		
 	private:
+		void addStatusToQue(statusMsg newMsg);
+		void addStatusTextColored(std::string text, std::string colorStr);
+		void addPlainText(std::string text);
 		void addPlainStatusTextInner(statusMsg newMsg);
 		void addColoredStatusTextInner(statusMsg newMsg);
 		QLabel* header=nullptr;
-		QLabel* debugLevelLabel = nullptr;
-		CQLineEdit* debugLevelEdit = nullptr;
 		QTextEdit* edit = nullptr;
-		unsigned currentLevel=-1;
-		bool indicateOrigin = true;
+		StatusControlOptions opts;
 		QPushButton* clearBtn = nullptr;
 		QPushButton* redrawBtn = nullptr;
+		QPushButton* options = nullptr;
+
 		std::vector<std::string> colors;
-		std::deque<statusMsg> msgQue;
+		std::deque<statusMsg> msgHistory;
 		const unsigned maxQueSize=100000;
 };

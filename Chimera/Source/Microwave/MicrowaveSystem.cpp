@@ -114,7 +114,6 @@ void MicrowaveSystem::handleReadPress (){
 	auto res = core.uwFlume.read ();
 	readTxt->setText (qstr (res));
 	readTxt->setToolTip (qstr (res));
-	//errBox (res);
 }
 
 void MicrowaveSystem::handleWritePress (){
