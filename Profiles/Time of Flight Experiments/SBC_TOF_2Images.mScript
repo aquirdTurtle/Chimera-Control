@@ -16,9 +16,14 @@ t += 5
 call D1GreyLambdaLoading()
 pulseon: windfreakTrig 0.05
 pulseon: dds_step 5
+
+pulseon: niawgTrig 0.1
+
+pulseon: tweezerIntensityTrig 0.1 % to imagingDepth
+t += 1
+call PGCAtomFlashingImage()
+
 t += 20
-
-
 
 %Begin SBC
 pulseon: tweezerIntensityTrig 0.1 % to intrapLGMDepth
