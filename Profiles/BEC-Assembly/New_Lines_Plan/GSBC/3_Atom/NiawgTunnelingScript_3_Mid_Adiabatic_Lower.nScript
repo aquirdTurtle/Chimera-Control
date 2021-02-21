@@ -18,17 +18,18 @@ var_v 3 amps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648 ]
 %var_v 3 loadAmps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648 ]
 
 %var_v 3 loadAmps [ 0.5143841416947187 0.4856158583052814 0 ]
-var_v 3 loadAmps [ 0 0 1 ] 
+var_v 3 loadAmps [ 1 0 1 ] 
 %var_v 3 amps [ 0.5143841416947187   0.4856158583052814 0 ]
 
 %var_v 3 finAmps [ tunnelBias (1-tunnelBias) tone3b ]  
 %var_v 3 finAmps [ 0.5 tunnelBias 0.55 ]  
 %var_v 3 finAmps [ 0.3875073543431289 tunnelBias tunbias3 ]
-var_v 3 finAmps [ tunbias1 (1-tunBias2) tunbias3 ]  
+var_v 3 adInitA [ tunbias1 (1-tunBias2_init) tunbias3 ]  
+var_v 3 finAmps [ tunbias1 (1-tunBias2_fin) tunbias3 ]  
 var_v 3 phases [ 0 0 0 ]  
 var_v 3 cphases [ -1 -1 -1 ]  
 
-var loadBias 0.805
+var loadBias 0.715
 
 repeatTilTrig 
 gen3const_v Horizontal freqs loadAmps phases #  
@@ -66,7 +67,7 @@ dumpf 		(1-ddumpbias)	0
 endRepeat
 
 % TWEEZER BIAS RAMP
-gen3AmpRamp_v Horizontal freqs linRamps amps finAmps phases #  
+gen3AmpRamp_v Horizontal freqs linRamps amps adInitA phases #  
 gen2ampRamp Vertical
 main_v_f	tanh ddumpbias 		(1-ldumpBias) 	0 
 dumpf 		tanh (1-ddumpbias) 	ldumpBias 		0 
@@ -75,7 +76,7 @@ dumpf 		tanh (1-ddumpbias) 	ldumpBias 		0
 
 % FREQ RAMP
 gen3FreqRamp_v Horizontal 
-edgeramps freqs finFreqs finAmps phases #  
+edgeramps freqs finFreqs adInitA phases #  
 gen2const Vertical
 main_v_f	(1-ldumpBias)	0 
 dumpf 		ldumpBias		0 
@@ -83,21 +84,21 @@ dumpf 		ldumpBias		0
 3 0
 
 % DUMP BIAS RAMP (helps with intensity init)
-gen3const_v Horizontal finFreqs finAmps cphases #   
+gen3const_v Horizontal finFreqs adInitA cphases #   
 gen2AmpRamp Vertical
 main_v_f	lin 	(1-ldumpBias) 	tundumpBias 	0  
 dumpf 		lin 	lDumpBias 		(1-tundumpBias)	0  
 #
 0.4 0
 
-repeatTilTrig
-gen3const_v Horizontal finFreqs finAmps cphases #   
+% adiabatic ramp here
+gen3ampRamp_v Horizontal
+finFreqs linRamps adInitA finAmps cphases #   
 gen2const Vertical
-main_v_f	tundumpBias 0  
-dumpf 	(1-tundumpBias)	0  
-# 
-0.01 0
-endRepeat
+main_v_f	tundumpBias 	0  
+dumpf 		(1-tundumpBias)	0  
+#
+adiabaticRampTime 0
 
 gen3const_v Horizontal finFreqs finAmps cphases #   
 gen2AmpRamp Vertical
@@ -107,7 +108,7 @@ dumpf 		lin 	(1-tundumpBias) 	lDumpBias		0
 0.4 0
 
 gen3FreqRamp_v Horizontal 
-edgeramps finFreqs freqs finAmps cphases #   
+edgeramps finFreqs freqs adInitA cphases #   
 gen2const Vertical
 main_v_f	(1-lDumpBias)	0 
 dumpf 		lDumpBias		0 
@@ -115,7 +116,7 @@ dumpf 		lDumpBias		0
 3 0
 
 gen3AmpRamp_v Horizontal 
-freqs linRamps finAmps amps cphases #  
+freqs linRamps adInitA amps cphases #  
 gen2const Vertical
 main_v_f	(1-ldumpBias)	0 
 dumpf 		ldumpBias  		0 

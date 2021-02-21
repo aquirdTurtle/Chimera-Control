@@ -147,6 +147,4 @@ void PiezoController::initialize ( QPoint& pos, IChimeraQtWindow* parent, long w
 		});
 	// could probably make this time a front panel option.
 	timer->start (10000);
-
-	emit notification({core.getDeviceInfo(), 0, core.getDelim()});
 }

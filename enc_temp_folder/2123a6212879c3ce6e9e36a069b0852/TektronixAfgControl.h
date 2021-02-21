@@ -27,13 +27,12 @@
 
 
 // "System class" but doesn't inherit from IChimeraSystem yet
-class TektronixAfgControl : public IChimeraSystem {
+class TektronixAfgControl {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		TektronixAfgControl& operator=(const TektronixAfgControl&) = delete;
 		TektronixAfgControl (const TektronixAfgControl&) = delete;
-		//IChimeraSystem(IChimeraQtWindow* parent_in);
-		TektronixAfgControl(IChimeraQtWindow* parent_in, bool safemode, std::string address, std::string configurationFileDelimiter);
+		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);

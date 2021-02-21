@@ -24,8 +24,6 @@ void NiawgSystem::initialize (QPoint& loc, IChimeraQtWindow* parent){
 	py += 25;
 	rearrangeCtrl.initialize (loc, parent);
 	niawgScript.initialize ( 640, 660, loc, parent, "NIAWG", "NIAWG Script" );
-
-	emit notification({ core.fgenFlume.getDeviceInfo(), 0, core.getDelim()});
 } 
 
 

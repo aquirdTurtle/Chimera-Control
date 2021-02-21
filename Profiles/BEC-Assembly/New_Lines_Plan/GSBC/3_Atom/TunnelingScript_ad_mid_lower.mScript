@@ -1,0 +1,63 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+pulseon: windfreakTrig 0.05
+on: totalRamanRf
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+t += 5
+call D1GreyLambdaLoading()
+pulseon: windfreakTrig 0.05
+pulseon: niawgTrig 0.1 % all the tunneling ramps.
+t += 20
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1 % to intraplgm
+off: sidemotShutter  
+off: diagmotShutter 
+off: repumpShutter
+t += 0.1 
+on: axialRamanShutter 
+on: axialRamanShutter2 
+call intrapgreymolasses() 
+pulseon: windfreakTrig 0.08
+off: shutter795
+pulseon: tweezerIntensityTrig 0.1 % to sbc depth
+call send_uw_to_raman_eom()
+t += 1
+call pump2stretch() 
+call gsbc()
+off: axialRamanShutter  
+off: axialRamanShutter2  
+off: totalRamanRf
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+pulseon: niawgTrig 0.1 % to the move stuff.
+var dumpTime 13
+t += dumpTime
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+pulseon: niawgTrig 0.1 % to the move stuff.
+t += 1
+t += 5
+pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+t += 0.4
+var tunnelTime 3
+t += adiabaticRampTime 
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+t += 2
+% pulseon: niawgTrig 0.1 % separate tweezers
+t += 6
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+t += 3
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
+pulseon: niawgTrig 0.1
+t += 1
+off: tweezerRf
+t += 0.2

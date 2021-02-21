@@ -153,8 +153,6 @@ void Agilent::initialize( QPoint& loc, std::string headerText, unsigned editHeig
 	catch (ChimeraError & error) {
 		errBox ("Failed to program agilent " + getConfigDelim () + " initial settings: " + error.trace ());
 	}
-
-	emit notification({core.getDeviceIdentity(), 0, core.getDelim()});
 }
 
 

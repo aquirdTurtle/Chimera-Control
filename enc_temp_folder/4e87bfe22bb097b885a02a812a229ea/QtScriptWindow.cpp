@@ -60,7 +60,6 @@ void QtScriptWindow::initializeWidgets (){
 	}
 	updateDoAoNames ();
 	updateVarNames ();
-	
 }
 
 void QtScriptWindow::updateVarNames() {

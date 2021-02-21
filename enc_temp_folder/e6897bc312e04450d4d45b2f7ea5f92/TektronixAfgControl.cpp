@@ -6,11 +6,8 @@
 #include "GeneralUtilityFunctions/range.h"
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
-
-TektronixAfgControl::TektronixAfgControl(IChimeraQtWindow* parent_in, bool safemode, std::string address, std::string configurationFileDelimiter )
-	: core(safemode, address, configurationFileDelimiter ) : IChimeraSystem(parent_in) {
-
-}
+TektronixAfgControl::TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
+	: core(safemode, address, configurationFileDelimiter ) {}
 
 void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << core.configDelim;
@@ -64,11 +61,10 @@ void TektronixAfgControl::initialize (QPoint& loc, IChimeraQtWindow* parent, std
 	parent->connect (programNow, &QPushButton::released, [this, parent]() {
 		try	{
 			handleProgram (parent->auxWin->getUsableConstants ());
-			emit notification({ "Programmed Top/Bottom Tektronix Generator.\r\n", 0, core.getDelim() });
+			parent->reportStatus ("Programmed Top/Bottom Tektronix Generator.\r\n");
 		}
 		catch (ChimeraError& exception) {
-			emit error({ "Error while programing Top/Bottom Tektronix generator: " + exception.qtrace() + "\r\n", 0, 
-				core.getDelim() });
+			parent->reportErr("Error while programing Top/Bottom Tektronix generator: " + exception.qtrace () + "\r\n");
 		}});
 
 	channel1.initialize( { px + width / 3, py }, parent, "Channel 1:" + channel1Text, width / 3 );
@@ -92,8 +88,6 @@ void TektronixAfgControl::initialize (QPoint& loc, IChimeraQtWindow* parent, std
 	fskFreqLabel = new QLabel ("FSK Freq:", parent);
 	fskFreqLabel->setGeometry (px, py += 20, width / 3, 20);
 	py += 20;
-
-	emit notification({ core.queryIdentity(), 0, core.getDelim() });
 }
 
 

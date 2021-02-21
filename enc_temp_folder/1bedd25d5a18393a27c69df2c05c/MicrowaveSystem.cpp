@@ -95,7 +95,6 @@ void MicrowaveSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	uwListListview->setShowGrid (true);
 	refreshListview ();
 	py += 100;
-	emit notification({ core.queryIdentity(), 0, core.getDelim() });
 }
 
 void MicrowaveSystem::refreshCurrentUwList () {

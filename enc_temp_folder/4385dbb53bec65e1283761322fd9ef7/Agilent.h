@@ -41,6 +41,8 @@ class Agilent : public IChimeraSystem {
 		void updateSettingsDisplay( int chan, std::string configPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
+/*		void handleScriptVariation( unsigned variation, scriptedArbInfo& scriptInfo, unsigned channel, 
+									std::vector<parameterType>& variables );*/
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
 		std::pair<DoRows::which, unsigned> getTriggerLine( );

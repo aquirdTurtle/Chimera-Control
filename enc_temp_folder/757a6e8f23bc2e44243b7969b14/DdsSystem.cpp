@@ -10,6 +10,27 @@
 
 DdsSystem::DdsSystem (IChimeraQtWindow* parent, bool ftSafemode) : core( ftSafemode ), IChimeraSystem (parent) { }
 
+void DdsSystem::handleContextMenu (const QPoint& pos){
+	QTableWidgetItem* item = rampListview->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete This Item", rampListview);
+	rampListview->connect (deleteAction, &QAction::triggered, [this, item]() {
+		refreshCurrentRamps ();
+		currentRamps.erase(currentRamps.begin()+item->row());
+		redrawListview ();
+		});
+	auto* newPerson = new QAction ("New Item", rampListview);
+	rampListview->connect (newPerson, &QAction::triggered,
+		[this]() {
+			refreshCurrentRamps ();
+			currentRamps.push_back (ddsIndvRampListInfo ());
+			redrawListview ();
+		});
+	if (item) { menu.addAction (deleteAction); }
+	menu.addAction (newPerson);
+	menu.exec (rampListview->mapToGlobal (pos));
+}
 
 void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string title ){
 	auto& px = pos.rx (), & py = pos.ry ();
@@ -51,32 +72,8 @@ void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string 
 	labels << "Index" << "Channel" << "Freq 1" << "Amp 1" << "Freq 2" << "Amp 2" << "Time";
 	rampListview->setColumnCount (labels.size());
 	rampListview->setHorizontalHeaderLabels (labels);
-
-	emit notification({});
-
 }
 
-void DdsSystem::handleContextMenu(const QPoint& pos) {
-	QTableWidgetItem* item = rampListview->itemAt(pos);
-	QMenu menu;
-	menu.setStyleSheet(chimeraStyleSheets::stdStyleSheet());
-	auto* deleteAction = new QAction("Delete This Item", rampListview);
-	rampListview->connect(deleteAction, &QAction::triggered, [this, item]() {
-		refreshCurrentRamps();
-		currentRamps.erase(currentRamps.begin() + item->row());
-		redrawListview();
-		});
-	auto* newPerson = new QAction("New Item", rampListview);
-	rampListview->connect(newPerson, &QAction::triggered,
-		[this]() {
-			refreshCurrentRamps();
-			currentRamps.push_back(ddsIndvRampListInfo());
-			redrawListview();
-		});
-	if (item) { menu.addAction(deleteAction); }
-	menu.addAction(newPerson);
-	menu.exec(rampListview->mapToGlobal(pos));
-}
 void DdsSystem::redrawListview ( ){
 	rampListview->setRowCount (0);
 	for (auto rampInc : range (currentRamps.size ()))	{
