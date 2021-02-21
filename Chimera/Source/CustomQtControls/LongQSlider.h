@@ -16,7 +16,7 @@ class LongQSlider{
 		double getValue ( );
 		void setValue (int value, bool updateEdit=true );
 		void reposition ( QPoint loc, long totalheight );
-		void hide ( int hideornot );
+		void show ( int visible );
 		QSlider* slider = nullptr;
 		CQLineEdit* edit = nullptr;
 		QLabel* header = nullptr;

@@ -16,11 +16,7 @@
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
  * picture. Unlike many classes in my program, this is /not/ built to be a singleton. Instead, there should be one 
  * such control for every picture that needs to be displayed on the screen at a given time. 
- */
-; 
-namespace Ui {
-	class PictureControl;
-}
+ */ 
 class PictureManager;
 class PictureControl : public QWidget{
 	Q_OBJECT
@@ -58,16 +54,16 @@ class PictureControl : public QWidget{
 		coordinate selectedLocation;
 		void setTransformationMode (Qt::TransformationMode);
 		Matrix<double> getAccumPicData();
+		void updatePlotVisibility();
 	private:
 
 		Qt::TransformationMode transformationMode;
-		Ui::PictureControl* ui;
 		int picScaleFactor;
 		softwareAccumulationOption saOption;
 		Matrix<double> accumPicData;
-		unsigned accumNum;
-		const bool histOption;
-		std::vector<plotDataVec> horData, vertData;
+		int graphSmallSize = 100;
+		unsigned accumNum=0;
+		bool histOption=false;
 		QCustomPlotCtrl* horGraph = nullptr;
 		QCustomPlotCtrl* vertGraph = nullptr;
 		bool mostRecentAutoScale;
@@ -88,15 +84,15 @@ class PictureControl : public QWidget{
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.
 		imageParameters unofficialImageParameters;
 		// Arguably I should make these static controls instead of keeping track explicitly of these things. 
-		RECT unscaledBackgroundArea;
+		QRect unscaledBackgroundArea;
 		// scaled for the size of the window
-		RECT scaledBackgroundArea;
+		QRect scaledBackgroundArea;
 		// scaled for the dimensions of the picture
-		RECT pictureArea;
+		QRect pictureArea;
 		int colorIndicator;
 		QVector<QRgb> imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
-		std::vector<std::vector<RECT>> grid;
+		std::vector<std::vector<QRect>> grid;
 		ImageLabel* pictureObject = nullptr;
 		QPixmap* pixmap = nullptr;
 

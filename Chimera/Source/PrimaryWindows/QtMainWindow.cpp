@@ -118,7 +118,7 @@ void QtMainWindow::setStyleSheets (){
 }
 
 void QtMainWindow::pauseExperiment () {
-	if (expWorker != nullptr) {
+	if (experimentIsRunning && expWorker != nullptr && expThread->isRunning()) {
 		expWorker->pause ();
 	}
 }

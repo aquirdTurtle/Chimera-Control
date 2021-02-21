@@ -120,8 +120,8 @@ class QtMainWindow : public IChimeraQtWindow{
 		StatusIndicator shortStatus;
 		CalibrationManager calManager;
 
-		ExpThreadWorker* expWorker;
-		QThread* expThread;
+		ExpThreadWorker* expWorker=nullptr;
+		QThread* expThread=nullptr;
 		std::atomic<bool> experimentIsRunning = false;
 
 		RunInfo systemRunningInfo;

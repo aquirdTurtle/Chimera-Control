@@ -16,13 +16,13 @@ void LongQSlider::reposition (QPoint loc, long totalHeight){
 	slider->raise ();
 }
 
-void LongQSlider::hide ( int hideornot ) {
+void LongQSlider::show ( int visible ) {
 	if (!header || !edit || !slider){
 		return;
 	}
-	header->setVisible (hideornot);
-	edit->setVisible (hideornot);
-	slider->setVisible (hideornot);
+	header->setVisible (visible);
+	edit->setVisible (visible);
+	slider->setVisible (visible);
 }
 
 

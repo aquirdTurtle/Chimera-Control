@@ -41,7 +41,7 @@ public:
 	void setThresholds(std::vector<int> newThresholds);
 	void handleContextMenu(const QPoint& pos);
 	QCustomPlot* plot;
-
+	void setControlLocation(QRect loc);
 private:
 
 	QCPTextElement* title;

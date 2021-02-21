@@ -8,143 +8,123 @@
 #include <qmenu.h>
 
 PictureControl::PictureControl ( bool histogramOption, Qt::TransformationMode mode) 
-	: histOption( histogramOption ), QWidget (), transformationMode(mode){
+	: histOption(histogramOption), QWidget(), transformationMode(mode) {
 	active = true;
+	histOption = true;
 	if ( histOption ){
-		horData.resize ( 1 );
-		vertData.resize ( 1 );
 		updatePlotData ( );
 	}
 	repaint ();
 }
 
+void PictureControl::initialize(QPoint loc, int width, int height, IChimeraQtWindow* parent,
+	PictureManager* managerParent, int picScaleFactorIn) {
+	picScaleFactor = picScaleFactorIn;
+	if (width < 100) {
+		thrower("Pictures must be greater than 100 in width because this is the size of the max/min"
+			"controls.");
+	}
+	if (height < 100) {
+		thrower("Pictures must be greater than 100 in height because this is the minimum height "
+			"of the max/min controls.");
+	}
+	auto& px = loc.rx(), & py = loc.ry();
+	maxWidth = width;
+	maxHeight = height;
+	if (histOption) {
+		vertGraph = new QCustomPlotCtrl(1, plotStyle::PicturePlot, std::vector<int>(), true);
+		vertGraph->init(loc, graphSmallSize, 860, parent, "");
+		loc.rx() += graphSmallSize;
+		horGraph = new QCustomPlotCtrl(1, plotStyle::PicturePlot, std::vector<int>(), true);
+		horGraph->init(loc, 1565 - 50, graphSmallSize, parent, "");
+	}
+	pictureObject = new ImageLabel(parent);
+	//pictureObject->setGeometry (px, py, width, height);
+	pictureObject->setContextMenuPolicy(Qt::CustomContextMenu);
+	parent->connect(pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse(event); });
+	setPictureArea(loc, maxWidth, maxHeight);
+	parent->connect(pictureObject, &QLabel::customContextMenuRequested,
+		[this, managerParent](const QPoint& pos) {handleContextMenu(pos, managerParent); });
+
+	std::vector<unsigned char> data(20000);
+	for (auto& pt : data) {
+		pt = rand() % 255;
+	}
+	px += unscaledBackgroundArea.right() - unscaledBackgroundArea.left();
+	sliderMin.initialize(loc, parent, 50, unscaledBackgroundArea.bottom() - unscaledBackgroundArea.top(), "MIN");
+	sliderMin.setValue(0);
+	parent->connect(sliderMin.slider, &QSlider::valueChanged, [this]() {redrawImage(); });
+	px += 25;
+	sliderMax.initialize(loc, parent, 50, unscaledBackgroundArea.bottom() - unscaledBackgroundArea.top(), "MAX");
+	sliderMax.setValue(300);
+	parent->connect(sliderMax.slider, &QSlider::valueChanged, [this]() {redrawImage(); });
+	// reset this.
+	px -= unscaledBackgroundArea.right() - unscaledBackgroundArea.left();
+
+	py += height - 25;
+	coordinatesText = new QLabel("Coordinates:", parent);
+	coordinatesText->setGeometry(px, py, 100, 20);
+	coordinatesDisp = new QLabel("", parent);
+	coordinatesDisp->setGeometry(px + 100, py, 100, 20);
+	valueText = new QLabel("Value", parent);
+	valueText->setGeometry(px + 200, py, 100, 20);
+	valueDisp = new QLabel("", parent);
+	valueDisp->setGeometry(px + 300, py, 100, 20);
+	py += 25;
+}
+
+
 void PictureControl::updatePlotData ( ){
-	if ( !histOption ){
+	if ( !histOption || !vertGraph || !horGraph ){
 		return;
 	}
-	horData[ 0 ].resize ( mostRecentImage_m.getCols ( ) );
-	vertData[ 0 ].resize ( mostRecentImage_m.getRows ( ) );
-	unsigned count = 0;
-
-	std::vector<long> dataRow;
-	for ( auto& data : horData[ 0 ] ){
-		data.x = count;
+	std::vector<plotDataVec> horData(1), vertData(1,plotDataVec());
+	for ( auto colNum : range(mostRecentImage_m.getCols())){
 		// integrate the column
-		double p = 0.0;
+		double pt = 0.0;
 		for ( auto row : range ( mostRecentImage_m.getRows ( ) ) ){
-			p += mostRecentImage_m ( row, count );
+			pt += mostRecentImage_m ( row, colNum );
 		}
-		count++;
-		dataRow.push_back ( p );
+		horData[0].push_back({ double(colNum), pt });
+		horData[0].push_back({ double(colNum+1), pt });
 	}
-	count = 0;
-	auto avg = std::accumulate ( dataRow.begin ( ), dataRow.end ( ), 0.0 ) / dataRow.size ( );
-	for ( auto& data : horData[ 0 ] ){
-		data.y = dataRow[ count++ ] - avg;
-	}
-	count = 0;
-	std::vector<long> dataCol;
-	for ( auto& data : vertData[ 0 ] ){
-		data.x = count;
+	horGraph->setData(horData);
+	for ( auto rowNum : range(mostRecentImage_m.getRows())){
 		// integrate the row
-		double p = 0.0;
+		double pt = 0.0;
 		for ( auto col : range ( mostRecentImage_m.getCols ( ) ) ){
-			p += mostRecentImage_m ( count, col );
+			pt += mostRecentImage_m (rowNum, col );
 		}
-		count++;
-		dataCol.push_back ( p );
+		vertData[0].push_back({ pt, double(rowNum) });
+		vertData[0].push_back({ pt, double(rowNum+1) });
 	}
-	count = 0;
-	auto avgCol = std::accumulate ( dataCol.begin ( ), dataCol.end ( ), 0.0 ) / dataCol.size ( );
-	for ( auto& data : vertData[ 0 ] ){
-		data.y = dataCol[ count++ ] - avgCol;
-	}
+	vertGraph->setData(vertData);
 }
 
 
 void PictureControl::handleContextMenu (const QPoint& pos, PictureManager* managerParent) {
 	QMenu menu;
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
-	if (managerParent->autoScalePictures) {
-		auto* noAutoScale = new QAction ("Set Autoscale OFF", pictureObject);
-		pictureObject->connect (noAutoScale, &QAction::triggered, 
-			[this, managerParent]() {managerParent->autoScalePictures = false; });
-		menu.addAction (noAutoScale);
-	}
-	else {
-		auto* setAutoScale = new QAction ("Set Autoscale ON", pictureObject);
-		pictureObject->connect (setAutoScale, &QAction::triggered,
-			[this, managerParent]() {managerParent->autoScalePictures = true; });
-		menu.addAction (setAutoScale);
-	}
+
+	auto* autoScale = new QAction("Autoscale Pictures", pictureObject);
+	autoScale->setCheckable(true);
+	autoScale->setChecked(managerParent->autoScalePictures);
+	pictureObject->connect(autoScale, &QAction::triggered, [this, managerParent]() {
+		managerParent->autoScalePictures = !managerParent->autoScalePictures;
+		});
+	menu.addAction(autoScale);
+
+	auto* showPlots = new QAction("Show Picture Integration Plots", pictureObject);
+	showPlots->setCheckable(true);
+	showPlots->setChecked(histOption);
+	pictureObject->connect(showPlots, &QAction::triggered, [this]() {
+		histOption = !histOption;
+		updatePlotVisibility();
+		});
+	menu.addAction(showPlots);
+
 	menu.exec (pictureObject->mapToGlobal (pos));
 }
-
-/*
- * initialize all controls associated with single picture.
- */
-void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWindow* parent, 
-	PictureManager* managerParent, int picScaleFactorIn){
-	picScaleFactor = picScaleFactorIn;
-	if ( width < 100 ){
-		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
-									 "controls." );
-	}
-	if ( height < 100 ){
-		thrower ( "Pictures must be greater than 100 in height because this is the minimum height "
-									 "of the max/min controls." );
-	}
-	auto& px = loc.rx (), & py = loc.ry ();
-	maxWidth = width;
-	maxHeight = height;
-	if ( histOption ){
-		QPoint pt{ 300,0 };
-		vertGraph = new QCustomPlotCtrl( 1, plotStyle::VertHist, std::vector<int>(), true );
-		vertGraph->init (pt, 65, 860, parent, "" );
-		px += 65;
-	}
-	if ( histOption ){
-		horGraph = new QCustomPlotCtrl( 1, plotStyle::HistPlot, std::vector<int> ( ), true );
-		QPoint pt{ 365, long (860) };
-		horGraph->init ( pt, 1565 - 50, 65, parent, "");
-	}
-	pictureObject = new ImageLabel (parent);
-	pictureObject->setGeometry (px, py, width, height);
-	pictureObject->setContextMenuPolicy (Qt::CustomContextMenu);
-	parent->connect (pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse (event); });
-	setPictureArea (loc, maxWidth, maxHeight);
-	parent->connect (pictureObject, &QLabel::customContextMenuRequested,
-		[this, managerParent](const QPoint& pos) {handleContextMenu (pos, managerParent); });
-
-	std::vector<unsigned char> data (20000);
-	for (auto& pt : data){
-		pt = rand () % 255;
-	}
-	
-	px += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	sliderMin.initialize(loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MIN" );
-	sliderMin.setValue ( 0 );
-	parent->connect (sliderMin.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
-	px += 25;
-	sliderMax.initialize ( loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MAX" );
-	sliderMax.setValue ( 300 );
-	parent->connect (sliderMax.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
-	// reset this.
-	px -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	
-	py += height - 25;
-	coordinatesText = new QLabel ("Coordinates:", parent);
-	coordinatesText->setGeometry (px, py, 100, 20);
-	coordinatesDisp = new QLabel ("", parent);
-	coordinatesDisp->setGeometry (px+100, py, 100, 20);
-	valueText = new QLabel ("Value", parent);
-	valueText->setGeometry (px + 200, py, 100, 20);
-	valueDisp = new QLabel ("", parent);
-	valueDisp->setGeometry (px + 300, py, 100, 20);
-	py += 25;
-}
-
-
 
 bool PictureControl::isActive(){
 	return active;
@@ -164,48 +144,45 @@ void PictureControl::setPictureArea( QPoint loc, int width, int height ){
 	// this is important for the control to know where it should draw controls.
 	auto& sBA = scaledBackgroundArea;
 	auto& px = loc.rx (), & py = loc.ry ();
-	unscaledBackgroundArea = { px, py, px + width, py + height };
-	// reserve some area for the texts.
-	unscaledBackgroundArea.right -= 100;
+	unscaledBackgroundArea = { px, py, width, height };
+	// reserve some area for the sliders?
+	unscaledBackgroundArea.setRight(unscaledBackgroundArea.right()-100);
 	sBA = unscaledBackgroundArea;
-	/*
-	sBA.left *= width;
-	sBA.right *= width;
-	sBA.top *= height;
-	sBA.bottom *= height;*/
-	if ( horGraph ){
-		//horGraph->setControlLocation ( { scaledBackgroundArea.left, scaledBackgroundArea.bottom }, 
-		//							   scaledBackgroundArea.right - scaledBackgroundArea.left, 65 );
-	}
-	if ( vertGraph ){
-		//vertGraph->setControlLocation ( { scaledBackgroundArea.left - 65, scaledBackgroundArea.bottom },
-		//							      65, scaledBackgroundArea.bottom - scaledBackgroundArea.top );
+
+	if ( histOption && horGraph && vertGraph ){
+		vertGraph->setControlLocation (QRect(QPoint({ px, py }), 
+											 QSize(graphSmallSize, sBA.height() - graphSmallSize)));
+		horGraph->setControlLocation (QRect(QPoint({ px+graphSmallSize, sBA.bottom() - graphSmallSize }),
+											QSize(sBA.width(), graphSmallSize)));
 	}
 	double widthPicScale;
 	double heightPicScale;
 	auto& uIP = unofficialImageParameters;
 	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
-	double sba_w = sBA.right - sBA.left;
-	double sba_h = sBA.bottom - sBA.top;
-	if (w_to_h_ratio > sba_w/sba_h){
+	if (w_to_h_ratio > sBA.width() / sBA.height()){
 		widthPicScale = 1;
-		heightPicScale = (1.0/ w_to_h_ratio) * (sba_w / sba_h);
+		heightPicScale = (1.0/ w_to_h_ratio) * (sBA.width() / sBA.height());
 	}
 	else{
 		heightPicScale = 1;
-		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
+		widthPicScale = w_to_h_ratio / (sBA.width() / sBA.height());
 	}
 
-	unsigned long picWidth = unsigned long( (sBA.right - sBA.left)*widthPicScale );
-	unsigned long picHeight = (sBA.bottom - sBA.top)*heightPicScale;
-	QPoint mid = { (sBA.left + sBA.right) / 2, (sBA.top + sBA.bottom) / 2 };
-	pictureArea.left = mid.x() - picWidth / 2;
-	pictureArea.right = mid.x() + picWidth / 2;
-	pictureArea.top = mid.y() - picHeight / 2;
-	pictureArea.bottom = mid.y() + picHeight / 2;
+	unsigned long picWidth = unsigned long( (sBA.right() - sBA.left())*widthPicScale );
+	unsigned long picHeight = (sBA.bottom() - sBA.top())*heightPicScale;
+	QPoint mid = { (sBA.left() + sBA.right()) / 2, (sBA.top() + sBA.bottom()) / 2 };
+	pictureArea.setLeft(mid.x() - picWidth / 2);
+	pictureArea.setRight(mid.x() + picWidth / 2);
+	pictureArea.setTop(mid.y() - picHeight / 2);
+	pictureArea.setBottom(mid.y() + picHeight / 2);
 	
-	if (pictureObject){
-		pictureObject->setGeometry (px, py, width, height);
+	if (pictureObject) {
+		if (histOption) {
+			pictureObject->setGeometry(px + graphSmallSize, py, width - graphSmallSize, height - graphSmallSize);
+		}
+		else {
+			pictureObject->setGeometry(px, py, width, height);
+		}
 		pictureObject->raise ();
 	}
 }
@@ -215,6 +192,9 @@ void PictureControl::setPictureArea( QPoint loc, int width, int height ){
  * sure to change the background size before using this.
  * ********/
 void PictureControl::setSliderControlLocs (QPoint pos, int height){
+	if (histOption){
+		height -= graphSmallSize;
+	}
 	sliderMin.reposition ( pos, height);
 	pos.rx() += 25;
 	sliderMax.reposition ( pos, height );
@@ -246,21 +226,11 @@ void PictureControl::recalculateGrid(imageParameters newParameters){
 	unofficialImageParameters = newParameters;
 	double widthPicScale;
 	double heightPicScale;
-	/*if (unofficialImageParameters.width ()> unofficialImageParameters.height())
-	{
-		widthPicScale = 1;
-		heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
-	}
-	else
-	{
-		heightPicScale = 1;
-		widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
-	}*/
 	auto& uIP = unofficialImageParameters;
 	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
 	auto& sBA = scaledBackgroundArea;
-	double sba_w = sBA.right - sBA.left;
-	double sba_h = sBA.bottom - sBA.top;
+	double sba_w = sBA.right()- sBA.left();
+	double sba_h = sBA.bottom() - sBA.top();
 	if (w_to_h_ratio > sba_w / sba_h){
 		widthPicScale = 1;
 		heightPicScale = (1.0 / w_to_h_ratio) * (sba_w / sba_h);
@@ -270,14 +240,14 @@ void PictureControl::recalculateGrid(imageParameters newParameters){
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
 
-	long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
-	long height = long((scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale);
-	QPoint mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
-				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
-	pictureArea.left = mid.x() - width / 2;
-	pictureArea.right = mid.x() + width / 2;
-	pictureArea.top = mid.y() - height / 2;
-	pictureArea.bottom = mid.y() + height / 2;
+	long width = long((scaledBackgroundArea.right()- scaledBackgroundArea.left())*widthPicScale);
+	long height = long((scaledBackgroundArea.bottom() - scaledBackgroundArea.top())*heightPicScale);
+	QPoint mid = { (scaledBackgroundArea.left()+ scaledBackgroundArea.right()) / 2,
+				  (scaledBackgroundArea.top()+ scaledBackgroundArea.bottom()) / 2 };
+	pictureArea.setLeft( mid.x() - width / 2);
+	pictureArea.setRight(mid.x() + width / 2);
+	pictureArea.setTop(mid.y() - height / 2);
+	pictureArea.setBottom( mid.y() + height / 2);
 	//
 
 	grid.resize(newParameters.width());
@@ -285,45 +255,55 @@ void PictureControl::recalculateGrid(imageParameters newParameters){
 		grid[colInc].resize(newParameters.height());
 		for (unsigned rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			// for all 4 pictures...
-			grid[colInc][rowInc].left = int(pictureArea.left
-											 + (double)(colInc+1) * (pictureArea.right - pictureArea.left) 
-											 / (double)grid.size( ) + 2);
-			grid[colInc][rowInc].right = int(pictureArea.left
-				+ (double)(colInc + 2) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
-			grid[colInc][rowInc].top = int(pictureArea.top
-				+ (double)(rowInc)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
-			grid[colInc][rowInc].bottom = int(pictureArea.top
-				+ (double)(rowInc + 1)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
+			grid[colInc][rowInc].setLeft(int(pictureArea.left()
+											 + (double)(colInc+1) * (pictureArea.right()- pictureArea.left())
+											 / (double)grid.size( ) + 2));
+			grid[colInc][rowInc].setRight( int(pictureArea.left()
+				+ (double)(colInc + 2) * (pictureArea.right()- pictureArea.left()) / (double)grid.size() + 2));
+			grid[colInc][rowInc].setTop( int(pictureArea.top()
+				+ (double)(rowInc)* (pictureArea.bottom() - pictureArea.top()) / (double)grid[colInc].size()));
+			grid[colInc][rowInc].setBottom( int(pictureArea.top()
+				+ (double)(rowInc + 1)* (pictureArea.bottom() - pictureArea.top()) / (double)grid[colInc].size()));
 		}
+	}
+}
+
+void PictureControl::updatePlotVisibility() {
+	if (histOption && active) {
+		horGraph->plot->show();
+		vertGraph->plot->show();
+	}
+	else {
+		horGraph->plot->hide();
+		vertGraph->plot->hide();
 	}
 }
 
 /* 
  * sets the state of the picture and changes visibility of controls depending on that state.
  */
-void PictureControl::setActive( bool activeState )
-{
+void PictureControl::setActive( bool activeState ){
 	if (!coordinatesText || !coordinatesDisp)	{
 		return;
 	}
 	active = activeState;
 	if (!active){
-		sliderMax.hide ( SW_HIDE );
-		sliderMin.hide ( SW_HIDE );
-		//
+		sliderMax.show ( false );
+		sliderMin.show ( false );
 		coordinatesText->hide( );
 		coordinatesDisp->hide( );
 		valueText->hide( );
 		valueDisp->hide(  );
 	}
 	else{
-		sliderMax.hide ( SW_SHOW );
-		sliderMin.hide ( SW_SHOW );
+		sliderMax.show( true );
+		sliderMin.show( true );
 		coordinatesText->show();
 		coordinatesDisp->show();
 		valueText->show( );
 		valueDisp->show();
 	}
+	updatePlotVisibility();
 }
 
 /*
@@ -368,8 +348,8 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 	mostRecentAutoScale = autoScale;
 	mostRecentAutoMax = autoMax;
 	mostRecentAutoMin = autoMin;
-	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
-	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
+	int pixelsAreaWidth = pictureArea.right()- pictureArea.left()+ 1;
+	int pixelsAreaHeight = pictureArea.bottom() - pictureArea.top()+ 1;
 	int dataWidth = grid.size ( );
 	// first element containst whether autoscaling or not.
 	long colorRange;
@@ -461,7 +441,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 			memcpy (img.scanLine (rowInc * sf + repRow), singleRow.data(), img.bytesPerLine ());
 		}
 	}
-	// need to convert to an rgb format in order to draw on top. drawing on top using qpainter isn't supported with the 
+	// need to convert to an rgb format in order to draw on top. drawing on top()using qpainter isn't supported with the 
 	// indexed format. 
 	img = img.convertToFormat (QImage::Format_RGB888);
 	QPainter painter;
@@ -493,7 +473,7 @@ void PictureControl::handleMouse (QMouseEvent* event){
 	unsigned colCount = 0;
 	for ( auto col : grid ){
 		for ( auto box : col ){
-			if (loc.x() < box.right && loc.x () > box.left && loc.y() > box.top && loc.y () < box.bottom ) {
+			if (loc.x() < box.right()&& loc.x () > box.left()&& loc.y() > box.top()&& loc.y () < box.bottom() ) {
 				coordinatesDisp->setText( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
 				selectedLocation = { rowCount, colCount };
 				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 ){
@@ -526,8 +506,8 @@ void PictureControl::drawGrid(QPainter& painter){
 	// draw rectangles indicating where the pixels are.
 	for (unsigned columnInc = 0; columnInc < grid.size(); columnInc++){
 		for (unsigned rowInc = 0; rowInc < grid[columnInc].size(); rowInc++){
-			unsigned pixelRow = picScaleFactor * grid[columnInc][rowInc].top;
-			unsigned pixelColumn = picScaleFactor * grid[columnInc][rowInc].left;
+			unsigned pixelRow = picScaleFactor * grid[columnInc][rowInc].top();
+			unsigned pixelColumn = picScaleFactor * grid[columnInc][rowInc].left();
 			QRect rect = QRect (QPoint (pixelColumn, pixelRow),
 						 QPoint (pixelColumn + picScaleFactor - 2, pixelRow + picScaleFactor - 2));
 			painter.drawRect (rect);
