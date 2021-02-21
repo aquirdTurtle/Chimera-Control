@@ -16,6 +16,7 @@
 #include <memory>
 
 enum class plotStyle{
+	PicturePlot,
 	// ttl and dac plot use steps.
 	TtlPlot,
 	DacPlot,

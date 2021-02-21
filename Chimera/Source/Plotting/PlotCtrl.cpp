@@ -209,6 +209,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		}
 		view->chart ()->legend ()->setVisible (true);
 	}
+
 	else { // line plot... e.g. for dio and ao data
 		if (newData.size () == 0 || !view->chart ()) {
 			return;

@@ -2,7 +2,7 @@
 #include "ImageLabel.h"
 #include <QEvent.h>
 
-ImageLabel::ImageLabel (QWidget* parent, Qt::WindowFlags f) : QLabel (parent, f){}
+ImageLabel::ImageLabel(QWidget* parent, Qt::WindowFlags fl) : QLabel(parent, fl) {}
 ImageLabel::ImageLabel (const QString& text, QWidget* parent, Qt::WindowFlags f)
 	: QLabel (text, parent, f) {};
 

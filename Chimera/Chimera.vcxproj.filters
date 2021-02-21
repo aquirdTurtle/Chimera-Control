@@ -141,7 +141,6 @@
     <ClCompile Include="Source\Python\SmsTextingControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GeneralImaging\PictureControl.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureStats.cpp" />
     <ClCompile Include="Source\Andor\PictureSettingsControl.cpp">
@@ -308,6 +307,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusOptionsWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralImaging\PictureControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

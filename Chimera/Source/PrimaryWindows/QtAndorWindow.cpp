@@ -51,7 +51,8 @@ void QtAndorWindow::initializeWidgets (){
 	position = { 797, 25 };
 	timer.initialize (position, this);
 	position = { 797, 65 };
-	pics.initialize (position, 530 * 2, 460 * 2 + 5, this);
+	// 460
+	pics.initialize (position, 530 * 2, 440 * 2 + 5, this);
 	// end of literal initialization calls
 	pics.setSinglePicture (andorSettingsCtrl.getConfigSettings ().andor.imageSettings);
 	andor.setSettings (andorSettingsCtrl.getConfigSettings ().andor);
@@ -365,6 +366,7 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 				QPainter painter (this);
 				pics.drawBitmap ( data, minMax, counter, analysisHandler.getRunningSettings ().grids, picNum+counter,
 								  analysisHandler.getRunningSettings ().displayGridOption, painter );
+				pics.updatePlotData();
 				counter++;
 			}
 			timer.update (picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,

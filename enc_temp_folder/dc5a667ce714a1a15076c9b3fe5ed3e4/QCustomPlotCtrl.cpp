@@ -204,6 +204,8 @@ void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
 			newCurve->setPen(QColor(color[0], color[1], color[2]));
 			lineCount++;
 		}
+		resetChart();
+		plot->replot();
 	}
 	else { // line plot... e.g. for dio and ao data
 		if (newData.size() == 0 || !plot) {
