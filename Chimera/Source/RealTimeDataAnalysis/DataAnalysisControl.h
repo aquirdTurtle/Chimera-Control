@@ -48,7 +48,6 @@ class DataAnalysisControl : public IChimeraSystem {
 		void reloadGridCombo( unsigned num );
 		void fillPlotThreadInput( realTimePlotterInput* input );
 		void loadGridParams( atomGrid grid );
-		static unsigned __stdcall plotterProcedure( void* voidInput );
 		void saveGridParams( );
 		void handleDeleteGrid( );
 		void updatePlotTime ( );

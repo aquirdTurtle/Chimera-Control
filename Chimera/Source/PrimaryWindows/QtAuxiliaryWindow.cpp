@@ -14,8 +14,8 @@
 #include <ExcessDialogs/AoSettingsDialog.h>
 
 QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), uwSys(this),
-topBottomTek (TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"),
-eoAxialTek (EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG"),
+topBottomTek (this, TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"),
+eoAxialTek (this, EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG"),
 agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTINGS,this},
 Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),

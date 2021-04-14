@@ -7,11 +7,14 @@
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <Scripts/Script.h>
+#include <qfileinfo.h>
+#include <filesystem>
 
-DataLogger::DataLogger(std::string systemLocation, IChimeraQtWindow* parent) : IChimeraSystem(parent){
-	// initialize this to false.
+DataLogger::DataLogger(std::string dataLocation, std::string remoteLocation, IChimeraQtWindow* parent) 
+	: IChimeraSystem(parent){
 	fileIsOpen = false;
-	dataFilesBaseLocation = systemLocation;
+	dataFilesLocalLocation = dataLocation;
+	dataFilesRemoteLocation = remoteLocation;
 }
 
 DataLogger::~DataLogger( ){
@@ -25,7 +28,7 @@ void DataLogger::deleteFile(){
 		// I'm not actually sure if this should be a prob with h5.
 		thrower ("ERROR: Can't delete current h5 file, the h5 file is open!");
 	}
-	std::string fileAddress = dataFilesBaseLocation + todayFolder + "\\Raw Data\\data_"
+	std::string fileAddress = dataFilesLocalLocation + todayFolder + "\\Raw Data\\data_"
 		+ str( currentDataFileNumber ) + ".h5";
 	int success = DeleteFile(cstr(fileAddress));
 	if (success == false){
@@ -35,7 +38,6 @@ void DataLogger::deleteFile(){
 		emit notification({ "Deleted h5 file located at \"" + qstr(fileAddress) + "\"\r\n", 0, "DATA_LOGGER"});
 	}
 }
-
 
 void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath ){
 	time_t timeInt = time ( 0 );
@@ -91,9 +93,9 @@ int DataLogger::getCalibrationFileIndex () {
 	unsigned count = 0;
 	for (auto cal : AUTO_CAL_LIST) {
 		std::string finalSaveFolder;
-		getDataLocation (dataFilesBaseLocation, todayFolder, finalSaveFolder);
+		getDataLocation (dataFilesLocalLocation, todayFolder, finalSaveFolder);
 		FILE* calFile;
-		auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + cal.fileName + ".h5";
+		auto calDataLoc = dataFilesLocalLocation + finalSaveFolder + cal.fileName + ".h5";
 		fopen_s (&calFile, calDataLoc.c_str (), "r");
 		if (!calFile) {
 			return count;
@@ -111,9 +113,9 @@ int DataLogger::getCalibrationFileIndex () {
 void DataLogger::assertCalibrationFilesExist (){
 	for (auto cal : AUTO_CAL_LIST) {
 		std::string finalSaveFolder;
-		getDataLocation (dataFilesBaseLocation, todayFolder, finalSaveFolder);
+		getDataLocation (dataFilesLocalLocation, todayFolder, finalSaveFolder);
 		FILE* calFile;
-		auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + cal.fileName;
+		auto calDataLoc = dataFilesLocalLocation + finalSaveFolder + cal.fileName;
 		fopen_s (&calFile, calDataLoc.c_str (), "r");
 		if (!calFile) {
 			thrower ("ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
@@ -139,19 +141,18 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 	/// First, create the folder for today's h5 data.
 	// Get the date and use it to set the folder where this data run will be saved.
 	std::string finalSaveFolder;
-	getDataLocation ( dataFilesBaseLocation, todayFolder, finalSaveFolder );
-
+	getDataLocation ( dataFilesLocalLocation, todayFolder, finalSaveFolder );
+	auto temperatureDataLocation = dataFilesRemoteLocation + finalSaveFolder + "Temperature_Data.csv";	
 	/// check that temperature data is being recorded.
-	FILE *temperatureFile;
-	auto temperatureDataLocation = dataFilesBaseLocation + finalSaveFolder + "Temperature_Data.csv";
-	fopen_s ( &temperatureFile, temperatureDataLocation.c_str(), "r" );
-	if ( !temperatureFile )	{
+	//FILE *temperatureFile;
+	//fopen_s ( &temperatureFile, temperatureDataLocation.c_str(), "r" );
+	if ( !QFileInfo::exists(qstr(temperatureDataLocation)))	{
 		thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
 				  + temperatureDataLocation + ". Please make sure that the temperature logger is working correctly "
 				  "before starting an experiment." );
 	}
 	else{
-		fclose ( temperatureFile );
+		//fclose ( temperatureFile );
 	}
 	/// check that the mot calibration files have been recorded.
 	if ( checkForCalibrationFiles )	{
@@ -162,7 +163,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 	std::string finalSaveFileName;
 	if ( specialName == "" ){
 		// the default option.
-		unsigned fileNum = getNextFileIndex ( dataFilesBaseLocation + finalSaveFolder + "data_", ".h5" );
+		unsigned fileNum = getNextFileIndex ( dataFilesLocalLocation + finalSaveFolder + "data_", ".h5" );
 		// at this point a valid filename has been found.
 		finalSaveFileName = "data_" + str ( fileNum ) + ".h5";
 		// update this, which is used later to move the key file.
@@ -173,10 +174,11 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 	}
 
  	try	{
+		// should I be "normal closing" here?
 		normalCloseFile ( );
 		assertClosed ();
  		// create the file. H5F_ACC_TRUNC means it will overwrite files with the same name.
-		file = H5::H5File( cstr( dataFilesBaseLocation + finalSaveFolder + finalSaveFileName ), H5F_ACC_TRUNC );
+		file = H5::H5File( cstr( dataFilesLocalLocation + finalSaveFolder + finalSaveFileName ), H5F_ACC_TRUNC );
 		fileIsOpen = true;
 		H5::Group ttlsGroup( file.createGroup( "/TTLs" ) );
 	}
@@ -188,10 +190,9 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 	currentBaslerPicNumber = 0;
 }
 
-
 void DataLogger::logPlotData ( std::string name ){
-}
 
+}
 
 void DataLogger::logServoInfo ( std::vector<servoInfo> servos ){
 	H5::Group servoGroup( file.createGroup ( "/Servos" ) );
@@ -444,8 +445,6 @@ void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5
 	} 
 }
 
-
-
 void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims){
 	if (fileIsOpen == false){
 		thrower ("Tried to write to h5 file (for andor pic), but the file is closed!\r\n");
@@ -555,7 +554,6 @@ void DataLogger::logMiscellaneousStart(){
 	}
 }
 
-
 void DataLogger::logAndorPiezos (piezoChan<double> cameraPiezoVals) {
 	try {
 		H5::Group andorAlginmentGroup (file.createGroup ("/AndorAlignment"));
@@ -569,7 +567,6 @@ void DataLogger::logAndorPiezos (piezoChan<double> cameraPiezoVals) {
 			+ "\n""; Full error:" + fullE);
 	}
 }
-
 
 void DataLogger::assertClosed () {
 	try {
@@ -589,6 +586,42 @@ void DataLogger::assertClosed () {
 	emit notification({ "Closing HDF5 File and associated structures.\n", 0, "DATA_LOGGER" });
 }
 
+/* 
+ */
+void DataLogger::copyDataFile(std::string specialName) {
+	try {
+		std::string finalSaveFolder;
+		getDataLocation(dataFilesLocalLocation, todayFolder, finalSaveFolder);
+		if (specialName != "") {
+			for (auto& calInfo : AUTO_CAL_LIST) { // this is a bit round-about.
+				if (specialName == calInfo.prof.configuration) {
+					specialName = calInfo.fileName;
+					break;
+				}
+			}
+		}
+		auto finalSaveFileName = (specialName != "" ? specialName : "data_" + str(currentDataFileNumber)) + ".h5";
+		if (!QFile::exists(qstr(dataFilesRemoteLocation + finalSaveFolder + finalSaveFileName))) {
+			// create the remote copy, usually on the jilafile.
+			try {
+				std::filesystem::copy(str(dataFilesLocalLocation + finalSaveFolder + finalSaveFileName),
+					str(dataFilesRemoteLocation + finalSaveFolder + finalSaveFileName));
+			}
+			catch (std::filesystem::filesystem_error & err) {
+				emit error({ "Error copying data file?!?" + str(err.what()), 0, "DATA_LOGGER" });
+			}
+		}
+		emit notification({ "Made Remote Copy of Experiment Data File.", 1, "DATA_LOGGER" });
+	}
+	catch (H5::Exception & err) {
+		auto fullE = getFullError(err);
+		throwNested("Copy File Failed with HDF5 error?! Full error:" + fullE);
+	}
+	catch (ChimeraError&) {
+		throwNested("Copy File Failed??");
+	}
+}
+
 void DataLogger::normalCloseFile(){
 	if (!fileIsOpen){
 		return;
@@ -603,6 +636,9 @@ void DataLogger::normalCloseFile(){
 					   "Stop-Date", miscellaneousGroup );
 		writeDataSet ( str ( now.tm_hour ) + ":" + str ( now.tm_min ) + ":" + str ( now.tm_sec ) + ":",
 					   "Stop-Time", miscellaneousGroup );
+		assertClosed();
+		// originally tried copying the file right here, but for some reason the copied file seemed corrupted, like 
+		// it didn't close properly, despite the closure above. So I have to copy it later.
 	}
 	catch ( H5::Exception& err ){
 		auto fullE = getFullError (err);
@@ -611,7 +647,8 @@ void DataLogger::normalCloseFile(){
 	catch (ChimeraError &) {
 		throwNested ("Normal Close Failed??");
 	}
-	assertClosed ();
+	
+
 }
 
  

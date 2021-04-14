@@ -100,7 +100,6 @@ class NiawgCore : public IDeviceCore {
 		void setDefaultWaveforms ();
 		std::string getOutputSummary (const NiawgOutput& output);
 		void turnOffRerng( );
-		void waitForRerng( bool andClearWvfm );
 		void programVariations( unsigned variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
 		void programNiawg( std::string& warnings, unsigned variation, rerngGuiOptions& rerngGuiForm, 
 						   std::vector<parameterType>& expParams, NiawgOutput& output);
@@ -205,9 +204,6 @@ class NiawgCore : public IDeviceCore {
 								std::vector<parameterType>& varibles = std::vector<parameterType>( ),
 								unsigned totalVarNum = 1 );
 		void deleteRerngWave( );
-		void startRerngThread( atomQueue* atomQueue, waveInfoForm& wave, 
-							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<unsigned long> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWaveForm& wave, bool isDefault, unsigned varnum,
 								niawgLibOption::mode libOption = niawgLibOption::defaultMode);
@@ -259,7 +255,6 @@ class NiawgCore : public IDeviceCore {
 		std::vector<rerngContainer<double>> moveBiasCalibrations;
 		std::string rerngWaveName = "rearrangeWaveform";
 		std::vector<double> rerngWaveVals;
-		HANDLE rerngThreadHandle;
 		//static unsigned __stdcall rerngThreadProcedure( LPVOID input );
 		unsigned triggersInScript=0;
 		// true = active;

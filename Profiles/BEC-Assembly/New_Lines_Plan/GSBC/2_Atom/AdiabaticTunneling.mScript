@@ -18,14 +18,14 @@ pulseon: niawgTrig 0.1 % to standard imaging / cooling bias
 t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 pulseon: dds_step 5
-call pgcAtomFlashingImage()
+call stdPGCImage()
 pulseon: tweezerIntensityTrig 0.1 % to intraplgm
 off: sidemotShutter  
 off: diagmotShutter 
 off: repumpShutter
 t += 0.1 
 on: axialRamanShutter 
-on: axialRamanShutter2 
+on: axialRamanShutter2
 call intrapgreymolasses() 
 call triggerWindfreak()
 off: shutter795
@@ -42,16 +42,16 @@ var dumpTime 6
 t += dumpTime
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
 pulseon: niawgTrig 0.1 % to the move stuff.
-t += 1.4
+t += 2
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
-t += 1
+t += 0.4
 t += adiabaticTransferTime
 % tweezers start separating here.
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 t += 3.2
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 t += 1
-call pgcAtomFlashingImage()
+call stdPGCImage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
 pulseon: niawgTrig 0.1
 t += 1

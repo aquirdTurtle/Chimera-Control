@@ -162,6 +162,7 @@ void QtMainWindow::onAutoCalFin (QString msg, profileSettings finishedConfig){
 	scriptWin->setNiawgRunningState (false);
 	andorWin->handleNormalFinish (finishedConfig);
 	autoCalNum++;
+	andorWin->copyDataFile(finishedConfig.configuration);
 	if (autoCalNum >= AUTO_CAL_LIST.size ())	{
 		// then just finished the calibrations.
 		autoCalNum = 0;
@@ -472,27 +473,30 @@ void QtMainWindow::onFatalError (statusMsg msg){
 }
 
 void QtMainWindow::onNormalFinish (statusMsg finMsg, profileSettings finishedProfile) {
-	handleNotification (finMsg);
-	scriptWin->setIntensityDefault ();
-	setShortStatus ("Passively Outputting Default Waveform");
-	changeShortStatusColor ("B");
-	scriptWin->stopRearranger ();
-	andorWin->handleNormalFinish (finishedProfile);
-	handleFinishText ();
-	auxWin->handleNormalFin ();
-	try { scriptWin->restartNiawgDefaults (); }
-	catch (ChimeraError& except){
-		reportErr ("The niawg finished normally, but upon restarting the default waveform, threw the "
-			"following error: " + except.qtrace ());
-		reportStatus ("ERROR!\r\n");
-	}
-	scriptWin->setNiawgRunningState (false);
-	try { scriptWin->waitForRearranger (); }
-	catch (ChimeraError& err) { reportErr (err.qtrace ()); }
+	try {
+		handleNotification(finMsg);
+		scriptWin->setIntensityDefault();
+		setShortStatus("Passively Outputting Default Waveform");
+		changeShortStatusColor("B");
+		andorWin->handleNormalFinish(finishedProfile);
+		handleFinishText();
+		auxWin->handleNormalFin();
+		try { scriptWin->restartNiawgDefaults(); }
+		catch (ChimeraError & except) {
+			reportErr("The niawg finished normally, but upon restarting the default waveform, threw the "
+				"following error: " + except.qtrace());
+			reportStatus("ERROR!\r\n");
+		}
+		scriptWin->setNiawgRunningState(false);
 
-	if (autoF5_AfterFinish)	{
-		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F5, this);
-		autoF5_AfterFinish = false;
+		if (autoF5_AfterFinish) {
+			commonFunctions::handleCommonMessage(ID_ACCELERATOR_F5, this);
+			autoF5_AfterFinish = false;
+		}
+		andorWin->copyDataFile();
+	}
+	catch (ChimeraError & err) {
+		reportErr({ err.trace(),0,"MAIN_WINDOW" });
 	}
 }
 

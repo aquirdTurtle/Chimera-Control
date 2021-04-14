@@ -18,7 +18,7 @@ pulseon: niawgTrig 0.1 % to standard imaging / cooling bias
 t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 pulseon: dds_step 5
-call pgcAtomFlashingImage()
+call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1 % to intraplgm
 off: sidemotShutter  
 off: diagmotShutter 
@@ -53,7 +53,7 @@ pulseon: niawgTrig 0.1 % separate tweezers
 t += 2
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 t += 1
-call pgcAtomFlashingImage()
+call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
 pulseon: niawgTrig 0.1
 t += 1

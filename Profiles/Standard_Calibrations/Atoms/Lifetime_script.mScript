@@ -16,11 +16,12 @@ call D1GreyLambdaLoading()
 t += 2
 pulseon: tweezerIntensityTrig 0.1
 t += 2
-call pgcAtomFlashingImage()
-
-t += ( 20 + wait_time )
-
-call pgcAtomFlashingImage()
+call stdPgcImage()
+pulseon: tweezerIntensityTrig 0.1
+t += ( 19 + wait_time )
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call stdPgcImage()
 t += 1
 pulseon: tweezerIntensityTrig 0.1
 t += 1

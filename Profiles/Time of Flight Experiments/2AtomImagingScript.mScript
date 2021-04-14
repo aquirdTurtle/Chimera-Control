@@ -1,0 +1,32 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+off: andorShutter
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+call triggerWindfreak()
+on: totalRamanRf
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+t += 5
+call D1GreyLambdaLoading()
+call triggerWindfreak()
+pulseon: dds_step 5
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1 % to imagingDepth
+
+t += 1
+call stdPgcImage()
+t += 100
+call stdPgcImage()
+
+%call pgcatomflashingimage()
+pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
+pulseon: niawgTrig 0.1
+t += 1
+off: tweezerRf
+t += 0.2

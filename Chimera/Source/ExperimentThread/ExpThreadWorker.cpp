@@ -841,7 +841,7 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 		if (!uwaveMismatch) {
 			auto actualTrigs = input->ttls.countTriggers (uwaveCore.getUWaveTriggerLine (), variationInc);
 			auto uwaveExpectedTrigs = uwaveCore.getNumTriggers (uwaveCore.experimentSettings);
-			statusMsg infoMsg;
+			statusMsg infoMsg("",2,"");
 			infoMsg.msg = "Actual/Expected Microwave Triggers: " + qstr (actualTrigs) + "/"
 				+ qstr (uwaveExpectedTrigs) + ".";
 			if (actualTrigs != uwaveExpectedTrigs && uwaveExpectedTrigs != 0 && uwaveExpectedTrigs != 1) {
@@ -923,7 +923,7 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 		input->ttls.calculateVariations (runtime.expParams, this);
 		notify({ "Calcualting AO system variations...\n", 1 });
 		input->aoSys.calculateVariations (runtime.expParams, this, input->calibrations);
-		notify ("Running final ado checks...\n");
+		notify({ "Running final ado checks...\n",1});
 		for (auto variationInc : range (variations)) {
 			if (isAborting) { thrower (abortString); }
 			double& currLoadSkipTime = loadSkipTimes[variationInc];
@@ -970,7 +970,7 @@ void ExpThreadWorker::handlePause (std::atomic<bool>& isPaused, std::atomic<bool
 
 void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameterType> expParams) {
 	auto variations = determineVariationNumber (expParams);
-	notify (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
+	notify (("\nVariation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
 	auto& aiSys = input->devices.getSingleDevice<AiSystem> ();
 	if (aiSys.wantsQueryBetweenVariations ()) {
 		// the main gui thread does the whole measurement here. This probably makes less sense now. 

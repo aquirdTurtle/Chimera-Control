@@ -1,0 +1,12 @@
+% TOP PULSE
+% offset amp tau t_offset total_length
+% order is axial->top->bot 
+hold 0 0.01 onceWaitTrig #
+pulse gaussian 0 topSbcAmp topSbcW
+ (axSbcPulseLen+opSbcPulseLen
+  +tbSbcPulseLen/2)
+ (2*tbSbcPulseLen+axSbcPulseLen
+  +3*opSbcPulseLen) repeat 100 #
+hold topSbcSqAmp 0.1 onceWaitTrig #
+% hold  once #
+%pulse gaussian 0 topsbcamp topSbcW %(tbspecpulselen/2) tbspecpulselen once # 

@@ -5,6 +5,7 @@
 #include <qprocess.h>
 #include <qfile.h>
 
+
 void NewPythonHandler::runDataAnalysis (std::string date, long runNumber, long accumulations,
 	std::vector<coordinate> atomLocations) {
 	QString path = "C:/Users/Regal-Lab/Code/Data-Analysis-Code";
@@ -16,6 +17,7 @@ void NewPythonHandler::runDataAnalysis (std::string date, long runNumber, long a
 	process->waitForFinished ();
 	process->close ();
 }
+
 
 double NewPythonHandler::runCarrierAnalysis (std::string date, long runNumber, atomGrid gridInfo, QWidget* parent) {
 	QString command ("python");
@@ -33,6 +35,7 @@ double NewPythonHandler::runCarrierAnalysis (std::string date, long runNumber, a
 	QByteArray out = process->readAllStandardOutput ();
 	QByteArray oute = process->readAllStandardError ();
 	process->close ();
+	qDebug() << "carrier analysis info: " << out << "\n" << oute;
 	std::string filename = "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CarrierResultFile.txt";
 	double resval;
 	std::ifstream stdfile (filename);

@@ -1,6 +1,9 @@
-﻿#include "stdafx.h"
+﻿
+#include "stdafx.h"
 #include "ConfigurationSystems/ConfigSystem.h"
 #include "DdsCore.h"
+
+std::string DdsCore::systemScope = "dds";
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode ){
 	connectasync ( );
@@ -14,13 +17,12 @@ DdsCore::~DdsCore ( ){
 
 void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params ){
 	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
-	for (auto& ramp : expRampList)	{
-		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
-		ramp.freq1.assertValid (params, GLOBAL_PARAMETER_SCOPE);
-		ramp.freq2.assertValid (params, GLOBAL_PARAMETER_SCOPE);
-		ramp.amp1.assertValid (params, GLOBAL_PARAMETER_SCOPE);
-		ramp.amp2.assertValid (params, GLOBAL_PARAMETER_SCOPE);
-		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
+	for (auto& ramp : expRampList) {
+		ramp.rampTime.assertValid (params, systemScope);
+		ramp.freq1.assertValid (params, systemScope);
+		ramp.freq2.assertValid (params, systemScope);
+		ramp.amp1.assertValid (params, systemScope);
+		ramp.amp2.assertValid (params, systemScope);
 	}
 }
 
@@ -32,16 +34,15 @@ void DdsCore::calculateVariations (std::vector<parameterType>& params, ExpThread
 
 // this probably needs an overload with a default value for the empty parameters case...
 void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params ){
+	assertDdsValuesValid(params);
 	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
-	for ( auto variationNumber : range ( variations ) )	{
-		for ( auto& ramp : expRampList)	{
-			ramp.rampTime.internalEvaluate (params, variations );
-			ramp.freq1.internalEvaluate (params, variations );
-			ramp.freq2.internalEvaluate (params, variations );
-			ramp.amp1.internalEvaluate (params, variations );
-			ramp.amp2.internalEvaluate (params, variations );
-			ramp.rampTime.internalEvaluate (params, variations );
-		}
+	for ( auto& ramp : expRampList)	{
+		ramp.rampTime.internalEvaluate (params, variations );
+		ramp.freq1.internalEvaluate (params, variations );
+		ramp.freq2.internalEvaluate (params, variations );
+		ramp.amp1.internalEvaluate (params, variations );
+		ramp.amp2.internalEvaluate (params, variations );
+		ramp.rampTime.internalEvaluate (params, variations );
 	}
 }
 
@@ -69,7 +70,7 @@ void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterTyp
 
 
 void DdsCore::writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex ){
-	UINT16 reps = getRepsFromTime ( boxRamp.rampTime );
+	unsigned short reps = getRepsFromTime ( boxRamp.rampTime );
 	writeRampReps ( rampIndex, reps );
 	for ( auto boardNum : range ( boxRamp.rampParams.numBoards ( ) ) ){
 		for ( auto channelNum : range ( boxRamp.rampParams.numChannels ( ) ) ){
@@ -204,13 +205,13 @@ std::string DdsCore::getSystemInfo ( ){
 }
 
 /* Get Frequency Tuning Word - convert a frequency in double to  */
-INT DdsCore::getFTW ( double freq ){
+int DdsCore::getFTW ( double freq ){
 	// Negative ints, Nyquist resetFreq, works out.
 	if ( freq > INTERNAL_CLOCK / 2 ){
 		thrower ( "DDS frequency out of range. Must be < 250MHz." );
 		return 0;
 	}
-	return (INT) round ( ( freq * pow ( 2, 32 ) ) / ( INTERNAL_CLOCK ) );;
+	return (int) round ( ( freq * pow ( 2, 32 ) ) / ( INTERNAL_CLOCK ) );;
 }
 
 unsigned DdsCore::getATW ( double amp ){
@@ -221,13 +222,13 @@ unsigned DdsCore::getATW ( double amp ){
 	return (unsigned) round ( amp * ( pow ( 2, 10 ) - 1 ) / 100.0 );
 }
 
-INT DdsCore::get32bitATW ( double amp ){
+int DdsCore::get32bitATW ( double amp ){
 	// why do we need this and the getATW function?
 	//SIGNED
 	if ( abs ( amp ) > 100 ){
 		thrower ( "ERROR: DDS amplitude out of range, should be < 100%." );
 	}
-	return (INT) round ( amp * ( pow ( 2, 32 ) - pow ( 2, 22 ) ) / 100.0 );
+	return (int) round ( amp * ( pow ( 2, 32 ) - pow ( 2, 22 ) ) / 100.0 );
 }
 
 void DdsCore::longUpdate ( ){

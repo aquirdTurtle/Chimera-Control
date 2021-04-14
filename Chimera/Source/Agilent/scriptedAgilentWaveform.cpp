@@ -23,7 +23,7 @@ void ScriptedAgilentWaveform::resetNumberOfTriggers( ){
 bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script, 
 														   std::vector<parameterType>& params,
 															std::string& warnings ){
-	std::string scope = AGILENT_PARAMETER_SCOPE;
+	std::string scope = AgilentCore::systemScope;
 	segmentInfo workingInput;
 	std::string word;
 	if (script.peek() == EOF)	{

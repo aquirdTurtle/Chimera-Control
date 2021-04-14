@@ -3,6 +3,7 @@ t = 0.1
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
+off: andorShutter
 on: totalRamanRf
 on: shutter795
 pulseon: dds_reset 0.1
@@ -16,7 +17,8 @@ call triggerWindfreak()
 t += 20
 pulseon: tweezerIntensityTrig 0.1
 pulseon: dds_step 5
-call pgcAtomFlashingImage()
+call stdPgcImage()
+off: andorShutter
 pulseon: tweezerIntensityTrig 0.1
 off: sidemotShutter  
 off: diagmotShutter 
@@ -52,7 +54,7 @@ t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 pulseon: rsTrig 0.1
-call pgcAtomFlashingImage()
+call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 off: tweezerRf

@@ -65,6 +65,7 @@ class QtAndorWindow : public IChimeraQtWindow{
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
 		void handleNormalFinish (profileSettings finishedProfile);
+		void copyDataFile(std::string specialName="");
 		void redrawPictures (bool andGrid);
 		bool getCameraStatus ();
 		void setTimerText (std::string timerText);

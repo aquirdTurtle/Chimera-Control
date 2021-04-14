@@ -8,7 +8,7 @@
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 
 TektronixAfgControl::TektronixAfgControl(IChimeraQtWindow* parent_in, bool safemode, std::string address, std::string configurationFileDelimiter )
-	: core(safemode, address, configurationFileDelimiter ) : IChimeraSystem(parent_in) {
+	: core(safemode, address, configurationFileDelimiter ), IChimeraSystem(parent_in) {
 
 }
 
@@ -67,7 +67,7 @@ void TektronixAfgControl::initialize (QPoint& loc, IChimeraQtWindow* parent, std
 			emit notification({ "Programmed Top/Bottom Tektronix Generator.\r\n", 0, core.getDelim() });
 		}
 		catch (ChimeraError& exception) {
-			emit error({ "Error while programing Top/Bottom Tektronix generator: " + exception.qtrace() + "\r\n", 0, 
+			emit error({ "Error while programing Top/Bottom Tektronix generator: " + exception.trace() + "\r\n", 0, 
 				core.getDelim() });
 		}});
 

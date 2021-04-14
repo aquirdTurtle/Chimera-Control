@@ -1,0 +1,77 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+call triggerWindfreak()
+on: totalRamanRf
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+t += 5
+call D1GreyLambdaLoading()
+call triggerWindfreak()
+pulseon: niawgTrig 0.1 % to standard imaging / cooling bias
+t += 20
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1 % to intraplgm
+off: sidemotShutter  
+off: diagmotShutter 
+off: repumpShutter
+t += 0.1 
+on: axialRamanShutter 
+on: axialRamanShutter2 
+call intrapgreymolasses() 
+call triggerWindfreak()
+off: shutter795
+pulseon: tweezerIntensityTrig 0.1 % to sbc depth
+call send_uw_to_raman_eom()
+t += 1
+call pump2stretch() 
+call gsbc()
+
+call triggerWindfreak()
+off: axialRamanShutter  
+off: axialRamanShutter2  
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+pulseon: niawgTrig 0.1 % to the dump stuff.
+var dumpTime 6
+t += dumpTime
+pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+pulseon: niawgTrig 0.1 % to the move stuff.
+t += 1.4
+pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+t += 1
+t += adiabaticTransferTime
+% tweezers start separating here.
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+t += 3.2
+pulseon: tweezerIntensityTrig 0.1 % to raman depth
+t += 1
+var specPulseLen 0.08
+dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
+call topRamanPulse(specPulseLen)
+dac: topPulseLev 0
+dac: eoPulseLev 0
+off: axialRamanShutter  
+off: axialRamanShutter2  
+% t += 20
+t += 0.1 
+call pushout()
+pulseon: topPulseTrig 0.01
+pulseon: tweezerIntensityTrig 0.1 % to pushout depth
+t += 5
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+t += 1
+
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
+pulseon: niawgTrig 0.1
+t += 1
+off: tweezerRf
+t += 0.2

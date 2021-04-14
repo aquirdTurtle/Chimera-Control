@@ -514,8 +514,13 @@ void CalibrationManager::standardStartThread (std::vector<std::reference_wrapper
 	connect (threadWorker, &CalibrationThreadWorker::error, this, &IChimeraSystem::error);
 	connect (threadWorker, &CalibrationThreadWorker::calibrationChanged, this, [this]() { refreshListview (); });
 	connect (threadWorker, &CalibrationThreadWorker::startingNewCalibration, this, [this](calSettings cal) {
-		updateCalibrationView(cal);
-		calibrationViewer.initializeCalData (cal);
+		try {
+			updateCalibrationView(cal);
+			calibrationViewer.initializeCalData(cal);
+		}
+		catch (ChimeraError & err) {
+			this->parentWin->reportErr(err.qtrace());
+		}
 		});
 	connect (threadWorker, &CalibrationThreadWorker::newCalibrationDataPoint, this, [this](QPointF pt) {
 			auto* chartData = calibrationViewer.getCalData ();

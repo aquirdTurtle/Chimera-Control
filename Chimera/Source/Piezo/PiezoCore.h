@@ -42,6 +42,8 @@ class PiezoCore : public IDeviceCore
 		void loadExpSettings (ConfigStream& stream);
 		void normalFinish () {};
 		void errorFinish () {};
+		static std::string systemScope;
+
 	private:
 		const PiezoType controllerType;
 		PiezoFlume flume;

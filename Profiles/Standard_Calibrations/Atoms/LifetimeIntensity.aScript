@@ -1,0 +1,8 @@
+var loadingdepth 13.4
+var imagingDepth 12.7
+var waitDepth 0.1 
+hold loadingDepth 1 onceWaitTrig #  
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #  
+ramp lin imagingDepth waitDepth 1 onceWaitTrig #  
+ramp lin waitDepth imagingDepth 1 onceWaitTrig #  
+ramp lin imagingDepth loadingDepth 1 once #  

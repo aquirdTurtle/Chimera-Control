@@ -7,12 +7,12 @@ var_v 7 freqs [ 39 51 63 75 87 99 111 ]
 var_v 7 pows [ 0.15438086125923162   0.16304936802477857   0.12201356232137629   0.15390372855021173   0.09243256966580327   0.168725046042693   0.14549486413590532   ] 
 var_v 7 phases [ 1.325630117 0.000000000 1.311884828 3.348335934 6.051353821 5.179345038 0.000000000 ] 
 var_v 2 initVBias [ 1 0 ]
-var dumpBias 0.035
+var dumpBias 0.035 %deeper at 0.35, shallower at 0.035
 var_v 2 finVBias [ dumpBias (1-dumpBias) ]
 var_v 2 Vfreqs [ 75  111 ]
 var_v 2 Vphases [ 0 0 ]
 var_v 2 linR [ lin lin ]
-
+var_v 2 tanhR [ tanh tanh ]
 
 repeatTilTrig
 gen7const_v Horizontal
@@ -24,7 +24,7 @@ endRepeat
 gen7const_v Horizontal
 freqs pows phases # 
 gen2ampramp_v Vertical
-Vfreqs	linR initVBias finVBias	Vphases #
+Vfreqs	tanhR initVBias finVBias	Vphases #
 1 0
 repeatTilTrig
 gen7const_v Horizontal

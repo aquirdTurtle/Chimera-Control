@@ -47,10 +47,10 @@ class PictureManager {
 		std::array<QVector<QRgb>,4> palettes;
 		QVector<QRgb> inferno, greys;
 		QPoint picturesLocation;
-		int picturesWidth;
-		int picturesHeight;
-		bool specialGreaterThanMax;
-		bool specialLessThanMin;
-		bool alwaysShowGrid;
+		int picturesWidth=1;
+		int picturesHeight=1;
+		bool specialGreaterThanMax=false;
+		bool specialLessThanMin=false;
+		bool alwaysShowGrid=false;
 };
 

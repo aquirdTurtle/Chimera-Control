@@ -6,8 +6,7 @@
 
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-void PictureStats::initialize( QPoint& pos, IChimeraQtWindow* parent )
-{
+void PictureStats::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	auto& px = pos.rx (), & py = pos.ry ();
 	long size = 315;
 	pictureStatsHeader = new QLabel ("Raw Counts", parent);
@@ -18,10 +17,9 @@ void PictureStats::initialize( QPoint& pos, IChimeraQtWindow* parent )
 	collumnHeaders[0] = new QLabel ("Pic:", parent);
 	collumnHeaders[0]->setGeometry (px, py += 25, size / 5, 25);
 	int inc = 0;
-	for (auto& control : picNumberIndicators)
-	{
+	for (auto& control : picNumberIndicators){
 		inc++;
-		control = new QLabel (cstr ("#" + str (inc) + ":"), parent);
+		control = new QLabel (qstr ("#" + str (inc) + ":"), parent);
 		control->setGeometry (px, py+=25, size / 5, 25);
 	}
 	/// Max Count 
@@ -61,6 +59,7 @@ void PictureStats::initialize( QPoint& pos, IChimeraQtWindow* parent )
 		control->setGeometry (px, py += 25, size / 5, 25);
 	}
 	px -= 4./5*size;
+	py += 25;
 }
 
 

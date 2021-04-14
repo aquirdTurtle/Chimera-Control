@@ -176,33 +176,6 @@ void NiawgCore::initForExperiment ( ){
 	triggersInScript = 0;
 }
 
-// this function checks if should be rearranging and if so starts the thread.
-void NiawgCore::handleStartingRerng( ExperimentThreadInput* input){
-	bool foundRearrangement = false;
-	// check if any waveforms are rearrangement instructions.
-	for ( auto& wave : expOutput.waveFormInfo){
-		if ( wave.rearrange.isRearrangement ){
-			// if already found one...
-			if ( foundRearrangement ){
-				thrower ( "Multiple rearrangement waveforms found, but not allowed! Only one rearrangement is "
-						 "currently possible per repetition." );
-			}
-			foundRearrangement = true;
-			// start rearrangement thread. Give the thread the queue.
-			startRerngThread( input->atomQueueForRearrangement, wave, input->rearrangerLock,
-							  input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
-							  expRerngOptions, input->analysisGrid );
-		}
-	}
-	if (expRerngOptions.active && !foundRearrangement ){
-		thrower ( "system is primed for rearranging atoms, but no rearrangement waveform was found!" );
-	}
-	else if ( !expRerngOptions.active && foundRearrangement )	{
-		thrower ( "System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
-	}
-}
-
-
 bool NiawgCore::niawgIsRunning(){
 	return runningState;
 }
@@ -280,21 +253,6 @@ void NiawgCore::cleanupNiawg( std::string scriptName){
 	for ( auto& wave : expOutput.waveFormInfo){
 		wave.core.waveVals.clear( );
 		wave.core.waveVals.shrink_to_fit( );
-	}
-}
-
-
-void NiawgCore::waitForRerng( bool andClearWvfm ){
-	int result = WaitForSingleObject( rerngThreadHandle, 500 );
-	if ( result == WAIT_TIMEOUT ){
-		thrower ( "waiting for Rearranger thread to finish timed out!?!?!?" );
-	}
-	if (andClearWvfm){
-		try	{
-			//deleteRerngWave();
-		}
-		catch (ChimeraError&){
-		}
 	}
 }
 
@@ -2702,39 +2660,6 @@ void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptions& form, std::vector<p
 	}
 }
 
-
-void NiawgCore::startRerngThread( atomQueue* atomQueue, waveInfoForm& wave,  
-								  std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
-								  chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
-								  rerngGuiOptions guiOptions, atomGrid grid ){
-	threadStateSignal = true;
-	rerngThreadInput* input = new rerngThreadInput( grid.height, grid.width);
-	input->sourceRows = grid.height;
-	input->sourceCols = grid.width;
-	input->guiOptions = guiOptions;
-	input->pictureTimes = andorImageTimes;
-	input->grabTimes = grabTimes;
-	input->rerngLock = rearrangerLock;
-	input->threadActive = &threadStateSignal;
-	input->niawg = this;
-	input->atomsQueue = atomQueue;
-	input->rerngWave = &wave;
-	input->rerngConditionWatcher = rearrangerConditionWatcher;
-	if ( guiOptions.preprogram ){
-		preWriteRerngWaveforms( input );
-	}
-	unsigned rearrangerId;
-	// start the thread with ~10MB of memory (it may get rounded to some page size)
-	//rerngThreadHandle = (HANDLE)_beginthreadex( 0, 1e7, NiawgCore::rerngThreadProcedure, (void*)input,
-	//											STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
-	if ( !rerngThreadHandle ){
-		errBox( "beginThreadEx error: " + str( GetLastError( ) ) );
-	}
-	if ( !SetThreadPriority( rerngThreadHandle, THREAD_PRIORITY_TIME_CRITICAL ) ){
-		errBox( "Set Thread priority error: " + str( GetLastError( ) ) );
-	}
-}
-
 bool NiawgCore::rerngThreadIsActive( ){
 	return threadStateSignal;
 }
@@ -4087,7 +4012,7 @@ void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& p
 		if (expRerngOptions.active)	{
 			turnOffRerng ();
 			// input->conditionVariableForRerng->notify_all ();
-			waitForRerng (false);
+			//waitForRerng (false);
 			// handleStartingRerng (input);
 		}
 	}

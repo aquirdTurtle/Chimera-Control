@@ -23,9 +23,9 @@ def turnOnMot():
   dac: SideMotPower { sidemot_power sidemot }
   %% Magnetic Field Control
   var motStrength 7.1
-  var rlField 0.8552
+  var rlField 0.794
   var fbField 0.561 
-  var tbField 0.1325
+  var tbField 0.216
 
   dac: MotGradientCurrent motStrength 
   dac: RightCoilCurrent rlField

@@ -4,6 +4,8 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigSystem.h"
 
+std::string PiezoCore::systemScope = "piezo";
+
 PiezoCore::PiezoCore (piezoSetupInfo info) :
 	controllerType ( info.type),
 	flume ( info.type != PiezoType::B, info.addr),
@@ -29,9 +31,9 @@ void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 	size_t totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
 	if (experimentActive){
 		try{
-			expSettings.pztValues.x.assertValid (params, PIEZO_PARAMETER_SCOPE);
-			expSettings.pztValues.y.assertValid (params, PIEZO_PARAMETER_SCOPE);
-			expSettings.pztValues.z.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.x.assertValid (params, systemScope);
+			expSettings.pztValues.y.assertValid (params, systemScope);
+			expSettings.pztValues.z.assertValid (params, systemScope);
 			expSettings.pztValues.x.internalEvaluate (params, totalVariations);
 			expSettings.pztValues.y.internalEvaluate (params, totalVariations);
 			expSettings.pztValues.z.internalEvaluate (params, totalVariations);

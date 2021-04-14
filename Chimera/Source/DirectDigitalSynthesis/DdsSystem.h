@@ -38,7 +38,6 @@ class DdsSystem : public IChimeraSystem{
 		std::string getSystemInfo ( );
 		std::string getDelim ( );
 		DdsCore& getCore ( );
-		
 	private:
 		QLabel* ddsHeader;
 		QTableWidget* rampListview;

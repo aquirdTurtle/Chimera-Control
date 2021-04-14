@@ -1,0 +1,14 @@
+var loadingDepth 11 
+var imagingDepth 12.7
+var intraplgmdepth 20.4 
+var ramanDepth 19 
+var TOFDepth 5 % 0.2 or 5 for testing
+
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #
+ramp tanh imagingDepth loadingDepth 1 once #   
+ 
+  
+  
+ 
+ 

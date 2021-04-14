@@ -24,6 +24,10 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 			StatusOptionsWindow* dialog = new StatusOptionsWindow(parent, &opts, msgHistory);
 			dialog->setStyleSheet(chimeraStyleSheets::stdStyleSheet());
 			dialog->exec();
+			// resize history
+			while (msgHistory.size() > opts.historyLength) {
+				msgHistory.pop_front();
+			}
 		}
 		catch (ChimeraError& err) {
 			errBox(err.trace());
@@ -51,7 +55,7 @@ void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size
 
 void StatusControl::addStatusToQue(statusMsg newMsg) {
 	msgHistory.push_back(newMsg);
-	if (msgHistory.size() > maxQueSize) {
+	if (msgHistory.size() > opts.historyLength) {
 		msgHistory.pop_front();
 	}
 }
@@ -60,7 +64,7 @@ void StatusControl::redrawControl() {
 	edit->clear();
 	for (auto msg : msgHistory) {
 		// importantly add here without re-adding to queue. 
-		addColoredStatusTextInner(msg);
+		addHtmlStatusTextInner(msg);
 	}
 }
 
@@ -72,6 +76,9 @@ void StatusControl::addStatusText(statusMsg msg) {
 void StatusControl::addPlainStatusTextInner(statusMsg msg) {
 	if (opts.debugLvl >= msg.baseLevel) {
 		std::string finText = str(msg.msg);
+		if (opts.showOrigin) {
+			finText = "[" + str(msg.systemDelim) + "]: " + finText;
+		}
 		for (auto lvl : range(msg.baseLevel)) {
 			// visual indication of what level a message is.
 			finText = ">" + finText;
@@ -80,7 +87,7 @@ void StatusControl::addPlainStatusTextInner(statusMsg msg) {
 	}
 }
 
-void StatusControl::addColoredStatusTextInner(statusMsg msg) {
+void StatusControl::addHtmlStatusTextInner(statusMsg msg) {
 	if (colors.size() == 0) {
 		return;
 	}
@@ -93,14 +100,14 @@ void StatusControl::addColoredStatusTextInner(statusMsg msg) {
 			// visual indication of what level a message is.
 			finText = ">" + finText;
 		}
-		if (finText.substr(0, 10) == "**********") {
-			addStatusTextColored(finText, "#FFFFFF");
+		if (finText.substr(0, 11) == "**********") {
+			addHtmlStatusText(finText, "#FFFFFF");
 		}
-		addStatusTextColored(finText, msg.baseLevel > colors.size() ? colors.back() : colors[msg.baseLevel]);
+		addHtmlStatusText(finText, msg.baseLevel > colors.size() ? colors.back() : colors[msg.baseLevel]);
 	}
 }
 
-void StatusControl::addStatusTextColored(std::string text, std::string color){
+void StatusControl::addHtmlStatusText(std::string text, std::string color){
 	QString htmlTxt = ("<font color = \"" + color + "\">" + text + "</font>").c_str();
 	//e.g. <font color = "red">This is some text!< / font>
 	htmlTxt.replace ("\r", "");
@@ -128,7 +135,7 @@ void StatusControl::addPlainText(std::string text) {
 
 void StatusControl::clear() {
 	edit->clear ();
-	addStatusTextColored("**************CLEARED****************\r\n", "#FFFFFF");
+	addHtmlStatusText("**************CLEARED****************\r\n", "#FFFFFF");
 }
 
 

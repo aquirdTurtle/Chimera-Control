@@ -35,10 +35,11 @@ call pump2stretch()
 call gsbc()
 pulseon: windfreakTrig 0.05
 t += waitTime
+var specPulseLen 0.1
 on: a15
 pulseon: topPulseTrig 0.01
 dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
-call topRamanPulse(tbsbcpulselen)
+call topRamanPulse(tbSbcPulseLen)
 off: a15
 dac: topPulseLev 0
 dac: eoPulseLev 0

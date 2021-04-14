@@ -113,12 +113,15 @@ std::pair<int, int> PictureStats::update (Matrix<type> image, unsigned imageNumb
 		}
 	}
 	currentStatPoint.avgv = std::accumulate (image.data.begin (), image.data.end (), 0.0) / image.size ();
-
 	if (displayDataType == RAW_COUNTS) {
-		maxCounts[imageNumber]->setText (cstr (currentStatPoint.maxv, 1));
-		minCounts[imageNumber]->setText (cstr (currentStatPoint.minv, 1));
-		selCounts[imageNumber]->setText (cstr (currentStatPoint.selv, 1));
-		avgCounts[imageNumber]->setText (cstr (currentStatPoint.avgv, 5));
+		maxCounts[imageNumber]->setText (qstr (currentStatPoint.maxv, 1));
+		qDebug() << maxCounts[imageNumber]->text();
+		minCounts[imageNumber]->setText (qstr (currentStatPoint.minv, 1));
+		qDebug() << minCounts[imageNumber]->text();
+		selCounts[imageNumber]->setText (qstr (currentStatPoint.selv, 1));
+		qDebug() << selCounts[imageNumber]->text();
+		avgCounts[imageNumber]->setText (qstr (currentStatPoint.avgv, 5));
+		qDebug() << avgCounts[imageNumber]->text();
 		mostRecentStat = currentStatPoint;
 	}
 	else if (displayDataType == CAMERA_PHOTONS) {

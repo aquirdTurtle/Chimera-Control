@@ -81,8 +81,6 @@ class QtScriptWindow : public IChimeraQtWindow{
 		void setNiawgRunningState (bool newRunningState);
 		void handleControlNiawgCheck ();
 		bool niawgIsRunning ();
-		void stopRearranger ();
-		void waitForRearranger ();
 		void setNiawgDefaults ();
 		void restartNiawgDefaults ();
 		NiawgCore& getNiawg ();

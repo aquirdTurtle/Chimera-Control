@@ -67,6 +67,7 @@ class AndorCameraSettingsControl{
 	private:
 
 		AndorRunSettings currentlyRunningSettings;
+		bool currentlyRunning = false;
 		bool currentlyUneditable = false;
 		double getKineticCycleTime( );
 		double getAccumulationCycleTime( );

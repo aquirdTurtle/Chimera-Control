@@ -16,12 +16,12 @@ call pgcloading()
 t += 2
 pulseon: tweezerIntensityTrig 0.1
 t += 1
-call pgcAtomFlashingImage()
+call stdPgcImage()
 t += 10
 %call intrappgc()
 %call inTrapGreyMolasses()
 t += 80
-call pgcAtomFlashingImage()
+call stdPgcImage()
 t += 1
 pulseon: tweezerIntensityTrig 0.1
 t += 1

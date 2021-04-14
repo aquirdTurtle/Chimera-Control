@@ -16,7 +16,7 @@ pulseon: windfreakTrig 0.05
 t += 20
 pulseon: tweezerIntensityTrig 0.1
 pulseon: dds_step 5
-call pgcAtomFlashingImage()
+call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1
 off: sidemotShutter  
 off: diagmotShutter 
@@ -50,7 +50,7 @@ pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1
-call pgcAtomFlashingImage()
+call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 off: tweezerRf

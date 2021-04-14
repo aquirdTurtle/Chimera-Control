@@ -1,0 +1,42 @@
+%%-----------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var stdDumpB 0.808
+var ddumpBias 0.02  
+var main_v_f 81 
+var dumpf 117 
+var loadHBias 0.6
+var_v 2 linR [ lin lin ]
+var_v 2 tanhR [ tanh tanh ] 
+var_v 2 freqs [ 75 87 ] 
+%var_v 2 bias [ loadHBias (1-loadHBias) ] 
+%var_v 2 loadB [ loadHBias (1-loadHBias) ] 
+var_v 2 hBias [ loadHBias (1-loadHBias) ] 
+
+var_v 2 zPhases [ 0 0 ]   
+
+var_v 2 vFreqs [ main_v_f dumpf ]
+var_v 2 vLoadB [ (1-loadBias) loadBias ] 
+var_v 2 vStdB [ (1-stdDumpB) stdDumpB ] 
+var_v 2 dumpB [ ddumpBias (1-ddumpbias) ]
+var loadBias 0.833
+
+var dumpBias 0.06 % 0.06 % 0.01
+var_v 2 finVBias [ dumpBias (1-dumpBias) ]
+
+
+repeatTilTrig 
+gen2const_v Horizontal freqs hBias zPhases #  
+gen2const_v Vertical vFreqs vLoadB zPhases #
+0.01 0 endRepeat
+
+gen2const_v Horizontal freqs hBias zPhases #  
+gen2ampRamp_v Vertical vFreqs linr vLoadB vStdB zPhases #
+0.01 0 
+
+repeatTilTrig 
+gen2const_v Horizontal freqs hBias zPhases #  
+gen2const_v Vertical vFreqs vStdB zPhases #
+0.01 0 endRepeat
+
+% New dumping freq: 111 Mhz

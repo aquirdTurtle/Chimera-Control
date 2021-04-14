@@ -1,0 +1,97 @@
+﻿========================================================================
+#    **Chimera-Control Project Installation Guidelines**
+========================================================================
+
+## Version
+This installation readme (but not the code) was last updated on April 13th, 2021. It includes some guidelines for installing many of the packages that I use, but I haven't re-installed this program anywhere particularly recently so some parts might be missing or out of date. 
+
+# Installation
+- Everything is 64 bit at this point.
+
+## quick mandatory checklist:
+- Install Visual studio 2019
+- Download all my code & included packages.
+- Install NI-FGEN & NI-DAQmx
+- Install The Andor SOLIS SDK
+- set up a series of definitions in the "constants.h" file.
+
+## Download my code
+- The latest version of my code can always be found here: https://github.com/omarkb93/Chimera-Control
+- You want to download the source code (Make sure to download the **most recent** commit, e.g. by using git clone on the repo or downloading the project as a zip) AND the release packages, where I bundle several of the packages that I use in my code. The releases are here: https://github.com/omarkb93/Chimera-Control/releases.
+
+## What's Included?
+The github package includes all of my source code (\*.h and \*.cpp files), as well as some zipped compiled packages. Specifically, these include 64- and 32-bit versions of:
+- Boost 1.64.0 (zipped)
+- HDF5 1.10.1 (zipped)
+- Python 3.6 core DLLs and libs.
+
+where, for example in my case $(PROJECT_DIR) = "C:\Users\Mark\Documents\Chimera-Control\Chimera".
+
+## Install Visual Studio Community Version. The most recent version that I've used is visual studio 2019.
+- The extra options don't matter very much.
+- I suggest that you don't install the "Python compatibility" option and install python separately.
+
+## Download and install the latest version of DAQmx from national instruments. They have installers for this.
+If it's not there, you may have to search around for this file.
+- Note that installing either daqmx or fgen should also install NI-Visa, which my code also uses.
+
+## Download and install the latest version of NI-FGEN from national instruments. They have installers for this.
+If it's not there, you may have to search around for this file.
+- Note that installing either daqmx or fgen should also install NI-Visa, which my code also uses.
+- Optional: Download and install Agilent's IO Libraries Suite for using agilents. My code should compile fine without this though. http://www.keysight.com/en/pd-1985909/io-libraries-suite?cc=US&lc=eng
+
+## Install The Andor SOLIS SDK
+- This is necessary to get the API which I use to talk to the Andor camera.
+- I'm not including any installers or anything because this is not an open-source product, and I'd probably get in 
+  trouble if Andor found out I published something on github. If you have trouble with this requirement, let me know.
+
+## Code Setup
+- If all the above works properly, the code should build and start fine, and then immediately throw errors about finding files and initializing things at you before crashing.
+- You need to add a series of constant definitions in the "constants.h" file. These constants help my code locate the locations of various files and folders, as well as various settings. I use different macros here to define the constants depending on which computer I'm running the code from.
+- For my laptop, this is done in the section that looks like
+```
+#define SPECTRE_LAPTOP
+#ifdef SPECTURE_LAPTOP
+...
+#endif
+```
+- You can basically copy this dozen lines of code, rename the SPECTRE_LAPTOP constant, & make sure that all of the folders referenced therein exist.
+- make sure you run the code in win32 mode.
+
+## Python (Optional)
+- I recommend downloading python from python.org, instead of with the anaconda distribution, although this might no longer be necessary. The python.org gives you the option to get the debug versions of python which were used at some point.
+- While you can use the Python to C api to compile python code directly into the program, this is awkward and I don't do this anymore. Instead, in the couple places where my code uses python, it directly calls the executable on a proper python script, which is much easier to manage.
+
+## HDF5 (Optional)
+- I've included HDF5 packages that I compiled myself using visual studio 2017 (necessary for compatibility) as zipped files in the project under the packages\ folder. You should just need to un-zip them to the correct location and it should work fine. I've included both release and debug versions of the files. By default, my project will look for the files in "C:\Program Files(x86)\HDF_Group\HDF5\HDF5-1.10.1\Debug" or "...\Release".
+- IF you want to recompile the packages (otherwise skip this) (for example you want a newer HDF5 version), then there are some instructions on the HDF5 website, but I've also included my shortened version which worked for me.
+- Download and unzip the CMake version of the HDF5 Source (can find on website, it should be the CMake-hdf5-XXX.zip file). It's important to unzip this to a file address that has NO SPACES in its path.
+- in the unzipped file,	open the file "HDF5config.cmake". Find the part that sets the CTEST_CMAKE_GENERATOR constant. Add the following text to the logic structure there:
+
+		elseif (${BUILD_GENERATOR} STREQUAL "VS2017")
+			set (CTEST_CMAKE_GENERATOR "Visual Studio 15 2017")
+
+At the time of this writing, the HDF5 cmake system is not yet aware of Visual studio 2017, and this change is necessary to fix that.
+- run the following command:
+
+		ctest -S HDF5config.cmake,BUILD_GENERATOR=VS2017 -C Release -V -O hdf5.log
+
+or replace Release with Debug to get the debug version. HDF5 will now build, it will take some time.
+
+- After the build finishes, go into the new "build" folder and find the HDF5-XXX.zip file. This contains the include, lib, and dll files that you need. Unzip it to the desired location, make sure the visual studio project is pointed to it, and you're good to go.
+
+## Setting up Visual Studio
+- If you follow the above directions carefully and are a bit lucky, my code my just compile after installing everything. However, some files may have shifted around to different locations during your install process, and you'll need to redirect my project to the proper locations for those files.
+- In order to compile, the following need to be set correctly (all of which can be found in the project properties seen by right-clicking on the project in visual studio & selecting properties):
+	- "Include Directories"
+		- Otherwise includes, like "#include <boost...>" or "#include 'visa.h'" will fail. This is pretty obvious.
+	- "Library Directories"
+		- Tells the compiler where to look for the necessary \*.lib files. If it can't find the libraries, it will either throw a "can't open X.lib" or "unresolved external symbol" errors.
+	- "Additional Dependencies"
+		- Tells the compiler the names of the libraries it needs to make sure to open. You shouldn't need to change this.
+- If the code ever seems like it's having trouble finding some files, you can always look at the values set in these places to see exactly where visual studio is looking for various files.
+
+## Some light suggestions
+- I recommend using Git for file management and versioning. It's what I use, and while you don't need git to download my repository or use it, I think it's good solution to a variety of problems. If you like these types of things, also install a git gui client.
+- I suggest using powershell over cmd when it comes to windows command line prompts. It's built in to windows & great; really cmd is horribly outdated and everything should probably use powershell.
+

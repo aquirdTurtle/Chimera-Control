@@ -1,0 +1,61 @@
+% Master-Script See the "?" for info on commands.
+
+def pgcAtomFlashingImage():
+  % give the shutter some time to open.
+  off: diagMotRf
+  t += -5
+  on: repumpShutter
+  on: sidemotShutter
+  on: diagmotShutter
+  t += 5
+  on: andorShutter
+  dac: diagMotPower 0
+  % var image_detuning -1.5
+  % var motPower 0.25
+  % changed to -2.2 on 11/11/2020
+  var image_detuning -2.4 %-2 % -2.2 %-1.5
+  dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
+  call zeroFields()
+  t += 5
+  % turn the repump on a tiny bit early 
+  % to pump to the F=2 manifold.
+  on: RepumpRf
+  t += 0.2
+  %on: andorTrig
+  on: a9
+  t += 0.1
+
+  dac: SideMotPower { 9 sidemot } % sidemot_imaging__sv
+  dac: RepumpPower { 0.2 repump } % repump_imaging__sv
+  dac: DiagMotPower { 0.86 diagmot } % diagmot_imaging__sv
+  on: tweezerflashrf
+  on: sidemotflash
+  off: rf795
+  on: SideMotRf
+  off: diagMotRf
+  on: andorTrig
+  t += andorImageTime
+  off: andorshutter
+  off: SideMotRf
+  off: diagMotRf
+  off: repumpRf
+  off: tweezerflashrf
+  off: sidemotflash
+  dac: DiagMotPower 0
+  dac: SideMotPower 0
+  dac: RepumpPower 0
+  dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
+  t += 1
+  off: a9
+  t += 1
+  off: andorTrig
+  t += 0.2
+  % note that the camera needs some time before it can take
+  % another image. Typically we need to wait like 5ms. The camera window
+  % will tell you the minimum kinetic cycle time, which depends on the
+  % exposure time and the image size, with some net overhead.
+
+	
+
+
+

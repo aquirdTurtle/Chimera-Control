@@ -53,6 +53,7 @@ class AgilentCore : public IDeviceCore {
 		void errorFinish () {};
 		void setAgCalibration (calResult newCal, unsigned chan);
 		void setRunSettings (deviceOutputInfo newSettings);
+		static std::string systemScope;
 	private:
 		const int AGILENT_DEFAULT_POWER = 10;
 

@@ -182,11 +182,12 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 
 // note that this object doesn't actually store the camera state, it just uses it in passing to figure out whether 
 // buttons should be on or off.
-void AndorCameraSettingsControl::cameraIsOn(bool state){
-	// Can't change em gain mode or camera settings once started.
-	emGainEdit->setEnabled( !state );
-	setTemperatureButton->setEnabled ( !state );
-	temperatureOffButton->setEnabled ( !state );
+void AndorCameraSettingsControl::cameraIsOn(bool on){
+	currentlyRunning = on;
+	// Can't change em gain mode or temperature settings once started.
+	emGainEdit->setEnabled( !currentlyRunning);
+	setTemperatureButton->setEnabled ( !currentlyRunning);
+	temperatureOffButton->setEnabled ( !currentlyRunning);
 }
 
 void AndorCameraSettingsControl::setConfigSettings (AndorRunSettings inputSettings) {
@@ -525,7 +526,7 @@ void AndorCameraSettingsControl::updateCameraMode( ){
 void AndorCameraSettingsControl::updateWindowEnabledStatus (){
 	controlAndorCameraCheck->setEnabled (!viewRunningSettings->isChecked ());
 	cameraModeCombo->setEnabled (!viewRunningSettings->isChecked ());
-	emGainEdit->setEnabled (!viewRunningSettings->isChecked ());
+	emGainEdit->setEnabled (!viewRunningSettings->isChecked () && !currentlyRunning);
 	emGainBtn->setEnabled (!viewRunningSettings->isChecked ());
 	triggerCombo->setEnabled (!viewRunningSettings->isChecked ());
 

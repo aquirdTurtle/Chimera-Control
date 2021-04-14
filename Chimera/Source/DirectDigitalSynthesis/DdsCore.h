@@ -10,6 +10,7 @@
 #include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <array>
+#include <string>
 
 
 /*
@@ -24,7 +25,7 @@ struct ddsExpSettings {
 	std::vector< ddsIndvRampListInfo> ramplist;
 };
 
-class DdsCore : public IDeviceCore{
+class DdsCore : public IDeviceCore { 
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		DdsCore& operator=(const DdsCore&) = delete;
@@ -53,7 +54,8 @@ class DdsCore : public IDeviceCore{
 		void loadExpSettings (ConfigStream& stream);
 		void normalFinish () {};
 		void errorFinish () {};
-		
+		static std::string systemScope;
+
 	private:
 		std::vector<ddsIndvRampListInfo> expRampList;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
@@ -79,10 +81,10 @@ class DdsCore : public IDeviceCore{
 		// get (frequency/amplitude) ? word
 		std::array<UINT8, 4> intTo4Bytes ( int i_ );
 		void writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, std::array<UINT8, 4> data );
-		INT getFTW ( double freq );
+		int getFTW ( double freq );
 		unsigned getATW ( double amp );
 		UINT16 getRepsFromTime ( double time );
-		INT get32bitATW ( double amp );
+		int get32bitATW ( double amp );
 		void channelSelect ( UINT8 device, UINT8 channel );
 
 		void writeAmpMultiplier ( UINT8 device );

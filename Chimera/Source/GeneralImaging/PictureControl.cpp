@@ -41,7 +41,15 @@ void PictureControl::initialize(QPoint loc, int width, int height, IChimeraQtWin
 	pictureObject = new ImageLabel(parent);
 	//pictureObject->setGeometry (px, py, width, height);
 	pictureObject->setContextMenuPolicy(Qt::CustomContextMenu);
-	parent->connect(pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse(event); });
+	parent->connect(pictureObject, &ImageLabel::mouseReleased, 
+		[this, parent](QMouseEvent* event) {
+		try {
+			handleMouse(event);
+		}
+		catch (ChimeraError & error) {
+			parent->reportErr(error.qtrace());
+		}
+		});
 	setPictureArea(loc, maxWidth, maxHeight);
 	parent->connect(pictureObject, &QLabel::customContextMenuRequested,
 		[this, managerParent](const QPoint& pos) {handleContextMenu(pos, managerParent); });
@@ -74,26 +82,29 @@ void PictureControl::initialize(QPoint loc, int width, int height, IChimeraQtWin
 }
 
 
-void PictureControl::updatePlotData ( ){
-	if ( !histOption || !vertGraph || !horGraph ){
+void PictureControl::updatePlotData() {
+	if (!histOption || !vertGraph || !horGraph) {
 		return;
 	}
-	std::vector<plotDataVec> horData(1), vertData(1,plotDataVec());
-	for ( auto colNum : range(mostRecentImage_m.getCols())){
+	auto useAccum = saOption.accumNum != 1 || saOption.accumAll;
+	auto rowNum = useAccum ? accumPicData.getRows() : mostRecentImage_m.getRows();
+	auto colNum = useAccum ? accumPicData.getCols() : mostRecentImage_m.getCols();
+	std::vector<plotDataVec> horData(1), vertData(1);
+	for ( auto colNum : range(colNum)){
 		// integrate the column
 		double pt = 0.0;
-		for ( auto row : range ( mostRecentImage_m.getRows ( ) ) ){
-			pt += mostRecentImage_m ( row, colNum );
+		for ( auto row : range (rowNum) ){
+			pt += useAccum ? accumPicData(row, colNum) : mostRecentImage_m ( row, colNum );
 		}
 		horData[0].push_back({ double(colNum), pt });
 		horData[0].push_back({ double(colNum+1), pt });
 	}
 	horGraph->setData(horData);
-	for ( auto rowNum : range(mostRecentImage_m.getRows())){
+	for ( auto rowNum : range(rowNum)){
 		// integrate the row
 		double pt = 0.0;
-		for ( auto col : range ( mostRecentImage_m.getCols ( ) ) ){
-			pt += mostRecentImage_m (rowNum, col );
+		for ( auto col : range (colNum) ){
+			pt += useAccum ? accumPicData(rowNum, col) : mostRecentImage_m(rowNum, col);
 		}
 		vertData[0].push_back({ pt, double(rowNum) });
 		vertData[0].push_back({ pt, double(rowNum+1) });
@@ -335,22 +346,22 @@ softwareAccumulationOption PictureControl::getSoftwareAccumulationOption () {
 }
 
 void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, int autoMin, int autoMax,
-								  bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber,
+								  bool specialMin, bool specialMax, std::vector<atomGrid> analysisGrids, unsigned pictureNumber,
 								  bool includingAnalysisMarkers ){
-	mostRecentImage_m = picData;
-	mostRecentPicNum = pictureNumber;
-	mostRecentGrids = grids;
-
-	Matrix<long> drawData;
-
+	mostRecentImage_m = picData; 
+	mostRecentPicNum = pictureNumber; 
+	mostRecentGrids = analysisGrids; 
+	 
+	Matrix<long> drawData; 
 	auto minColor = sliderMin.getValue ( );
-	auto maxColor = sliderMax.getValue ( );
+	auto maxColor = sliderMax.getValue ( ); 
 	mostRecentAutoScale = autoScale;
 	mostRecentAutoMax = autoMax;
 	mostRecentAutoMin = autoMin;
 	int pixelsAreaWidth = pictureArea.right()- pictureArea.left()+ 1;
 	int pixelsAreaHeight = pictureArea.bottom() - pictureArea.top()+ 1;
-	int dataWidth = grid.size ( );
+	
+	//int dataWidth = grid.size ( );
 	// first element containst whether autoscaling or not.
 	long colorRange;
 	if ( autoScale ){
@@ -362,6 +373,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );
 		minColor = sliderMin.getValue ( );
 	}
+	// Looks like I'm just not handling the partial accumulation here. 
 	if (saOption.accumAll){
 		if (accumPicData.size () == 0)	{
 			accumPicData = Matrix<double> (picData.getRows (), picData.getCols ());
@@ -386,21 +398,21 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 		//}
 		drawData = accumPicLongData;
 	}
-	else if (saOption.accumNum == 1){
-		drawData = picData;
-	}
 	else {
 		drawData = picData;
+		accumPicData = Matrix<double>(picData.getRows(), picData.getCols());
 	}
 	// assumes non-zero size...
-	if ( grid.size ( ) == 0 ){
-		thrower  ( "Tried to draw bitmap without setting grid size!" );
-	}
-	int dataHeight = grid[ 0 ].size ( );
-	int totalGridSize = dataWidth * dataHeight;
-	if (drawData.size ( ) != totalGridSize ){
-		thrower  ( "Picture data size " + str(drawData.size()) + " didn't match grid size " + str(totalGridSize) + "!" );
-	}
+	//if ( grid.size ( ) == 0 ){
+	//	thrower  ( "Tried to draw bitmap without setting grid size!" );
+	//}
+	auto dataWidth = drawData.getCols();
+	auto dataHeight = drawData.getRows();
+	//int dataHeight = grid[ 0 ].size ( );
+	//int totalGridSize = dataWidth * dataHeight;
+	//if (drawData.size ( ) != totalGridSize ){
+	//	thrower  ( "Picture data size " + str(drawData.size()) + " didn't match grid size " + str(totalGridSize) + "!" );
+	//}
 	
 	float yscale = ( 256.0f ) / (float) colorRange;
 	std::vector<uchar> dataArray2 ( dataWidth * dataHeight, 255 );
@@ -446,7 +458,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 	img = img.convertToFormat (QImage::Format_RGB888);
 	QPainter painter;
 	painter.begin (&img);
-	drawDongles (painter, grids, pictureNumber, includingAnalysisMarkers);
+	drawDongles (painter, analysisGrids, pictureNumber, includingAnalysisMarkers);
 	painter.end ();	
 	// seems like this doesn't *quite* work for some reason, hence the extra number here to adjust
 	if (img.width () / img.height () > (pictureObject->width () / pictureObject->height ())-0.1)	{

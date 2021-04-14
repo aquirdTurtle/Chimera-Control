@@ -62,16 +62,6 @@ void QCustomPlotCtrl::initializeCalData(calSettings cal) {
 	plot->graph(0)->setLineStyle(QCPGraph::lsNone);
 	plot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
 	plot->graph(0)->setData({}, {});
-	//plot->clearGraphs();
-	//view->chart()->removeAllSeries();
-	//calibrationData = new QtCharts::QScatterSeries(view->chart());
-	//calibrationData->setBorderColor(Qt::black);
-	//calibrationData->setMarkerSize(8.0);
-	//calibrationData->setColor(QColor(255, 255, 255));
-	//calibrationData->setName("Calibration Data");
-	//double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
-	//resetChart();
-
 }
 
 void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
@@ -190,6 +180,12 @@ void QCustomPlotCtrl::setData(std::vector<plotDataVec> newData) {
 		if (newData.size() == 0 || !plot) {
 			return;
 		}
+		plot->plotLayout()->setAutoMargins(QCP::MarginSide::msNone);
+		plot->xAxis->setTickLabels(false);
+		plot->yAxis->setTickLabels(false);
+		plot->plotLayout()->setMargins({ 0,0,0,0 });
+		plot->xAxis->grid()->setPen(Qt::NoPen);
+		plot->yAxis->grid()->setPen(Qt::NoPen);
 		unsigned lineCount = 0;
 		for (auto traceNum : range(newData.size())) {
 			QCPCurve* newCurve = new QCPCurve(plot->xAxis, plot->yAxis);

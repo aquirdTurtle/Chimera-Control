@@ -2,26 +2,27 @@
 
 def freeSpaceImage():
   % give the shutter some time to open.
-  var FSImageTime 0.02
+  var FSImageTime 0.01
   var offsetTime 0.0
   var sideMotScan 6 %9.1
   var repumpscan 0.41 %0.2
   var diagmotscan 0.0
   var toftimescan 0.1
+  var image_detuning -0.07 %-2 % -2.2 %-1.5
+  var shutterOffset 15
 
   off: diagMotRf
-  t += -5
+  t += -shutterOffset
   on: repumpShutter
   on: sidemotShutter
   on: diagmotShutter
-  on: andorShutter
-  t += 5
+  off: andorShutter
+  t += shutterOffset
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  % changed to -2.2 on 11/11/2020
+  % changed to -2.2 on 11/11/2020  
   
-  var image_detuning -0.07 %-2 % -2.2 %-1.5
   dacLinSpace: MotFreq defaultMotFreq image_detuning 1 10
   call zeroFields()
   %t += 1
@@ -54,7 +55,7 @@ def freeSpaceImage():
   
   t += fSImageTime
   off: oscilloscopemarker
-  off: andorshutter
+  on: andorshutter
   off: SideMotRf
   off: diagMotRf
   off: repumpRf
@@ -65,10 +66,12 @@ def freeSpaceImage():
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
   t += 1
   t += 0.2
+
   % note that the camera needs some time before it can take
-  % another image. Typically we need to wait like 5ms. The camera window
-  % will tell you the minimum kinetic cycle time, which depends on the
-  % exposure time and the image size, with some net overhead.
+  % another image. Typically we need to wait like 5ms. 
+  % The camera window will tell you the minimum kinetic 
+  % cycle time, which depends on the exposure time and 
+  % the image size, with some net overhead.
 
 	
 

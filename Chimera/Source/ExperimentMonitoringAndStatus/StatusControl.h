@@ -22,10 +22,10 @@ class StatusControl{
 		
 	private:
 		void addStatusToQue(statusMsg newMsg);
-		void addStatusTextColored(std::string text, std::string colorStr);
+		void addHtmlStatusText(std::string text, std::string colorStr);
 		void addPlainText(std::string text);
 		void addPlainStatusTextInner(statusMsg newMsg);
-		void addColoredStatusTextInner(statusMsg newMsg);
+		void addHtmlStatusTextInner(statusMsg newMsg);
 		QLabel* header=nullptr;
 		QTextEdit* edit = nullptr;
 		StatusControlOptions opts;
@@ -35,5 +35,4 @@ class StatusControl{
 
 		std::vector<std::string> colors;
 		std::deque<statusMsg> msgHistory;
-		const unsigned maxQueSize=100000;
 };

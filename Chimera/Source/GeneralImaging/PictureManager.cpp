@@ -166,7 +166,9 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, unsigned 
 	auto& px = loc.rx (), & py = loc.ry ();
 	// Square: width = 550, height = 440
 	auto picWidth = 950;
-	auto picHeight = 220;
+	auto totalHeight = 220 * 4;
+	auto picHeight = totalHeight / numberActivePics;
+	//auto picHeight = 220;
 	//int picWidth = 550;
 	//int picHeight = 420;
 	pictures[0].setPictureArea( loc, picWidth, picHeight );

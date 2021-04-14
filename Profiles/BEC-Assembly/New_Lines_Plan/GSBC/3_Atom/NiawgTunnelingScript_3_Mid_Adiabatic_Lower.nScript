@@ -10,7 +10,8 @@ var main_v_f 81
 var dumpf 117 
 var spacing 5
 
-var_v 3 linRamps [ lin lin lin ]    
+var_v 3 linRamps [ lin lin lin ]  
+var_v 3 adRamps [ midSlow midSlow midSlow ]      
 var_v 3 edgeramps [ lin nr lin ] 
 var_v 3 freqs [ 69 81 93 ] 
 var_v 3 finFreqs [ (81-spacing) 81 (81+spacing) ] 
@@ -93,7 +94,7 @@ dumpf 		lin 	lDumpBias 		(1-tundumpBias)	0
 
 % adiabatic ramp here
 gen3ampRamp_v Horizontal
-finFreqs linRamps adInitA finAmps cphases #   
+finFreqs adRamps adInitA finAmps cphases #   
 gen2const Vertical
 main_v_f	tundumpBias 	0  
 dumpf 		(1-tundumpBias)	0  

@@ -6,6 +6,8 @@
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <AnalogInput/CalibrationManager.h>
 
+std::string AgilentCore::systemScope = "agilent";
+
 AgilentCore::AgilentCore (const agilentSettings& settings) : 
 	visaFlume (settings.safemode, settings.address),
 	sampleRate (settings.sampleRate),

@@ -125,8 +125,6 @@ namespace commonFunctions
 			case ID_FILE_ABORT_GENERATION: {
 				std::string status;
 				bool niawgAborted = false, andorAborted = false, masterAborted = false, baslerAborted = false;
-				scriptWin->stopRearranger ();
-				andorWin->wakeRearranger ();
 				try {
 					if (basWin->baslerCameraIsRunning ()) {
 						status = "Basler";
@@ -168,8 +166,6 @@ namespace commonFunctions
 					mainWin->reportStatus ("Abort camera threw error\r\n");
 					andorWin->setTimerText ("ERROR!");
 				}
-				//
-				scriptWin->waitForRearranger ();
 				try {
 					if (scriptWin->niawgIsRunning ()) {
 						status = "NIAWG";

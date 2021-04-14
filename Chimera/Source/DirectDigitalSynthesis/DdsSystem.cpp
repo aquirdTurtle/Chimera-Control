@@ -8,6 +8,7 @@
 #include <qmenu.h>
 #include <PrimaryWindows/QtMainWindow.h>
 
+
 DdsSystem::DdsSystem (IChimeraQtWindow* parent, bool ftSafemode) : core( ftSafemode ), IChimeraSystem (parent) { }
 
 
@@ -40,7 +41,6 @@ void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string 
 	rampListview->setColumnWidth (4, 60);
 	rampListview->setColumnWidth (5, 60);
 	rampListview->setColumnWidth (6, 120);
-	//rampListview->verticalHeader ()->setDefaultSectionSize (60);
 
 	rampListview->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (rampListview, &QTableWidget::customContextMenuRequested,
@@ -51,9 +51,7 @@ void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string 
 	labels << "Index" << "Channel" << "Freq 1" << "Amp 1" << "Freq 2" << "Amp 2" << "Time";
 	rampListview->setColumnCount (labels.size());
 	rampListview->setHorizontalHeaderLabels (labels);
-
-	emit notification({});
-
+	emit notification({ core.getSystemInfo(), 0, core.getDelim() });
 }
 
 void DdsSystem::handleContextMenu(const QPoint& pos) {

@@ -490,8 +490,6 @@ void QtScriptWindow::setNiawgDefaults () {
 }
 void QtScriptWindow::restartNiawgDefaults () { niawg.core.restartDefault (); }
 NiawgCore& QtScriptWindow::getNiawg () { return niawg.core; }
-void QtScriptWindow::stopRearranger () { niawg.core.turnOffRerng (); }
-void QtScriptWindow::waitForRearranger () { niawg.core.waitForRerng (true); }
 void QtScriptWindow::stopNiawg () { niawg.core.turnOff (); }
 
 void QtScriptWindow::passNiawgIsOnPress (){

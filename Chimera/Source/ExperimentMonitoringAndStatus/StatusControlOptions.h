@@ -9,7 +9,7 @@ struct indvOption {
 
 struct StatusControlOptions {
 	unsigned debugLvl=0;
-	unsigned historyLength = 10000;
+	unsigned historyLength = 1000;
 	bool showOrigin = false;
 	QMap<QString, indvOption> indvOptions;
 };

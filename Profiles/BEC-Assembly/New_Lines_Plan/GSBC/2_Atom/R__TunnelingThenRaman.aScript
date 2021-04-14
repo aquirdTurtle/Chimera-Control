@@ -1,0 +1,28 @@
+%var loadingDepth 11 % 13.4 
+var loadingDepth 7
+var imagingDepth 12.25
+var intraplgmdepth 20.4
+var dumpDepth 0.5 
+var moveDepth 0.5
+var ramanDepth 19   
+var tunnelingDepth 0.2
+%var heatTestDepth 20
+var dropDepth 3.2
+
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
+ramp tanh ramanDepth dumpDepth 1 onceWaitTrig #   
+ramp tanh dumpDepth moveDepth 1 onceWaitTrig #
+
+% this last time scan should match the time of the last bias scan. 
+ramp tanh moveDepth tunnelingDepth 0.4 onceWaitTrig # 
+ramp tanh tunnelingDepth moveDepth 0.4 onceWaitTrig #   
+ramp tanh moveDepth ramanDepth 1 onceWaitTrig #   
+ramp tanh ramanDepth dropdepth 1 onceWaitTrig #
+ramp tanh dropDepth imagingDepth 1 onceWaitTrig #   
+ramp lin imagingDepth loadingDepth 1 once # 
+  
+ 
+

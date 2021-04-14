@@ -1,12 +1,12 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
-off: andorShutter
+on: andorShutter
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
 on: shutter795
 pulseon: dds_reset 0.1
-pulseon: windfreakTrig 0.05
+call triggerWindfreak()
 on: totalRamanRf
 t += 1
 call turnonmot()
@@ -14,15 +14,13 @@ t += loadMotTime
 call triggerScout()
 t += 5
 call D1GreyLambdaLoading()
-pulseon: windfreakTrig 0.05
+call triggerWindfreak()
 pulseon: dds_step 5
-
 pulseon: niawgTrig 0.1
-
 pulseon: tweezerIntensityTrig 0.1 % to imagingDepth
-t += 1
-call PGCAtomFlashingImage()
 
+t += 1
+call shutteredPgcImage()
 t += 20
 
 %Begin SBC
@@ -33,8 +31,11 @@ off: sidemotshutter
 on: totalramanrf
 on: axialRamanShutter 
 on: axialRamanShutter2 
+
 call intrapgreymolasses()
-pulseon: windfreakTrig 0.05 
+call triggerWindfreak()
+
+%pulseon: windfreakTrig 0.05 
 off: shutter795
 pulseon: tweezerIntensityTrig 0.1 % to Raman depth
 call send_uw_to_raman_eom()
@@ -43,9 +44,7 @@ call pump2stretch()
 call gsbc()
 %End SBC
 
-%t += waittime
 pulseon: niawgTrig 0.1
-
 pulseon: tweezerIntensityTrig 0.1 % to waitDepth
 
 off: totalramanrf
@@ -55,10 +54,10 @@ off: axialRamanShutter2
 %off: tweezerrf
 %t+= 20
 
-t += 5
+t += 15
 
 call freespaceimage()
-% call pgcatomflashingimage()
+
 pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
 pulseon: niawgTrig 0.1
 t += 1

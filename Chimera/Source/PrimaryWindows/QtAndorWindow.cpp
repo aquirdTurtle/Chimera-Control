@@ -17,7 +17,7 @@
 
 QtAndorWindow::QtAndorWindow (QWidget* parent) : IChimeraQtWindow (parent),
 	andorSettingsCtrl (),
-	dataHandler (DATA_SAVE_LOCATION, this),
+	dataHandler (DATA_SAVE_LOCATION, REMOTE_DATA_SAVE_LOCATION, this),
 	andor (ANDOR_SAFEMODE),
 	pics (false, "ANDOR_PICTURE_MANAGER", false, Qt::SmoothTransformation),
 	imagingPiezo (this, IMG_PIEZO_INFO),
@@ -51,8 +51,7 @@ void QtAndorWindow::initializeWidgets (){
 	position = { 797, 25 };
 	timer.initialize (position, this);
 	position = { 797, 65 };
-	// 460
-	pics.initialize (position, 530 * 2, 440 * 2 + 5, this);
+	pics.initialize (position, 540*2, 440*2 + 5, this);
 	// end of literal initialization calls
 	pics.setSinglePicture (andorSettingsCtrl.getConfigSettings ().andor.imageSettings);
 	andor.setSettings (andorSettingsCtrl.getConfigSettings ().andor);
@@ -77,7 +76,7 @@ void QtAndorWindow::manualArmCamera () {
 
 void QtAndorWindow::handlePrepareForAcq (AndorRunSettings* lparam, analysisSettings aSettings){
 	try {
-		reportStatus ("Preparing Andor Window for Acquisition...\n");
+		reportStatus({ "Preparing Andor Window for Acquisition...\n", 0, "ANDOR_WINDOW" });
 		AndorRunSettings* settings = (AndorRunSettings*)lparam;
 		analysisHandler.setRunningSettings (aSettings);
 		armCameraWindow (settings);
@@ -344,9 +343,16 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 			int counter = 0;
 			for (auto data : picsToDraw) { 
 				std::pair<int, int> minMax;
-				minMax = stats.update (pics.getAccumPicData (picNum % curSettings.picsPerRepetition), counter, 
-					selectedPixel, picNum / curSettings.picsPerRepetition,
-					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
+				if (pics.getSoftwareAccumulationOpt(counter).accumAll 
+					|| pics.getSoftwareAccumulationOpt(counter).accumNum > 1) {
+					minMax = stats.update(pics.getAccumPicData(counter), counter,
+						selectedPixel, picNum / curSettings.picsPerRepetition,
+						curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition);
+				}
+				else {
+					minMax = stats.update(data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
+										  curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition);
+				}
 				if (minMax.second > 50000){
 					numExcessCounts++;
 					if (numExcessCounts > 2){
@@ -893,6 +899,11 @@ void QtAndorWindow::handleNormalFinish (profileSettings finishedProfile) {
 	wakeRearranger ();
 	cleanUpAfterExp ();
 	handleBumpAnalysis (finishedProfile);
+	assertOff();
+}
+
+void QtAndorWindow::copyDataFile(std::string specialName) {
+	dataHandler.copyDataFile(specialName);
 }
 
 void QtAndorWindow::handleBumpAnalysis (profileSettings finishedProfile) {
@@ -922,8 +933,8 @@ void QtAndorWindow::handleBumpAnalysis (profileSettings finishedProfile) {
 			if (name != "" && res != 0) {
 				auxWin->getGlobals ().adjustVariableValue (str (name, 13, false, true), res);
 			}
-			reportStatus ( qstr("Successfully completed auto bump analysis and set variable \"" + name + "\" to value " 
-						   + str (res) + "\n"));
+			reportStatus({ qstr("Successfully completed auto bump analysis and set variable \"" + name + "\" to value "
+						   + str(res) + "\n"), 0, "ANDOR_WINDOW" });
 		}
 		catch (ChimeraError & err) {
 			reportErr ("Bump Analysis Failed! " + err.qtrace ());

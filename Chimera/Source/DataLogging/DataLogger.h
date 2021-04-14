@@ -25,7 +25,7 @@ struct ExperimentThreadInput;
  */
 class DataLogger : public IChimeraSystem {
 	public:
-		DataLogger(std::string systemLocation, IChimeraQtWindow* parent);
+		DataLogger(std::string dataLoc, std::string remoteDataLoc, IChimeraQtWindow* parent);
 		~DataLogger( );
 		void logMasterRuntime ( unsigned repNumber, std::vector<parameterType> params );
 		void logError ( H5::Exception& err );
@@ -47,6 +47,7 @@ class DataLogger : public IChimeraSystem {
 		int getCalibrationFileIndex ();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void normalCloseFile();
+		void copyDataFile(std::string specialName="");
 		void deleteFile();
 		int getDataFileNumber( );
 		void assertClosed ();
@@ -85,7 +86,8 @@ class DataLogger : public IChimeraSystem {
 		std::ofstream optFile;
 	    bool fileIsOpen;
 		std::string mostRecentInitializationDate;
-		std::string dataFilesBaseLocation;
+		std::string dataFilesLocalLocation;
+		std::string dataFilesRemoteLocation;
 		std::string todayFolder;
 		int currentDataFileNumber;
 		std::string mostRecentDateString;
