@@ -27,8 +27,7 @@ void StatusOptionsWindow::initializeWidgets() {
 	ui.cancelBtn->connect(ui.cancelBtn, &QPushButton::pressed, [this]() {
 		close();
 		});
-	// the qtablewidget
-	ui.SystemSpecificsTable->setHorizontalHeaderLabels({"System","Debug Level Offset","Show"});
+	//
 	ui.SystemSpecificsTable->setColumnCount(3);
 	for (auto item : msgHistory) {
 		if (!nameAlreadyLoaded(item.systemDelim)) {
@@ -52,6 +51,7 @@ void StatusOptionsWindow::initializeWidgets() {
 			}
 		}
 	}
+	ui.SystemSpecificsTable->setHorizontalHeaderLabels({ "System", "Dbg Lvl", "Show?" });
 }
 
 bool StatusOptionsWindow::nameAlreadyLoaded(QString name) {

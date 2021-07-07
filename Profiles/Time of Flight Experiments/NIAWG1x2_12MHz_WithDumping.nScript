@@ -24,7 +24,6 @@ var loadBias 0.91 % 0.833
 var dumpBias 0.06 % 0.06 % 0.01
 var_v 2 finVBias [ dumpBias (1-dumpBias) ]
 
-
 repeatTilTrig 
 gen2const_v Horizontal freqs loadHBias zPhases #  
 gen2const_v Vertical vFreqs vLoadB zPhases #
@@ -52,7 +51,5 @@ gen2const_v Vertical
 Vfreqs finVBias zphases #
 0.01 0
 endRepeat
-
-
 
 % New dumping freq: 111 Mhz

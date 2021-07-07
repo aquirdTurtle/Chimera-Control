@@ -529,8 +529,8 @@ void Script::loadFile(std::string pathToFile){
 	std::string tempLine;
 	std::string fileText;
 	while (std::getline(openFile, tempLine)){
-		cleanString(tempLine);
-		fileText += tempLine;
+		//cleanString(tempLine);
+		fileText += tempLine + "\n";
 	}
 	// put the default into the new control.
 	edit->setText(cstr(fileText));

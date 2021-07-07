@@ -78,6 +78,7 @@ void QtAndorWindow::handlePrepareForAcq (AndorRunSettings* lparam, analysisSetti
 	try {
 		reportStatus({ "Preparing Andor Window for Acquisition...\n", 0, "ANDOR_WINDOW" });
 		AndorRunSettings* settings = (AndorRunSettings*)lparam;
+		reportStatus({ settings->stringSummary(), 2, "ANDOR_WINDOW" });
 		analysisHandler.setRunningSettings (aSettings);
 		armCameraWindow (settings);
 		completeCruncherStart ();
@@ -131,7 +132,7 @@ void QtAndorWindow::handleEmGainChange (){
 		andor.setSettings (runSettings);
 		// and immediately change the EM gain mode.
 		try	{
-			andor.setGainMode ();
+			andor.setGainMode (nullptr);
 		}
 		catch (ChimeraError& err){
 			// this can happen e.g. if the camera is aquiring.
@@ -309,8 +310,7 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 	if (andorSettingsCtrl.getUseCal () && avgBackground.size () == rawPicData.front ().size ()){
 		for (auto picInc : range (rawPicData.size ())){
 			calPicData[picInc] = Matrix<long> (rawPicData[picInc].getRows (), rawPicData[picInc].getCols (), 0);
-			for (auto pixInc : range (rawPicData[picInc].size ()))
-			{
+			for (auto pixInc : range (rawPicData[picInc].size ())){
 				calPicData[picInc].data[pixInc] = (rawPicData[picInc].data[pixInc] - avgBackground.data[pixInc]);
 			}
 		}
@@ -555,22 +555,22 @@ void QtAndorWindow::assertDataFileClosed () {
 void QtAndorWindow::handlePictureSettings (){
 	selectedPixel = { 0,0 };
 	andorSettingsCtrl.handlePictureSettings ();
-	if (andorSettingsCtrl.getConfigSettings ().andor.picsPerRepetition == 1){
-		pics.setSinglePicture (andorSettingsCtrl.getConfigSettings ().andor.imageSettings);
+	auto configSettings = andorSettingsCtrl.getConfigSettings();
+	if (configSettings.andor.picsPerRepetition == 1){
+		pics.setSinglePicture (configSettings.andor.imageSettings);
 	}
 	else{
-		pics.setMultiplePictures ( andorSettingsCtrl.getConfigSettings ().andor.imageSettings,
-								   andorSettingsCtrl.getConfigSettings ().andor.picsPerRepetition );
+		pics.setMultiplePictures (configSettings.andor.imageSettings, configSettings.andor.picsPerRepetition );
 	}
 	pics.resetPictureStorage ();
-	std::array<int, 4> nums = andorSettingsCtrl.getConfigSettings ().palleteNumbers;
+	std::array<int, 4> nums = configSettings.palleteNumbers;
 	pics.setPalletes (nums);
-	analysisHandler.updateUnofficialPicsPerRep (andorSettingsCtrl.getConfigSettings ().andor.picsPerRepetition);
-	pics.setScaleFactor (andorSettingsCtrl.getConfigSettings ().picScaleFactor);
+	analysisHandler.updateUnofficialPicsPerRep (configSettings.andor.picsPerRepetition);
+	pics.setScaleFactor (configSettings.picScaleFactor);
+	pics.setSoftwareAccumulationOptions(andorSettingsCtrl.getSoftwareAccumulationOptions());
 }
 
-/*
-Check that the camera is idle, or not aquiring pictures. Also checks that the data analysis handler isn't active.
+/* Check that the camera is idle, or not aquiring pictures. Also checks that the data analysis handler isn't active.
 */
 void QtAndorWindow::checkCameraIdle (){
 	if (andor.isRunning ()){

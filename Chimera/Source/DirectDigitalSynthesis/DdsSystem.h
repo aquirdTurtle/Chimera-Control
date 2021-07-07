@@ -38,13 +38,19 @@ class DdsSystem : public IChimeraSystem{
 		std::string getSystemInfo ( );
 		std::string getDelim ( );
 		DdsCore& getCore ( );
+
 	private:
 		QLabel* ddsHeader;
 		QTableWidget* rampListview;
 		QPushButton* programNowButton;
+		QPushButton* stepButton;
+		QPushButton* resetButton;
 		CQCheckBox* controlCheck;
 		bool controlActive = true;
 		std::vector<ddsIndvRampListInfo> currentRamps;
+
+
+
 		DdsCore core;
 };
 

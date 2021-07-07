@@ -18,15 +18,42 @@ void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string 
 	ddsHeader->setGeometry (px, py, 480, 25);
 
 	programNowButton = new QPushButton ("Program Now", parent);
-	programNowButton->setGeometry (px, py + 25, 360, 25);
+	programNowButton->setGeometry (px, py + 25, 120, 25);
 	parent->connect (programNowButton, &QPushButton::released, [this, parent]() {
 		try	{
 			programNow (parent->auxWin->getUsableConstants ());
+			parent->auxWin->pulseDdsResetTrig();
 		}
 		catch (ChimeraError& err) {
 			parent->reportErr (err.qtrace ());
 		}
 	});
+	stepButton = new QPushButton( "Step", parent );
+	stepButton->setGeometry(px+120, py + 25, 120, 25);
+	parent->connect(stepButton, &QPushButton::released, [this, parent]() {
+		try {
+			parent->auxWin->pulseDdsStepTrig();
+		}
+		catch (ChimeraError & err) {
+			parent->reportErr(err.qtrace());
+		}
+		});
+	stepButton->setToolTip("This is a shortcut which simply pulses the dds's step trigger for 5ms. "
+		"This is equivalent to manually pulsing the corresponding digital output using the do system interface");
+	
+	resetButton = new QPushButton("Reset", parent);
+	resetButton->setGeometry(px+240, py + 25, 120, 25);
+	parent->connect(resetButton, &QPushButton::released, [this, parent]() {
+		try {
+			parent->auxWin->pulseDdsResetTrig();
+		}
+		catch (ChimeraError & err) {
+			parent->reportErr(err.qtrace());
+		}
+		});
+	resetButton->setToolTip("This is a shortcut which simply pulses the dds's reset trigger for 5ms. "
+		"This is equivalent to manually pulsing the corresponding digital output using the do system interface");
+
 	controlCheck = new CQCheckBox ("Control?", parent);
 	controlCheck->setGeometry (px + 360, py += 25, 120, 25);
 

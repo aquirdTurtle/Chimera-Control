@@ -83,9 +83,18 @@ void LongQSlider::handleEdit (){
 	catch ( boost::bad_lexical_cast& ){
 		thrower( "Please enter a number." );
 	}
-	if ( val < minVal || val > maxVal ){
+	/*if ( val < minVal || val > maxVal ){
 		thrower( "Please enter a number within the slider's range ("+str(minVal) + "," + str(maxVal) + ")" );
+	}*/
+	if (val < minVal) {
+		minVal = val;
+		slider->setRange(minVal, maxVal);
 	}
+	if (val > maxVal) {
+		maxVal = val;
+		slider->setRange(minVal, maxVal);
+	}
+
 	if ( val != currentValue ){
 		setValue ( val, false );
 	}

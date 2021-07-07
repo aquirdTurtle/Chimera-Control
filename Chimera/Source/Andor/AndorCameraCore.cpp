@@ -92,6 +92,12 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 	else {
 		tempSettings.frameTransferMode = 0;
 	}
+	if (configFile.ver >= Version("5.13")) {
+		configFile >> tempSettings.verticalShiftVoltageAmplitude;
+	}
+	else {
+		tempSettings.verticalShiftVoltageAmplitude = 0;
+	}
 	return tempSettings;
 } 
 
@@ -190,7 +196,7 @@ std::vector<std::string> AndorCameraCore::getHorShiftSpeeds () {
 /* 
  * Large function which initializes a given camera image run.
  */
-void AndorCameraCore::armCamera( double& minKineticCycleTime ){
+void AndorCameraCore::armCamera( double& minKineticCycleTime, ExpThreadWorker* threadworker){
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
 	flume.setADChannel(1);
@@ -202,6 +208,7 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime ){
 		flume.setHSSpeed(1, runSettings.horShiftSpeedSetting);
 		qDebug () << "Horizontal Shift Speed: " << flume.getHSSpeed (1, 1, runSettings.horShiftSpeedSetting);
 	}
+	flume.setVSAmplitude(runSettings.verticalShiftVoltageAmplitude);
 	flume.setVSSpeed (runSettings.vertShiftSpeedSetting);
 	qDebug () << "Vertical Shift Speed: " << flume.getVSSpeed (runSettings.vertShiftSpeedSetting);
 	setAcquisitionMode();
@@ -224,7 +231,8 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime ){
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
 	}
-	setGainMode();
+	setGainMode(threadworker);
+	
 	setCameraTriggerMode();
 
 	flume.queryStatus();
@@ -494,7 +502,8 @@ void AndorCameraCore::setNumberAccumulations(bool isKinetic){
 	std::string errMsg;
 	if (isKinetic){
 		// right now, kinetic series mode always has one accumulation. could add this feature later if desired to do 
-		// both kinetic and accumulation. Not sure there's actually much of a reason to use accumulations. 
+		// both kinetic and accumulation. Not sure there's actually much of a reason to use accumulations, seems 
+		// equivalent to software accumulation.
 		//setNumberAccumulations(true); // ???
 		flume.setAccumulationNumber(1);
 	}
@@ -506,7 +515,7 @@ void AndorCameraCore::setNumberAccumulations(bool isKinetic){
 }
 
 
-void AndorCameraCore::setGainMode(){
+void AndorCameraCore::setGainMode(ExpThreadWorker* threadworker){
 	if (!runSettings.emGainModeIsOn){
 		// Set Gain
 		int numGain;
@@ -516,6 +525,7 @@ void AndorCameraCore::setGainMode(){
 		flume.getPreAmpGain(2, myGain);
 		// 1 is for conventional gain mode.
 		flume.setOutputAmplifier(1);
+		notify(statusMsg("Using Andor Conventional Gain\n", 1, configDelim), threadworker);
 	}
 	else{
 		// 0 is for em gain mode.
@@ -528,6 +538,8 @@ void AndorCameraCore::setGainMode(){
 			flume.setEmGainSettingsAdvanced(0);
 		}
 		flume.setEmCcdGain(runSettings.emGainLevel);
+		notify( statusMsg("Using Andor EM Gain!!! Gain Value: " + str(runSettings.emGainLevel) +"\n", 0, configDelim), 
+			    threadworker );
 	}
 }
 
@@ -731,7 +743,7 @@ void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, E
 void AndorCameraCore::programVariation (unsigned variationInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	if (experimentActive){
 		double kinTime;
-		armCamera (kinTime);
+		armCamera (kinTime, threadworker);
 	}
 }
 

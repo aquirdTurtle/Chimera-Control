@@ -101,6 +101,13 @@ void AndorFlume::setHSSpeed ( int type, int index ){
 	}
 }
 
+void AndorFlume::setVSAmplitude(int index) {
+	// 0 is normal
+	if (!safemode) {
+		andorErrorChecker(SetVSAmplitude(index));
+	}
+}
+
 unsigned AndorFlume::getNumberVSSpeeds () {
 	int num = 0;
 	if (!safemode) {

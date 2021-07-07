@@ -222,6 +222,9 @@ void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwar
 
 std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( ){
 	std::array<softwareAccumulationOption, 4> opts;
+	if (softwareAccumulateAll[0] == nullptr) {
+		return opts;
+	}
 	for ( auto picInc : range(4)){
 		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ]->isChecked ( );
 		

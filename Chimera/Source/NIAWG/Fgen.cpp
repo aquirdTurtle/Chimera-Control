@@ -125,6 +125,11 @@ void FgenFlume::resetWritePosition( ){
 	}
 }
 
+void FgenFlume::configureSampleClockSource(std::string source) {
+	if (!safemode) {
+		errChecker(niFgen_ConfigureSampleClockSource(sessionHandle, source.c_str()));
+	}
+}
 
 void FgenFlume::deleteWaveform( ViConstString waveformName ){
 	if (!safemode ){

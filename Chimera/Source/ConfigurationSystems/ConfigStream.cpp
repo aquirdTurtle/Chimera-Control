@@ -23,6 +23,7 @@ ConfigStream::ConfigStream(std::ifstream& file){
 	ScriptStream::operator<<(file.rdbuf ());
 	// config streams are case-sensitive.
 	setCase (false);
+	streamText = this->str();
 };
 
 ConfigStream::ConfigStream (std::string txt, bool isAddr){

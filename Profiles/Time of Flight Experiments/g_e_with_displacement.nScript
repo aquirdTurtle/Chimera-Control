@@ -1,0 +1,138 @@
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var ldumpBias 0.79
+var ddumpBias 0.01
+var main_v_f 81 
+var dumpf 117 
+var spacing 5
+var tundumpBias 0.045
+
+var_v 2 zPhases [ 0 0 ]
+
+var_v 2 linR [ lin lin ]
+var_v 2 tanhR [ tanh tanh ] 
+
+var_v 2 freqs [ 75 87 ] 
+
+var csOffset 0.8
+var_v 2 displacedFreqs [ (75+csOffset) (87+csOffset) ] 
+var_v 2 tunFreqs [ (81-spacing/2) (81+spacing/2) ] 
+var_v 2 pSepFreqs [ 87.5 84.5 ] 
+
+var rampPercent 1
+var_v 2 loadHBias [ 1 0 ] 
+%var_v 2 findDropB [ stdHBias (1-stdHBias) ]
+var_v 2 findDropB [ 0 1 ]
+var stdHBias 0.64
+var_v 2 hBias [ stdHBias (1-stdHBias) ] 
+var_v 2 hPrepB [ ( resonance+resWidth ) 
+                ( 1 - (resonance+resWidth)) ] 
+var_v 2 hFinB [ (resonance+resWidth-rampPercent*2*resWidth)
+		  (1-(resonance+resWidth-rampPercent*2*resWidth)) ]  
+
+var_v 2 adRamp [ midSlow midSlow ]
+
+var_v 2 cphases [ -1 -1 ] 
+
+var_v 2 vFreqs [ main_v_f dumpf ]
+var_v 2 vLoadB [ (1-loadBias) loadBias ] 
+var_v 2 vStdB [ (1-ldumpBias) ldumpBias ] 
+var_v 2 dumpB [ ddumpBias (1-ddumpbias) ]
+var loadBias 0.9 % 0.833
+
+var_v 2 vTunB [ tundumpBias (1-tundumpBias) ]
+var_v 2 vDropB [ (tundumpBias/4) ((1-tundumpBias)/4) ] 
+%var_v 2 finVBias [ dumpBias (1-dumpBias) ]
+
+
+repeatTilTrig 
+gen2const_v Horizontal freqs loadHBias zphases #  
+gen2const_v Vertical vFreqs vLoadB zphases #
+0.01 0 endRepeat
+
+% Occurs once
+gen2ampRamp_v Horizontal freqs linr loadHBias hBias zphases #  
+gen2ampRamp_v Vertical vFreqs linr vLoadB vStdB zphases #
+0.01 0 
+
+repeatTilTrig 
+gen2const_v Horizontal freqs hBias zphases #  
+gen2const_v Vertical vFreqs vStdB zphases #
+0.01 0 endRepeat
+
+% to the dumping settings
+gen2const_v Horizontal freqs hBias zphases #  
+gen2ampRamp_v Vertical vFreqs tanhR vStdB dumpB zphases # 
+1 0
+
+repeatTilTrig % dump settings
+gen2const_v Horizontal freqs hBias zphases #  
+gen2const_v Vertical vFreqs dumpB zphases #
+0.01 0 endRepeat
+
+% back to normal dump ratio for move
+gen2Const_v Horizontal freqs hBias zphases #  
+gen2ampRamp_v Vertical vFreqs tanhR dumpB vStdB zphases #
+1 0
+% the moving part
+gen2Freq&AmpRamp_v Horizontal linR freqs tunFreqs 
+							  linR hBias hPrepB zphases # 
+gen2const_v Vertical vFreqs vStdB zPhases #
+1 0
+% to final tunneling dumping settings
+gen2const_v Horizontal tunFreqs hPrepB cphases #   
+gen2AmpRamp_v Vertical vFreqs linR vStdB vTunB zphases #
+0.4 0
+
+% the all-important g-e ramp
+gen2AmpRamp_v Horizontal tunFreqs 
+						 adRamp hPrepB hFinB zphases # 
+gen2const_v Vertical vFreqs vTunB zphases #
+adiabaticTransferTime 0
+
+gen2FreqRamp_v Horizontal linR tunFreqs freqs 
+							  hFinB cphases #   
+gen2const_v Vertical vFreqs vTunB zphases #
+separationTime 0
+
+%gen2FreqRamp_v Horizontal linR tunFreqs pSepFreqs 
+%							  hFinB cphases #   
+%gen2const_v Vertical vFreqs vTunB zphases #
+%separationTime 0
+
+%gen2Freq&AmpRamp_v Horizontal linR pSepFreqs freqs 
+%							  linR hFinB findDropB cphases #   
+%gen2ampRamp_v Vertical vFreqs linr vTunB vDropB zphases #
+%1 0
+
+repeatTilTrig % before displacement
+gen2const_v Horizontal freqs findDropB cphases #   
+gen2const_v Vertical vFreqs vDropB zphases #
+0.01 0
+endRepeat
+
+% sudden frequency change! no ramp!
+
+
+repeatTilTrig % after displacement
+gen2const_v Horizontal displacedFreqs findDropB cphases #   
+gen2const_v Vertical vFreqs vDropB zphases #
+0.01 0
+endRepeat
+
+
+%gen2const_v Horizontal
+%freqs hBias zphases # 
+%gen2ampramp_v Vertical
+%vfreqs	tanhR vStdB finVBias	zphases #
+%1 0
+
+%repeatTilTrig
+%gen2const_v Horizontal
+%freqs hBias zphases # 
+%gen2const_v Vertical
+%Vfreqs finVBias zphases #
+%0.01 0
+%endRepeat
+
+% New dumping freq: 111 Mhz

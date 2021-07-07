@@ -425,120 +425,125 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				sTimer.tick ( "Time-Handled" );
 			}
 			/// deal with command
-			if ( formList.commandName == "dac:" ){
-				/// single point.
-				tempEvent.value = formList.finalVal.evaluate( params, variationInc, calibrations);
-				if ( variationInc == 0 ){
-					sTimer.tick ( "val-evaluated" );
-				}
-				cmdList.push_back( tempEvent );
-				if ( variationInc == 0 ){
-					sTimer.tick ( "Dac:-Handled" );
-				}
-			}
-			else if ( formList.commandName == "dacarange:" ){
-				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = formList.rampTime.evaluate( params, variationInc, calibrations);
-				/// many points to be made.
-				// convert initValue and finalValue to doubles to be used 
-				double initValue, finalValue, rampInc;
-				initValue = formList.initVal.evaluate( params, variationInc, calibrations);
-				// deal with final value;
-				finalValue = formList.finalVal.evaluate( params, variationInc, calibrations);
-				// deal with ramp inc
-				rampInc = formList.rampInc.evaluate( params, variationInc, calibrations);
-				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )	{
-					resolutionWarningPosted = true;
-					emit threadworker->warn (cstr("Warning: ramp increment of " + str (rampInc) + " in dac command number "
-						+ str (eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
-						+ str (10.0 / pow (2, 16)) + "). These ramp points are unnecessary.\r\n"));
-				}
-				// This might be the first not i++ usage of a for loop I've ever done... XD
-				// calculate the time increment:
-				int steps = int( fabs( finalValue - initValue ) / rampInc + 0.5 );
-				double stepsFloat = fabs( finalValue - initValue ) / rampInc;
-				double diff = fabs( steps - fabs( finalValue - initValue ) / rampInc );
-				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted ){
-					nonIntegerWarningPosted = true;
-					emit threadworker->warn (cstr ("Warning: Ideally your spacings for a dacArange would result in a non-integer number "
-						"of steps. The code will attempt to compensate by making a last step to the final value which"
-						" is not the same increment in voltage or time as the other steps to take the dac to the final"
-						" value at the right time.\r\n"));
-				}
-				double timeInc = rampTime / steps;
-				double initTime = tempEvent.time;
-				double currentTime = tempEvent.time;
-				// handle the two directions seperately.
-				if ( initValue < finalValue ){
-					for ( double dacValue = initValue; 
-						(dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc ){
-						tempEvent.value = dacValue;
-						tempEvent.time = currentTime;
-						cmdList.push_back( tempEvent );
-						currentTime += timeInc;
+			try {
+				if (formList.commandName == "dac:") {
+					/// single point.
+					tempEvent.value = formList.finalVal.evaluate(params, variationInc, calibrations);
+					if (variationInc == 0) {
+						sTimer.tick("val-evaluated");
+					}
+					cmdList.push_back(tempEvent);
+					if (variationInc == 0) {
+						sTimer.tick("Dac:-Handled");
 					}
 				}
-				else
-				{
-					for ( double dacValue = initValue; 
-						dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc ){
-						tempEvent.value = dacValue;
-						tempEvent.time = currentTime;
-						cmdList.push_back( tempEvent );
-						currentTime += timeInc;
+				else if (formList.commandName == "dacarange:") {
+					// interpret ramp time command. I need to know whether it's ramping or not.
+					double rampTime = formList.rampTime.evaluate(params, variationInc, calibrations);
+					/// many points to be made.
+					// convert initValue and finalValue to doubles to be used 
+					double initValue, finalValue, rampInc;
+					initValue = formList.initVal.evaluate(params, variationInc, calibrations);
+					// deal with final value;
+					finalValue = formList.finalVal.evaluate(params, variationInc, calibrations);
+					// deal with ramp inc
+					rampInc = formList.rampInc.evaluate(params, variationInc, calibrations);
+					if (rampInc < 10.0 / pow(2, 16) && resolutionWarningPosted) {
+						resolutionWarningPosted = true;
+						emit threadworker->warn(cstr("Warning: ramp increment of " + str(rampInc) + " in dac command number "
+							+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
+							+ str(10.0 / pow(2, 16)) + "). These ramp points are unnecessary.\r\n"));
+					}
+					// This might be the first not i++ usage of a for loop I've ever done... XD
+					// calculate the time increment:
+					int steps = int(fabs(finalValue - initValue) / rampInc + 0.5);
+					double stepsFloat = fabs(finalValue - initValue) / rampInc;
+					double diff = fabs(steps - fabs(finalValue - initValue) / rampInc);
+					if (diff > 100 * DBL_EPSILON && nonIntegerWarningPosted) {
+						nonIntegerWarningPosted = true;
+						emit threadworker->warn(cstr("Warning: Ideally your spacings for a dacArange would result in a non-integer number "
+							"of steps. The code will attempt to compensate by making a last step to the final value which"
+							" is not the same increment in voltage or time as the other steps to take the dac to the final"
+							" value at the right time.\r\n"));
+					}
+					double timeInc = rampTime / steps;
+					double initTime = tempEvent.time;
+					double currentTime = tempEvent.time;
+					// handle the two directions seperately.
+					if (initValue < finalValue) {
+						for (double dacValue = initValue;
+							(dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc) {
+							tempEvent.value = dacValue;
+							tempEvent.time = currentTime;
+							cmdList.push_back(tempEvent);
+							currentTime += timeInc;
+						}
+					}
+					else
+					{
+						for (double dacValue = initValue;
+							dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc) {
+							tempEvent.value = dacValue;
+							tempEvent.time = currentTime;
+							cmdList.push_back(tempEvent);
+							currentTime += timeInc;
+						}
+					}
+					// and get the final value.
+					tempEvent.value = finalValue;
+					tempEvent.time = initTime + rampTime;
+					cmdList.push_back(tempEvent);
+					if (variationInc == 0) {
+						sTimer.tick("dacarange:-Handled");
 					}
 				}
-				// and get the final value.
-				tempEvent.value = finalValue;
-				tempEvent.time = initTime + rampTime;
-				cmdList.push_back( tempEvent );
-				if ( variationInc == 0 ){
-					sTimer.tick ( "dacarange:-Handled" );
+				else if (formList.commandName == "daclinspace:") {
+					// interpret ramp time command. I need to know whether it's ramping or not.
+					double rampTime = formList.rampTime.evaluate(params, variationInc, calibrations);
+					/// many points to be made.
+					double initValue, finalValue;
+					unsigned numSteps;
+					initValue = formList.initVal.evaluate(params, variationInc, calibrations);
+					finalValue = formList.finalVal.evaluate(params, variationInc, calibrations);
+					numSteps = formList.numSteps.evaluate(params, variationInc, calibrations);
+					double rampInc = (finalValue - initValue) / numSteps;
+					// this warning isn't actually very useful. very rare that actually run into issues with overtaxing ao 
+					// or do systems like this and these circumstances often happen when something is ramped.
+					/*if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted ){
+						resolutionWarningPosted = true;
+						emit threadworker->warn (cstr ("Warning: numPoints of " + str (numSteps) + " results in a ramp increment of "
+							+ str (rampInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
+							+ str (10.0 / pow (2, 16)) + "). It's likely taxing the system to "
+							"calculate the ramp unnecessarily.\r\n"));
+					}*/
+					// This might be the first not i++ usage of a for loop I've ever done... XD
+					// calculate the time increment:
+					double timeInc = rampTime / numSteps;
+					double initTime = tempEvent.time;
+					double currentTime = tempEvent.time;
+					double val = initValue;
+					// handle the two directions seperately.
+					for (auto stepNum : range(numSteps)) {
+						tempEvent.value = val;
+						tempEvent.time = currentTime;
+						cmdList.push_back(tempEvent);
+						currentTime += timeInc;
+						val += rampInc;
+					}
+					// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
+					tempEvent.value = finalValue;
+					tempEvent.time = initTime + rampTime;
+					cmdList.push_back(tempEvent);
+					if (variationInc == 0) {
+						sTimer.tick("daclinspace:-Handled");
+					}
+				}
+				else {
+					thrower("Unrecognized dac command name: " + formList.commandName + ", " + formList.initVal.getScope());
 				}
 			}
-			else if ( formList.commandName == "daclinspace:" ){
-				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = formList.rampTime.evaluate( params, variationInc, calibrations);
-				/// many points to be made.
-				double initValue, finalValue;
-				unsigned numSteps;
-				initValue = formList.initVal.evaluate( params, variationInc, calibrations);
-				finalValue = formList.finalVal.evaluate(params, variationInc, calibrations);
-				numSteps = formList.numSteps.evaluate(params, variationInc, calibrations);
-				double rampInc = (finalValue - initValue) / numSteps;
-				// this warning isn't actually very useful. very rare that actually run into issues with overtaxing ao 
-				// or do systems like this and these circumstances often happen when something is ramped.
-				/*if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted ){
-					resolutionWarningPosted = true;
-					emit threadworker->warn (cstr ("Warning: numPoints of " + str (numSteps) + " results in a ramp increment of "
-						+ str (rampInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
-						+ str (10.0 / pow (2, 16)) + "). It's likely taxing the system to "
-						"calculate the ramp unnecessarily.\r\n"));
-				}*/
-				// This might be the first not i++ usage of a for loop I've ever done... XD
-				// calculate the time increment:
-				double timeInc = rampTime / numSteps;
-				double initTime = tempEvent.time;
-				double currentTime = tempEvent.time;
-				double val = initValue;
-				// handle the two directions seperately.
-				for ( auto stepNum : range( numSteps ) ){
-					tempEvent.value = val;
-					tempEvent.time = currentTime;
-					cmdList.push_back( tempEvent );
-					currentTime += timeInc;
-					val += rampInc;
-				}
-				// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
-				tempEvent.value = finalValue;
-				tempEvent.time = initTime + rampTime;
-				cmdList.push_back( tempEvent );
-				if ( variationInc == 0 ){
-					sTimer.tick ( "daclinspace:-Handled" );
-				}
-			}
-			else{
-				thrower ( "Unrecognized dac command name: " + formList.commandName );
+			catch (ChimeraError & err) {
+				throwNested("Failed to handle command:" + formList.commandName + ", " + formList.initVal.getScope());
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
-off: andorShutter
+call openAndorShutter()
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 

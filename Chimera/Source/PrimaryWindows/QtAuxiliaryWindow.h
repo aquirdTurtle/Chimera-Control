@@ -58,6 +58,8 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		std::array<AoInfo, 24> getDacInfo ();
 		std::string getVisaDeviceStatus ();
 		std::string getMicrowaveSystemStatus ();
+		void pulseDdsResetTrig();
+		void pulseDdsStepTrig();
 
 		void updateAgilent (AgilentEnum::name name);
 		void newAgilentScript (AgilentEnum::name name);

@@ -18,6 +18,7 @@ struct AndorRunSettings{
 	bool emGainModeIsOn = false;
 	int emGainLevel = 0;
 	int readMode = 4;
+	int verticalShiftVoltageAmplitude = 0;
 	AndorRunModes::mode acquisitionMode = AndorRunModes::mode::Kinetic;
 	/* frameTransferMode = 0 (off).
 	Slower than when on. Cleans between images. Mech. shutter may not be necessary.
@@ -41,6 +42,39 @@ struct AndorRunSettings{
 	// this is an int to reflect that the final number that's programmed to the camera is an int
 	int totalPicsInExperiment();
 	int temperatureSetting = 25;
+
+	std::string stringSummary() {
+		// wish there was a __repr__ in c++...
+		std::string exposureTimeStr = "";
+		for (auto expTime : exposureTimes) {
+			exposureTimeStr += str(expTime) + " ";
+		}
+		return "horShiftSpeedSetting: " + str(horShiftSpeedSetting) + "\n" +
+			"vertShiftSpeedSetting: " + str(vertShiftSpeedSetting) + "\n" +
+			"imageSettings (l/r/t/b/h/v): " + str(imageSettings.left) + " " + str(imageSettings.right) + " " + str(imageSettings.top) 
+				+ " " + str(imageSettings.bottom) + " " + str(imageSettings.horizontalBinning) 
+			    + " " + str(imageSettings.verticalBinning) + "\n" +
+			"controlCamera: " + str(controlCamera) + "\n" +
+			"emGainModeIsOn: " + str(emGainModeIsOn) + "\n" +
+			"emGainLevel: " + str(emGainLevel) + "\n" +
+			"readMode: " + str(readMode) + "\n" +
+			"acquisitionMode: " + str(AndorRunModes::toStr(acquisitionMode)) + "\n" +
+			"frameTransferMode: " + str(frameTransferMode) + "\n" +
+			"triggerMode: " + str(AndorTriggerMode::toStr(triggerMode)) + "\n" +
+			"showPicsInRealTime: " + str(showPicsInRealTime) + "\n" +
+			"kineticCycleTime: " + str(kineticCycleTime) + "\n" +
+			"accumulationTime: " + str(accumulationTime) + "\n" +
+			"accumulationNumber: " + str(accumulationNumber) + "\n" +
+			"exposureTimes: " + str(exposureTimeStr) + "\n" +
+			"picsPerRepetition: " + str(picsPerRepetition) + "\n" +
+			"repetitionsPerVariation: " + str(repetitionsPerVariation) + "\n" +
+			"totalVariations: " + str(totalVariations) + "\n" +
+			"totalPicsInVariation: " + str(totalPicsInVariation()) + "\n" +
+			"totalPicsInExperiment: " + str(totalPicsInExperiment()) + "\n" +
+			"temperatureSetting: " + str(temperatureSetting) + "\n" +
+			"verticalShiftVoltageAmplitude: " + str(verticalShiftVoltageAmplitude) + "\n";
+	}
+
 };
 
 /*

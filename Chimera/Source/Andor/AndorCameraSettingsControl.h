@@ -43,7 +43,6 @@ class AndorCameraSettingsControl{
 		void cameraIsOn( bool state );
 		void updateCameraMode( );
 		AndorCameraSettings getConfigSettings();
-		AndorCameraSettings getCalibrationSettings( );
 		bool getAutoCal( );
 		bool getUseCal( );
 		void setImageParameters(imageParameters newSettings);
@@ -63,6 +62,7 @@ class AndorCameraSettingsControl{
 		AndorRunSettings getRunningSettings ();
 		unsigned getHsSpeed ();
 		unsigned getVsSpeed ();
+		int getVerticalShiftVoltageAmplitude();
 		unsigned getFrameTransferMode ();
 	private:
 
@@ -88,6 +88,9 @@ class AndorCameraSettingsControl{
 		CQComboBox* frameTransferModeCombo = nullptr;
 		CQComboBox* verticalShiftSpeedCombo = nullptr;
 		CQComboBox* horizontalShiftSpeedCombo = nullptr;
+
+		QLabel* verticalShiftVoltAmpLabel = nullptr;
+		CQLineEdit* verticalShiftVoltAmpEdit = nullptr;
 
 		QLabel* emGainLabel = nullptr;
 		CQLineEdit* emGainEdit = nullptr;

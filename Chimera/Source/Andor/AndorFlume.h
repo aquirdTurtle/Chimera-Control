@@ -18,7 +18,7 @@ class AndorFlume{
 		unsigned getNumberHSSpeeds ();
 		float getHSSpeed (int channel, int type, int index);
 
-
+		void setVSAmplitude(int index);
 		void setBaselineClamp ( int clamp );
 		void setBaselineOffset ( int offset );
 		void setDMAParameters ( int maxImagesPerDMA, float secondsPerDMA );

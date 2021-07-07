@@ -578,6 +578,32 @@ void QtAuxiliaryWindow::ViewOrChangeTTLNames (){
 	dialog->exec ();
 }
 
+void QtAuxiliaryWindow::pulseDdsResetTrig() {
+	auto status = ttlBoard.getCurrentStatus();
+	auto resetLine = dds.getCore().getResetLine();
+	status[int(resetLine.first)][resetLine.second] = 0;
+	ttlBoard.setTtlStatusNoForceOut(status);
+	QThread::msleep(5);
+	status[int(resetLine.first)][resetLine.second] = 1;
+	ttlBoard.setTtlStatusNoForceOut(status);
+	QThread::msleep(5);
+	status[int(resetLine.first)][resetLine.second] = 0;
+	ttlBoard.setTtlStatusNoForceOut(status);
+}
+
+void QtAuxiliaryWindow::pulseDdsStepTrig() {
+	auto status = ttlBoard.getCurrentStatus();
+	auto stepLine = dds.getCore().getStepLine();
+	status[int(stepLine.first)][stepLine.second] = 0;
+	ttlBoard.setTtlStatusNoForceOut(status);
+	QThread::msleep(5);
+	status[int(stepLine.first)][stepLine.second] = 1;
+	ttlBoard.setTtlStatusNoForceOut(status);
+	QThread::msleep(5);
+	status[int(stepLine.first)][stepLine.second] = 0;
+	ttlBoard.setTtlStatusNoForceOut(status);
+}
+
 
 void QtAuxiliaryWindow::ViewOrChangeDACNames (){
 	mainWin->updateConfigurationSavedStatus (false);

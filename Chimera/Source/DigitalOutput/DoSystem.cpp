@@ -77,6 +77,8 @@ std::pair<unsigned, unsigned> DoSystem::getTtlBoardSize(){
 	return { outputs.numRows, outputs.numColumns };
 }
 
+
+
 void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 	auto& px = loc.rx (), & py = loc.ry ();
 	// title
@@ -88,7 +90,7 @@ void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
 	ttlHold->setGeometry (px, py, 240, 20);
 	ttlHold->setToolTip ("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
 		"ttls, then press the button again to release it. Upon releasing the button, the TTLs will change.");
-	parent->connect (ttlHold, &QPushButton::released, [parent, this]() {
+	parent->connect (ttlHold, &QPushButton::clicked, [parent, this]() {
 		try{
 			parent->configUpdated ();
 			handleHoldPress ();
@@ -162,7 +164,8 @@ int DoSystem::getNumberOfTTLsPerRow(){
 }
 
 void DoSystem::handleTTLPress(DigitalOutput& out){
-	if ( holdStatus == false ){
+	
+	if ( ! ttlHold->isDown() ){
 		//out.set (!out.getStatus ());
 		out.set (out.check->isChecked ());
 		core.ftdi_ForceOutput(out.getPosition().first, out.getPosition().second, !out.getStatus(), getCurrentStatus ());
@@ -174,9 +177,9 @@ void DoSystem::handleTTLPress(DigitalOutput& out){
 
 // this function handles when the hold button is pressed.
 void DoSystem::handleHoldPress(){
-	if (holdStatus == true){
+	if (ttlHold->isChecked()){
 		// set all the holds.
-		holdStatus = false;
+		//holdStatus = false;
 		// make changes
 		for ( auto& out : outputs )	{
 			out.set ( out.holdStatus );
@@ -184,7 +187,7 @@ void DoSystem::handleHoldPress(){
 		}
 	}
 	else{
-		holdStatus = true;
+		//holdStatus = true;
 		for ( auto& out : outputs )	{
 			out.setHoldStatus ( out.getStatus ( ) );
 		}

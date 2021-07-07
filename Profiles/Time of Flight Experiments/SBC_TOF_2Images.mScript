@@ -1,6 +1,6 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
-on: andorShutter
+call closeAndorShutter()
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
@@ -15,6 +15,7 @@ call triggerScout()
 t += 5
 call D1GreyLambdaLoading()
 call triggerWindfreak()
+
 pulseon: dds_step 5
 pulseon: niawgTrig 0.1
 pulseon: tweezerIntensityTrig 0.1 % to imagingDepth
@@ -42,7 +43,7 @@ call send_uw_to_raman_eom()
 t += 1
 call pump2stretch() 
 call gsbc()
-%End SBC
+%End SBC 
 
 pulseon: niawgTrig 0.1
 pulseon: tweezerIntensityTrig 0.1 % to waitDepth
@@ -54,7 +55,10 @@ off: axialRamanShutter2
 %off: tweezerrf
 %t+= 20
 
-t += 15
+t += 21
+pulseon: niawgTrig 0.1
+t += evolveTime
+t += -1
 
 call freespaceimage()
 

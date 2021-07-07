@@ -92,6 +92,8 @@ void NiawgCore::initialize( ){
 	/// Configure Clock input
 	// uncomment for high resolution mode
 	fgenFlume.configureClockMode( NIFGEN_VAL_HIGH_RESOLUTION );
+	fgenFlume.configureSampleClockSource("OnboardClock");
+	// some old functionality. hasn't been used for a long time. Added above to set the clock specifically on 6/25/2021.
 	// uncomment for default onboard clock
 	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "OnboardClock")
 	// Unccoment for using an external clock as a "sample clock"

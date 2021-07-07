@@ -13,6 +13,8 @@
 #include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
+#include "GeneralObjects/CodeTimer.h"
+
 #include <qdebug.h>
 #include <fstream>
 
@@ -86,12 +88,18 @@ void ConfigSystem::getVersionFromFile( ConfigStream& file ){
 
 
 void ConfigSystem::openConfigFromPath( std::string pathToConfig, IChimeraQtWindow* win){
+	CodeTimer timer;
+	timer.tick("Start");
+	statusMsg progMsg = { "Starting to open config file.\n", 1, "CONFIG_SYSTEM" };
+	emit notification(progMsg);
 	std::ifstream configFileRaw( pathToConfig );
+	timer.tick("Opened File");
 	// check if opened correctly.
 	if ( !configFileRaw.is_open( ) ){
 		errBox ( "Opening of Configuration File Failed!" );
 		return;
-	}
+	}		
+	
 	ConfigStream cStream (configFileRaw);
 	cStream.setCase (false);
 	configFileRaw.close ();
@@ -107,12 +115,30 @@ void ConfigSystem::openConfigFromPath( std::string pathToConfig, IChimeraQtWindo
 	configDisplay->setText (cstr (currentProfile.configuration));
 	configDisplay->setToolTip (qstr (currentProfile.configuration + ": " + pathToConfig));
 	try	{
+		timer.tick("Getting Version From File");
+		progMsg.msg = "Getting Version from File.\n";
+		emit notification(progMsg);
 		getVersionFromFile(cStream);
+		timer.tick("Start Script Win");
+		progMsg.msg = "Script Window Opening Configuration.\n";
+		emit notification(progMsg);
 		win->scriptWin->windowOpenConfig(cStream );
+		timer.tick("Start Andor Win");
+		progMsg.msg = "Andor Window Opening Configuration.\n";
+		emit notification(progMsg);
 		win->andorWin->windowOpenConfig(cStream );
+		timer.tick("Start Aux Win");
+		progMsg.msg = "Auxiliary Window Opening Configuration.\n";
+		emit notification(progMsg);
 		win->auxWin->windowOpenConfig(cStream );
+		timer.tick("Start Main Win");
+		progMsg.msg = "Main Window Opening Configuration.\n";
+		emit notification(progMsg);
 		win->mainWin->windowOpenConfig(cStream );
 		if (cStream.ver >= Version ( "3.4" ) ){
+			timer.tick("Start Bas Win");
+			progMsg.msg = "Basler Window Opening Configuration.\n";
+			emit notification(progMsg);
 			win->basWin->windowOpenConfig (cStream );
 		}
 		if (cStream.ver >= Version ("5.0")){
@@ -123,11 +149,16 @@ void ConfigSystem::openConfigFromPath( std::string pathToConfig, IChimeraQtWindo
 		errBox( "ERROR: Unhandled error while opening configuration files!\n\n" + err.trace() );
 	}
 	updateConfigurationSavedStatus ( true );
-	emit notification({ "Finished opening config.\n", 0, "CONFIGURATION_SYSTEM" });
+	timer.tick("Fin");
+	emit notification({ "Finished opening config.\n", 0, "CONFIG_SYSTEM" });
+	emit notification({ timer.getTimingMessage() + "\n", 1, "CONFIG_SYSTEM" });
 }
 
 void ConfigSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version minVer ){
-	ConfigSystem::getVersionFromFile ( configStream );
+	if (configStream.ver.versionMajor == -1) { 
+		// then configstream version is uninitialized
+		ConfigSystem::getVersionFromFile(configStream);
+	}
 	if ( configStream.ver < minVer ){
 		thrower ( "Configuration version (" + configStream.ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
 	}
@@ -141,30 +172,30 @@ void ConfigSystem::initializeAtDelim ( ConfigStream& configStream, std::string d
 
 
 void ConfigSystem::jumpToDelimiter ( ConfigStream& configStream, std::string delimiter ){
-	while ( !configStream.eof() ){
-		try{
-			checkDelimiterLine (configStream, delimiter );
-			// if reaches this point it was successful. The file should now be pointing to just beyond the delimiter.
-			return;
-		}
-		catch ( ChimeraError& ){
-			if (configStream.peek () == EOF) {
-				break;
-			}
-			// didn't find delimiter, try next input.
-		}
+	auto location = configStream.streamText.find(delimiter);
+	if (location == std::string::npos) {
+		thrower("Failed to jump to a delimiter! Delimiter was: " + delimiter + ".");
 	}
-	// reached end of file.
-	thrower ( "Failed to jump to a delimiter! Delimiter was: " + delimiter + "." );
+	else {
+		configStream.clear();
+		configStream.seekg(location + delimiter.size());
+		return;
+	}
 }
 
-// small convenience function that I use while opening a file.
-void ConfigSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter){
+// small convenience function that I use while opening a file. Returns true if check passes.
+bool ConfigSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter, bool throwIfFail){
 	std::string checkStr;
 	openFile >> checkStr;
 	if (checkStr != delimiter){
-		thrower ("ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"");
+		if (throwIfFail) {
+			thrower("ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"");
+		}
+		else {
+			return false;
+		}
 	}
+	return true;
 }
 
 
@@ -227,7 +258,7 @@ void ConfigSystem::saveConfiguration(IChimeraQtWindow* win){
 	configSaveFile << saveStream.str ();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
-	emit notification({ "Finished Saving Configuration.\n", 0 , "CONFIGURATION_SYSTEM" });
+	emit notification({ "Finished Saving Configuration.\n", 0 , "CONFIG_SYSTEM" });
 }
 
 /*
@@ -268,7 +299,7 @@ void ConfigSystem::saveConfigurationAs(IChimeraQtWindow* win){
  	configSaveFile << configSaveStream.str ();
  	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
-	emit notification({ "Finished Saving Configuration.\n", 0, "CONFIGURATION_SYSTEM" });
+	emit notification({ "Finished Saving Configuration.\n", 0, "CONFIG_SYSTEM" });
 }
 
 void ConfigSystem::renameConfiguration(){

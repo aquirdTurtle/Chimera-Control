@@ -1,6 +1,6 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
-on: andorShutter
+call closeAndorShutter()
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
@@ -20,8 +20,12 @@ pulseon: niawgTrig 0.1
 pulseon: tweezerIntensityTrig 0.1 % to imagingDepth
 
 t += 1
-call shutteredPgcImage()
-t += 20
+call openAndorShutter()
+call stdPgcImage()
+t += 10
+call closeAndorShutter()
+%call shutteredPgcImage()
+t += 10
 
 %Begin SBC
 pulseon: tweezerIntensityTrig 0.1 % to intrapLGMDepth
@@ -74,7 +78,11 @@ t += adiabaticTransferTime % typ 25-50 ms, relying on this
 %t+= 20
 % adding an extra 200us to make sure the atoms in the left tweezer have flown away
 %t += 0.2
-t += (-1)
+%t += (-1)
+t += separationTime 
+t += evolveWaitTime
+% to compensate for the 1ms time in the freespaceimage function
+t += -1
 
 call freespaceimage()
 

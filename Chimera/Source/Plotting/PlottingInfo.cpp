@@ -509,13 +509,13 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 		throwNested ("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
 	}
 	/// Analys pixels
-	ConfigSystem::checkDelimiterLine(plotStream, "POSITIVE_RESULT_BEGIN" );
+	ConfigSystem::checkDelimiterLine(plotStream, str("POSITIVE_RESULT_BEGIN"));
 	unsigned dataSetCount = 0;
 	// data set loop
-	while (!ConfigSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", "POSITIVE_RESULT_END" ) ){
+	while (!ConfigSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", str("POSITIVE_RESULT_END") ) ){
 		// picture loop
 		int pictureCount = 0;
-		while ( !ConfigSystem::checkDelimiterLine(plotStream, "PICTURE_BEGIN", "DATA_SET_END" ) ){			
+		while ( !ConfigSystem::checkDelimiterLine(plotStream, "PICTURE_BEGIN", str("DATA_SET_END") ) ){			
 			// pixel loop
 			int pixelCount = 0;
 			while (true){
@@ -528,11 +528,11 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 					tempTruthCondition = boost::lexical_cast<int>(testString);
 				}
 				catch ( boost::bad_lexical_cast&){
-					throwNested ("ERROR: truth condition failed to evaluate to an integer. The truth condition string was"
+					throwNested ("Truth condition failed to evaluate to an integer. The truth condition string was"
 							+ testString);
 				}
 				if (tempTruthCondition != -1 && tempTruthCondition != 0 && tempTruthCondition != 1){
-					thrower ("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was" 
+					thrower ("Truth condition was not one of the valid options: -1, 0, or 1. The truth condition was" 
 									+ str(tempTruthCondition));
 				}
 				setResultCondition(dataSetCount, pixelCount, pictureCount, tempTruthCondition);
@@ -540,32 +540,32 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 				pixelCount++;
 			}
 			if (pixelCount != currentPixelNumber){
-				thrower ("ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
+				thrower ("Number of pixels the truth condition was set for doesn't match the number of pixels"
 						" reported earlier in the file.");
 			}
 			pictureCount++;
 		}
 		if (pictureCount != numberOfPictures){
-			thrower ("ERROR: number of pictures the truth condition was set for doesn't match the number of"
+			thrower ("Number of pictures the truth condition was set for doesn't match the number of"
 					   " pictures reported earlier in the file.");
 		}
 		dataSetCount++;
 	}
 	if (dataSetCount != dataSets.size()){
-		thrower ( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
+		thrower ( "Number of data sets the truth condition was set for doesn't match the number of data sets "
 			     "reported earlier in the file.");
 	}
 
 	ConfigSystem::checkDelimiterLine(plotStream, "POST_SELECTION_BEGIN" );
 	// condition loop
 	int conditionCount = 0;
-	while (!ConfigSystem::checkDelimiterLine(plotStream, "CONDITION_BEGIN", "POST_SELECTION_END" ) ){
+	while (!ConfigSystem::checkDelimiterLine(plotStream, "CONDITION_BEGIN", str("POST_SELECTION_END") ) ){
 		// data set loop
 		int dataSetCount = 0;
-		while ( !ConfigSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", "CONDITION_END" ) )	{
+		while ( !ConfigSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", str("CONDITION_END") ) )	{
 			// picture loop
 			int pictureCount = 0;
-			while ( !ConfigSystem::checkDelimiterLine(plotStream, "PICTURE_BEGIN", "DATA_SET_END" ) ){
+			while ( !ConfigSystem::checkDelimiterLine(plotStream, "PICTURE_BEGIN", str("DATA_SET_END") ) ){
 				// pixel loop
 				int pixelCount = 0;
 				while (true){
@@ -579,35 +579,35 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 						tempPostSelectionCondition = boost::lexical_cast<int>(testString);
 					}
 					catch ( boost::bad_lexical_cast&){
-						throwNested ("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString);
+						throwNested ("truth condition failed to evaluate to an integer. The truth condition string was" + testString);
 					}
 					if (tempPostSelectionCondition != -1 && tempPostSelectionCondition != 0 && tempPostSelectionCondition != 1){
-						thrower ("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
+						thrower ("truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
 								+ str(tempPostSelectionCondition));
 					}
 					setPostSelCondition(dataSetCount, conditionCount, pixelCount, pictureCount, tempPostSelectionCondition);
 					pixelCount++;
 				}
 				if (pixelCount != currentPixelNumber){
-					thrower ( "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
+					thrower ( "number of pixels the truth condition was set for doesn't match the number of pixels"
 						     " reported earlier in the file.");
 				}
 				pictureCount++;
 			}
 			if (pictureCount != numberOfPictures){
-				thrower ( "ERROR: number of pictures the truth condition was set for doesn't match the number of pictures"
+				thrower ( "number of pictures the truth condition was set for doesn't match the number of pictures"
 					     " reported earlier in the file.");
 			}
 			dataSetCount++;
 		}
 		if (dataSetCount != dataSets.size()){
-			thrower ( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
+			thrower ( "Number of data sets the truth condition was set for doesn't match the number of data sets "
 				     "reported earlier in the file.");
 		}
 		conditionCount++;
 	}
 	if (conditionCount != currentConditionNumber){
-		thrower ( "ERROR: number of post selection conditions that were set doesn't match the number of conditions "
+		thrower ( "number of post selection conditions that were set doesn't match the number of conditions "
 			     "reported earlier in the file.");
 	}
 	
@@ -624,7 +624,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 		dataSetCount++;
 	}
 	if (dataSetCount != dataSets.size()){
-		thrower ("ERROR: the number of data sets that legends were read for doesn't match the number of data sets "
+		thrower ("the number of data sets that legends were read for doesn't match the number of data sets "
 			   "reported earlier in the file.");
 	}
 	// get counts locations
@@ -656,13 +656,13 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 
 	if (generalPlotType == "Pixel Count Histograms" || generalPlotType == "Pixel Counts"){
 		if (dataSetCount != dataSets.size()){
-			thrower ("ERROR: the number of data sets that counts locations were read for doesn't match the number of "
+			thrower ("the number of data sets that counts locations were read for doesn't match the number of "
 				   "data sets reported earlier in the file.");
 		}
 	}
 	else{
 		if (dataSetCount > 0){
-			thrower ("ERROR: There were counts plotting locations listed in the file despite the plot type not being"
+			thrower ("There were counts plotting locations listed in the file despite the plot type not being"
 					" pixel count histograms or pixel counts.");
 		}
 	}
@@ -710,10 +710,10 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation){
 		dsetNum = boost::lexical_cast<unsigned long>( tmpStr );
 	}
 	catch ( boost::bad_lexical_cast& ){
-		throwNested ( "ERROR: expected number of data sets in plot file while loading hist options, instead found: " + tmpStr );
+		throwNested ( "expected number of data sets in plot file while loading hist options, instead found: " + tmpStr );
 	}
 	if ( dsetNum != dataSets.size( ) ){
-		thrower ( "ERROR: data set number in file while opening hist settings doesn't match number from earlier in file." );
+		thrower ( "data set number in file while opening hist settings doesn't match number from earlier in file." );
 	}
 	for ( auto& dset : dataSets ){
 		plotStream >> tmpStr;

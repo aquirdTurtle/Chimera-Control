@@ -1,0 +1,94 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+call closeAndorShutter()
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+call triggerWindfreak()
+on: totalRamanRf
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+t += 5
+call D1GreyLambdaLoading()
+call triggerWindfreak()
+pulseon: dds_step 5
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1 % to imagingDepth
+
+t += 1
+call openAndorShutter()
+call stdPgcImage()
+t += 5
+call closeAndorShutter()
+%call shutteredPgcImage()
+t += 5
+
+%Begin SBC
+pulseon: tweezerIntensityTrig 0.1 % to intrapLGMDepth
+t += 0.1
+off: diagmotshutter
+off: sidemotshutter
+on: totalramanrf
+on: axialRamanShutter 
+on: axialRamanShutter2 
+
+call intrapgreymolasses()
+call triggerWindfreak()
+
+%pulseon: windfreakTrig 0.05 
+off: shutter795
+pulseon: tweezerIntensityTrig 0.1 % to Raman depth
+call send_uw_to_raman_eom()
+t += 1
+call pump2stretch() 
+call gsbc()
+%End SBC
+%off: tweezerRf
+%t += waittime
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1 % to waitDepth
+
+off: totalramanrf
+off: axialRamanShutter
+off: axialRamanShutter2
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% new stuff
+pulseon: tweezerIntensityTrig 0.1 % to dump depth
+pulseon: niawgTrig 0.1 % to the dump stuff.
+var dumpTime 6
+t += dumpTime
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+pulseon: niawgTrig 0.1 % to the move stuff.
+% timing doens't make sense here... should prob be t+=2 
+% and then t += 0.4
+t += 1.4 
+pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+t += 1
+t += adiabaticTransferTime % typ 25-50 ms, relying on this 
+% being long enough to make shutter open after gsbc
+% tweezers start separating here.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%off: tweezerrf
+%t+= 20
+% adding an extra 200us to make sure the atoms in the left tweezer have flown away
+%t += 0.2
+%t += (-1)
+t += separationTime 
+% make sure it reaches the right waveform before jumping
+t += 0.01
+pulseon: niawgTrig 0.1
+t += evolveWaitTime
+t += (-1) % compensate for time in freespaceimage
+call freespaceimage()
+
+pulseon: tweezerIntensityTrig 0.1 % to loadingDepth
+pulseon: niawgTrig 0.1
+t += 1
+off: tweezerRf
+t += 0.2

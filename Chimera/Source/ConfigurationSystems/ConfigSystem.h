@@ -59,7 +59,10 @@ class ConfigSystem : public IChimeraSystem {
 		template <class sysType>
 		static void standardOpenConfig (ConfigStream& openFile, std::string delim, sysType* this_in,
 										 Version minVer = Version ( "0.0" ) );
-		static void checkDelimiterLine (ConfigStream& openFile, std::string keyword );
+		static bool checkDelimiterLine (ConfigStream& openFile, std::string keyword, bool throwIfFail=true );
+		// painfully, const char * will automatically convert to a boolean before a string.
+		static bool checkDelimiterLine(ConfigStream& openFile, std::string keyword, const char*) = delete;
+		static bool checkDelimiterLine(ConfigStream& openFile, std::string keyword, char*) = delete;
 		static bool checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition );
 		static void jumpToDelimiter (ConfigStream& openFile, std::string delimiter );
 		static void initializeAtDelim ( ConfigStream& openFile, std::string delimiter, Version minVer=Version("0.0") );
@@ -108,7 +111,9 @@ class ConfigSystem : public IChimeraSystem {
 		// Version 5.10: added niawg debug level
 		// Version 5.11: added andor frame transfer mode
 		// Version 5.12: Added pic scale factor
-		const Version version = Version( "5.12" );
+		// Vertion 5.13: Added Andor Vertical Shift Amplitude
+
+		const Version version = Version( "5.13" );
 
 		QCheckBox* configurationSavedIndicator=nullptr;
 		QPushButton* selectConfigButton = nullptr;

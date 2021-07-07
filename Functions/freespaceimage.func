@@ -9,14 +9,14 @@ def freeSpaceImage():
   var diagmotscan 0.0
   var toftimescan 0.1
   var image_detuning -0.07 %-2 % -2.2 %-1.5
-  var shutterOffset 15
+  var shutterOffset 20
 
   off: diagMotRf
   t += -shutterOffset
   on: repumpShutter
   on: sidemotShutter
   on: diagmotShutter
-  off: andorShutter
+  call openAndorShutter()
   t += shutterOffset
   dac: diagMotPower 0
   % var image_detuning -1.5
@@ -37,7 +37,6 @@ def freeSpaceImage():
   dac: DiagMotPower { diagmotscan diagmot } %diagmotscan 0.86
 
   off: rf795
-
   off: tweezerrf
   t += toftimescan
 
@@ -55,7 +54,7 @@ def freeSpaceImage():
   
   t += fSImageTime
   off: oscilloscopemarker
-  on: andorshutter
+  call closeAndorShutter()
   off: SideMotRf
   off: diagMotRf
   off: repumpRf

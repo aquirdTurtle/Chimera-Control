@@ -21,10 +21,10 @@ void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax
 	bool includingAnalysisMarkers, QPainter& painter){
 	pictures[whichPicCtrl].drawBitmap ( picData, autoScalePictures, minMax.first, minMax.second, specialLessThanMin, 
 		specialGreaterThanMax, grids, pictureNumber, includingAnalysisMarkers );
-	if (alwaysShowGrid)	{
+	if (alwaysShowGrid)	{ 
 		pictures[whichPicCtrl].drawGrid (painter);
-	}
-}
+	} 
+} 
 
 Matrix<double> PictureManager::getAccumPicData (unsigned whichPicControl) {
 	return pictures[whichPicControl].getAccumPicData ();

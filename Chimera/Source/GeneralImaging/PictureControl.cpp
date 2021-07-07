@@ -351,7 +351,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 	mostRecentImage_m = picData; 
 	mostRecentPicNum = pictureNumber; 
 	mostRecentGrids = analysisGrids; 
-	 
+	
 	Matrix<long> drawData; 
 	auto minColor = sliderMin.getValue ( );
 	auto maxColor = sliderMax.getValue ( ); 
@@ -373,46 +373,39 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, bool autoScale, i
 		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );
 		minColor = sliderMin.getValue ( );
 	}
-	// Looks like I'm just not handling the partial accumulation here. 
+	
+	// Looks like I'm just not handling the partial accumulation here. 	
+	// new: always calculate the complete accumulation image update. Potentially unnecessary, but I don't think the
+	// computational load is that large. but basically want to be able to toggle between the accumulated im and the
+	// real-time im.
+	if (accumPicData.size() == 0) {
+		accumPicData = Matrix<double>(picData.getRows(), picData.getCols());
+		accumNum = 0;
+	}
+	accumNum++;
+	if (accumPicData.size() != picData.size()) {
+		accumPicData = Matrix<double>(picData.getRows(), picData.getCols());
+		qDebug() << "Size mismatch between software accumulated picture and picture input!";
+	}
+	Matrix<long> accumPicLongData(picData.getRows(), picData.getCols());
+	for (auto rowInc : range(accumPicLongData.getRows())) {
+		for (auto colInc : range(accumPicLongData.getCols())) {
+			accumPicData(rowInc, colInc) = ((accumNum - 1) * accumPicData(rowInc, colInc) + picData(rowInc, colInc)) / accumNum;
+			accumPicLongData(rowInc, colInc) = long(accumPicData(rowInc, colInc));
+		}
+	}
+
 	if (saOption.accumAll){
-		if (accumPicData.size () == 0)	{
-			accumPicData = Matrix<double> (picData.getRows (), picData.getCols ());
-			accumNum = 0;
-		}
-		accumNum++;
-		if (accumPicData.size () != picData.size ()){
-			thrower ("Size mismatch between software accumulated picture and picture input!");
-		}
-		Matrix<long> accumPicLongData (picData.getRows (), picData.getCols());
-		for (auto rowInc : range (accumPicLongData.getRows ())) {
-			for (auto colInc : range (accumPicLongData.getCols ())) {
-				accumPicData (rowInc, colInc) = ((accumNum - 1) * accumPicData (rowInc, colInc) + picData (rowInc, colInc)) / accumNum;
-				accumPicLongData (rowInc, colInc) = long (accumPicData (rowInc, colInc));
-			}
-		}
-		//std::vector<long> accumPicLongData (picData.size ());
-		//for (auto pixelInc : range (accumPicData.size ())){
-		//	// suppose 16th image. accumNum = 16. new data = 15/16 * old data + new data / 16.
-		//	accumPicData[pixelInc] = ((accumNum - 1) * accumPicData[pixelInc] + picData.data[pixelInc]) / accumNum;
-		//	accumPicLongData[pixelInc] = long (accumPicData[pixelInc]);
-		//}
 		drawData = accumPicLongData;
 	}
 	else {
 		drawData = picData;
+		// reset this? Not sure why...
 		accumPicData = Matrix<double>(picData.getRows(), picData.getCols());
 	}
 	// assumes non-zero size...
-	//if ( grid.size ( ) == 0 ){
-	//	thrower  ( "Tried to draw bitmap without setting grid size!" );
-	//}
 	auto dataWidth = drawData.getCols();
 	auto dataHeight = drawData.getRows();
-	//int dataHeight = grid[ 0 ].size ( );
-	//int totalGridSize = dataWidth * dataHeight;
-	//if (drawData.size ( ) != totalGridSize ){
-	//	thrower  ( "Picture data size " + str(drawData.size()) + " didn't match grid size " + str(totalGridSize) + "!" );
-	//}
 	
 	float yscale = ( 256.0f ) / (float) colorRange;
 	std::vector<uchar> dataArray2 ( dataWidth * dataHeight, 255 );

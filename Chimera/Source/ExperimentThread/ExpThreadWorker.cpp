@@ -640,10 +640,12 @@ bool ExpThreadWorker::handleTimeCommands (std::string word, ScriptStream& stream
 			Expression time;
 			stream >> time;
 			try {
+				operationTime.first.clear();
 				operationTime.second = time.evaluate ();
 			}
 			catch (ChimeraError&) {
 				time.assertValid (vars, scope);
+				operationTime.first.clear();
 				operationTime.first.push_back (time);
 				// because it's equals. There shouldn't be any extra terms added to this now.
 				operationTime.second = 0;

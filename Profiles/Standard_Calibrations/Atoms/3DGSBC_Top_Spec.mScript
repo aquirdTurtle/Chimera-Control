@@ -1,28 +1,31 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
-on: tweezerrf
+off: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
-off: andorShutter
 on: totalRamanRf
 on: shutter795
 pulseon: dds_reset 0.1
 call triggerWindfreak()
+call openAndorShutter()
 t += 1
 call turnonmot()
 t += loadMotTime
 call triggerScout()
 call D1GreyLambdaLoading()
 call triggerWindfreak()
+
 t += 20
 pulseon: tweezerIntensityTrig 0.1
 pulseon: dds_step 5
+
+t += 20
 call stdPgcImage()
-off: andorShutter
+%call closeAndorShutter()
 pulseon: tweezerIntensityTrig 0.1
 off: sidemotShutter  
 off: diagmotShutter 
-off: repumpShutter
+off: repumpShutter 
 t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
@@ -36,13 +39,13 @@ call pump2stretch()
 call gsbc()
 call triggerWindfreak()
 t += 1
-on: a15
+%on: a15
 var specPulseTime 0.08
 dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
 pulseon: topPulseTrig 0.01
 call topRamanPulse(specPulseTime)
 
-off: a15
+%off: a15
 dac: topPulseLev 0
 dac: eoPulseLev 0
 off: axialRamanShutter  
@@ -57,5 +60,6 @@ pulseon: rsTrig 0.1
 call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
+%call closeAndorShutter()
 off: tweezerRf
 t += 0.2

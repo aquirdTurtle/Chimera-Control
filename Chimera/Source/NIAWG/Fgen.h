@@ -17,6 +17,7 @@ class FgenFlume
 		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
 		void clearMemory();
 		void configureSoftwareTrigger( );
+		void configureSampleClockSource(std::string source);
 		void configureDigtalEdgeScriptTrigger( );
 		signed short isDone();
 		std::string getDeviceInfo();

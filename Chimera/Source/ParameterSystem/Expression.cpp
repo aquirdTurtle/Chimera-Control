@@ -216,7 +216,7 @@ double Expression::reduce( std::vector<std::string> terms ){
 		terms.insert( terms.begin( ) + leftPos, result );
 	} // end parenthesis loop
 	if ( terms.size( ) != 1 ){
-		thrower ( "\"reduce\" function failed to reduce its arguments to a single term!" );
+		thrower ( "\"reduce\" function failed to reduce its arguments to a single term!" + stringRepr());
 	}
 	double finalResult;
 	try{
@@ -260,7 +260,7 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms ){
 		if ( funcPos >= terms.size( ) - 3 ){
 			// the function position needs to have at least 3 terms after it (2 for parenthesis, 1 for the arg). 
 			// the last value is at position terms.size() - 1.
-			thrower ( "function " + funcName + " detected with no arguments!" );
+			thrower ( "function " + funcName + " detected with no arguments!" + stringRepr());
 		}
 		if ( terms[funcPos + 1] != "(" ){
 			thrower ( "function " + funcName + " detected with enclosing parenthesis () to hold its arguments! "
@@ -291,7 +291,8 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms ){
 			count++;
 		}
 		if ( !closingParenthesisExists ){
-			thrower ( "Function argument's enclosing () were unclosed! The initial ( didn't have a matching )!" );
+			thrower ( "Function argument's enclosing () were unclosed! The initial ( didn't have a matching )!" 
+				+ stringRepr());
 		}
 		// now I have a term which I can analyze.
 		functionArgUnevaluated = std::vector<std::string>( &terms[funcArgPosLeft], &terms[funcArgPosRight + 2] );
@@ -338,7 +339,7 @@ void Expression::internalEvaluate ( std::vector<parameterType>& params, unsigned
 double Expression::getValue ( unsigned variation ) const {
 	if ( variation >= values.size ( ) ){
 		thrower ( "Tried to get expression value for variation that doesn't seem to exist! Variation index requested was " 
-			+ str(variation) + " while values size is " + str(values.size()) + ". Expression is:" + expressionStr );
+				 + str(variation) + " while values size is " + str(values.size()) + ". Expression is:" + stringRepr());
 	}
 	return values[variation];
 }
@@ -386,7 +387,7 @@ double Expression::evaluate( std::vector<std::reference_wrapper<parameterType>>&
 				if ( term == variable.name && (variable.parameterScope == expressionScope
 												|| variable.parameterScope == GLOBAL_PARAMETER_SCOPE)){
 					if ( variable.keyValues.size( ) == 0 ){
-						thrower ( "Attempting to use key that hasn't been generated yet!" );
+						thrower ( "Attempting to use key that hasn't been generated yet!" + stringRepr());
 					}
 					term = str( variable.keyValues[variation], 12 );
 					// find the variable 
@@ -433,14 +434,14 @@ double Expression::handleCalibration (double val, std::vector<calResult> calibra
 		}
 		if (cal.calibrationName == "") {
 			thrower ("Expression needed calibration \"" + calName + "\" but didn't find it in the calibrations list given"
-				" to the evaluation function!");
+				" to the evaluation function! " + stringRepr());
 		}
 		double calVal;
 		try {
 			calVal = CalibrationManager::calibrationFunction (val, cal);
 		}
-		catch (ChimeraError & err) {
-			throwNested ("Error using calibration to evaluate expression \"" + expressionStr + "\"");
+		catch (ChimeraError &) {
+			throwNested ("Error using calibration to evaluate " + stringRepr());
 		}
 		return calVal;
 	}
@@ -573,7 +574,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				failed = true;
 			}
 			if ( failed ){
-				thrower ( "\"" + expressionStr + "\" is not a valid expression. It's not a double, a variable, "
+				thrower ( stringRepr() + " is not a valid expression. It's not a double, a variable, "
 						 "and it wont evaluate as a mathematical expression." );
 			}
 		}
@@ -584,3 +585,14 @@ bool Expression::varies( ){
 	return expressionVaries;
 }
 
+std::string Expression::getScope() {
+	return expressionScope;
+}
+
+std::string Expression::stringRepr() const {
+	std::string repr = "Expression Name: " + expressionStr + ", Scope: " + expressionScope + ", CalName: " + calName + ", values:";;
+	for (auto val : values) {
+		repr += str(val) + ", ";
+	}
+	return repr;
+}

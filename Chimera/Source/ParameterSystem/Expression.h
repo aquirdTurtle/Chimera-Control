@@ -24,6 +24,8 @@ class Expression {
 			unsigned totalVariationNumber = -1 );
 		double handleCalibration (double val, std::vector<calResult> calibrations);
 		double getValue ( unsigned variation ) const;	
+		std::string stringRepr() const;
+		std::string getScope();
 	private:
 		void doMultAndDiv( std::vector<std::string>& terms );
 		void doAddAndSub( std::vector<std::string>& terms );

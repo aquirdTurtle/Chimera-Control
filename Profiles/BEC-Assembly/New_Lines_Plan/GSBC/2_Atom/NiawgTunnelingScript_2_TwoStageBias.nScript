@@ -3,7 +3,7 @@
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
 
 var tunnelbias 0.58 
-var ldumpBias 0.715
+var ldumpBias 0.79
 var tundumpBias 0.03   
 var ddumpBias 0.02  
 var main_v_f 81 
@@ -16,7 +16,7 @@ var_v 2 adRampThere [ expDecay_Niawg expDecay_Niawg ]
 var_v 2 adRampBack [ expRise_Niawg expRise_Niawg ]
 var_v 2 freqs [ 75 87 ] 
 var_v 2 finFreqs [ (81-spacing/2) (81+spacing/2) ] 
-var_v 2 bias [ 0.6 0.4 ] 
+var_v 2 bias [ 0.64 0.36 ] 
 var_v 2 loadB [ 0.601 0.399 ] 
 var_v 2 finB [ tunbias1 (1-tunBias1) ]  
 var_v 2 petB [ perturbBias (1-perturbBias) ]

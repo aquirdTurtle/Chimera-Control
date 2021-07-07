@@ -150,11 +150,20 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 
 	// Accumulation Number
 	accumulationNumberLabel = new QLabel ("Accum. #", parent);
-	accumulationNumberLabel->setGeometry (px+240, py, 120, 25);
+	accumulationNumberLabel->setGeometry (px+240, py, 80, 25);
 	accumulationNumberLabel->setToolTip ("Accumulation Number");
 	accumulationNumberEdit = new CQLineEdit ("1", parent);
-	accumulationNumberEdit->setGeometry (px + 360, py, 120, 25);
+	accumulationNumberEdit->setGeometry (px + 320, py, 40, 25);
 	accumulationNumberEdit->setToolTip ("Accumulation Number");
+
+	verticalShiftVoltAmpLabel = new QLabel("V.S. Amp.", parent);
+	verticalShiftVoltAmpLabel->setToolTip("Vertical Shift Voltage Amplitude. 0 is Default, increase from 0 (up to 4) to"
+		"increase the voltage used to shift charges between pixels. Only relevant for large shift speeds.");
+	verticalShiftVoltAmpLabel->setGeometry(px+360, py, 80, 25);
+
+	verticalShiftVoltAmpEdit = new CQLineEdit("0", parent);
+	verticalShiftVoltAmpEdit->setGeometry(px + 440, py, 40, 25);
+	verticalShiftVoltAmpEdit->setText("0");
 
 	// minimum kinetic cycle time (determined by camera)
 	minKineticCycleTimeLabel = new QLabel ("Min. Kin. Time", parent);
@@ -174,6 +183,7 @@ void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* par
 	kineticCycleTimeEdit->setGeometry (px+360, py, 120, 25);
 	kineticCycleTimeEdit->setToolTip ("Kinetic Cycle Time (s)");
 	py += 25;
+
 	//
 	calControl.initialize( pos, parent );
 	updateWindowEnabledStatus ();
@@ -196,10 +206,11 @@ void AndorCameraSettingsControl::setConfigSettings (AndorRunSettings inputSettin
 }
 
 void AndorCameraSettingsControl::updateDisplays () {
+
 	auto optionsIn = viewRunningSettings->isChecked () ? currentlyRunningSettings : configSettings.andor;
 	controlAndorCameraCheck->setChecked (optionsIn.controlCamera);
-	kineticCycleTimeEdit->setText (cstr (optionsIn.kineticCycleTime));
-	accumulationCycleTimeEdit->setText (cstr (optionsIn.accumulationTime));
+	kineticCycleTimeEdit->setText (qstr(optionsIn.kineticCycleTime));
+	accumulationCycleTimeEdit->setText (qstr(optionsIn.accumulationTime));
 	int ind = cameraModeCombo->findText (AndorRunModes::toStr (optionsIn.acquisitionMode).c_str ());
 	if (ind != -1) {
 		cameraModeCombo->setCurrentIndex (ind);
@@ -208,10 +219,10 @@ void AndorCameraSettingsControl::updateDisplays () {
 	if (ind != -1) {
 		triggerCombo->setCurrentIndex (ind);
 	}
-	kineticCycleTimeEdit->setText (cstr (optionsIn.kineticCycleTime));
-	accumulationCycleTimeEdit->setText (cstr (optionsIn.accumulationTime * 1000.0));
-	accumulationNumberEdit->setText (cstr (optionsIn.accumulationNumber));
-	temperatureEdit->setText (cstr (optionsIn.temperatureSetting));
+	kineticCycleTimeEdit->setText (qstr(optionsIn.kineticCycleTime));
+	accumulationCycleTimeEdit->setText (qstr(optionsIn.accumulationTime * 1000.0));
+	accumulationNumberEdit->setText (qstr(optionsIn.accumulationNumber));
+	temperatureEdit->setText (qstr(optionsIn.temperatureSetting));
 	imageDimensionsObj.setImageParametersFromInput (optionsIn.imageSettings);
 
 	verticalShiftSpeedCombo->setCurrentIndex (optionsIn.vertShiftSpeedSetting);
@@ -220,6 +231,10 @@ void AndorCameraSettingsControl::updateDisplays () {
 
 	picSettingsObj.setUnofficialExposures (optionsIn.exposureTimes);
 	picSettingsObj.setUnofficialPicsPerRep (optionsIn.picsPerRepetition);
+	
+	verticalShiftVoltAmpEdit->setText(qstr(optionsIn.verticalShiftVoltageAmplitude));
+	emGainEdit->setText(qstr(optionsIn.emGainLevel));
+
 }
 
 
@@ -255,13 +270,27 @@ void AndorCameraSettingsControl::updateTriggerMode( ){
 unsigned AndorCameraSettingsControl::getHsSpeed () {
 	return horizontalShiftSpeedCombo->currentIndex ();
 }
-
 unsigned AndorCameraSettingsControl::getVsSpeed () {
 	return verticalShiftSpeedCombo->currentIndex ();
 }
-
 unsigned AndorCameraSettingsControl::getFrameTransferMode () {
 	return frameTransferModeCombo->currentIndex ();
+}
+int AndorCameraSettingsControl::getVerticalShiftVoltageAmplitude() {
+	if (verticalShiftVoltAmpEdit == nullptr) {
+		return 0;
+	}
+	auto txt = verticalShiftVoltAmpEdit->text();
+	try {
+		int ind = boost::lexical_cast<int>(str(txt));
+		if (ind < 0 || ind > 4) {
+			thrower("Vertical Shift Voltage Amplitude index not a valid index! should be between 0 and 4!");
+		}
+		return ind;
+	}
+	catch (boost::bad_lexical_cast&) {
+		throwNested("Failed to Convert vertical shift voltage amplitude to an index! Should be 0 to 4.");
+	}
 }
 
 void AndorCameraSettingsControl::updateSettings(){
@@ -275,7 +304,7 @@ void AndorCameraSettingsControl::updateSettings(){
 	configSettings.palleteNumbers =			picSettingsObj.getPictureColors( );
 	configSettings.andor.picsPerRepetition =	picSettingsObj.getPicsPerRepetition( );
 	configSettings.picScaleFactor = picSettingsObj.getPicScaleFactor ();
-
+	configSettings.andor.verticalShiftVoltageAmplitude = getVerticalShiftVoltageAmplitude();
 	configSettings.andor.imageSettings = readImageParameters( );
 	configSettings.andor.kineticCycleTime = getKineticCycleTime( );
 	configSettings.andor.accumulationTime = getAccumulationCycleTime( );
@@ -301,25 +330,6 @@ AndorCameraSettings AndorCameraSettingsControl::getConfigSettings(){
 
 AndorRunSettings AndorCameraSettingsControl::getRunningSettings () {
 	return currentlyRunningSettings;
-}
-
-AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( ){
-	AndorCameraSettings callOptions;
-	callOptions.andor.acquisitionMode = AndorRunModes::mode::Kinetic;
-	callOptions.andor.emGainLevel = 0;
-	callOptions.andor.emGainModeIsOn = false;
-	callOptions.andor.exposureTimes = { float(10e-3) };
-	// want to calibrate the image area to be used in the experiment, so...
-	callOptions.andor.imageSettings = imageDimensionsObj.readImageParameters( );
-	callOptions.andor.kineticCycleTime = 10e-3f;
-	callOptions.andor.picsPerRepetition = 1;
-	callOptions.andor.readMode = 4;
-	callOptions.andor.repetitionsPerVariation = 100;
-	callOptions.andor.showPicsInRealTime = false;
-	callOptions.andor.temperatureSetting = -60;
-	callOptions.andor.totalVariations = 1;
-	callOptions.andor.triggerMode = AndorTriggerMode::mode::External;
-	return callOptions;
 }
 
 bool AndorCameraSettingsControl::getAutoCal( ){
@@ -489,6 +499,7 @@ void AndorCameraSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "\n/*Horizontal Shift Speed:*/\t" << configSettings.andor.horShiftSpeedSetting;
 	saveFile << "\n/*Vertical Shift Speed:*/\t" << configSettings.andor.vertShiftSpeedSetting;
 	saveFile << "\n/*Frame Transfer Mode:*/\t" << configSettings.andor.frameTransferMode;
+	saveFile << "\n/*vertical Shift Voltage Amplitude Index:*/\t" << configSettings.andor.verticalShiftVoltageAmplitude;
 	saveFile << "\nEND_CAMERA_SETTINGS\n";
 	picSettingsObj.handleSaveConfig(saveFile);
 	imageDimensionsObj.handleSave (saveFile);

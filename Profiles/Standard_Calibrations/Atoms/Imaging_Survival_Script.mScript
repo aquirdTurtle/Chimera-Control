@@ -2,9 +2,10 @@
 % Time starts at 1 ms.
 t = 0.1
 off: axialRamanShutter
+call openAndorShutter()
+off: a14
 on: tweezerRf %tweezers on 
 on: shutter795
-off: andorShutter
 pulseon: dds_reset 0.1
 %dac: piezomirror piezoval
 t += 1
@@ -12,6 +13,7 @@ call turnonmot()
 
 t += loadmottime
 pulseon: scoutTrig 0.1
+%call openAndorShutter()
 t += 2
 % call pgcloading()
 call D1GreyLambdaLoading()
@@ -24,8 +26,8 @@ t += 10
 %call inTrapGreyMolasses()
 t += 20
 call stdPgcImage()
-t += 1
 %off: andorShutter
+%call closeAndorShutter()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
   

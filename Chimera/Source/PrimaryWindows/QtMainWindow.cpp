@@ -371,6 +371,8 @@ void QtMainWindow::startExperimentThread (ExperimentThreadInput* input){
 
 	connect (expThread, &QThread::started, expWorker, &ExpThreadWorker::process);
 	connect (expThread, &QThread::finished, expThread, &QObject::deleteLater);
+	connect(expThread, &QThread::finished, this, 
+		[this]() {this->handleNotification({"Experiment Thread Finished!", 0, "[MAIN_WINDOW]"}); });
 	connect (expThread, &QThread::finished, expWorker, &QObject::deleteLater);
 	expThread->start (QThread::TimeCriticalPriority);
 }

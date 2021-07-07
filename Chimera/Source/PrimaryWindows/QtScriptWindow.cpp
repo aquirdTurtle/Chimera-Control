@@ -10,6 +10,8 @@
 #include <PrimaryWindows/QtDeformableMirrorWindow.h>
 #include <ExcessDialogs/saveWithExplorer.h>
 #include <ExcessDialogs/openWithExplorer.h>
+#include "GeneralObjects/CodeTimer.h"
+
 
 QtScriptWindow::QtScriptWindow (QWidget* parent) : IChimeraQtWindow (parent),
 		intensityAgilent (INTENSITY_AGILENT_SETTINGS, this),
@@ -315,6 +317,8 @@ void QtScriptWindow::openIntensityScript (std::string name){
 }
 
 void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
+	CodeTimer timer;
+	timer.tick("Init");
 	try{
 		ConfigSystem::initializeAtDelim (configFile, "SCRIPTS");
 	}
@@ -323,6 +327,7 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 		return;
 	}
 	try{
+		timer.tick("Getting Script Names...");
 		configFile.get ();
 		auto getlineFunc = ConfigSystem::getGetlineFunc (configFile.ver);
 		std::string niawgName, masterName;
@@ -334,10 +339,13 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 		getlineFunc (configFile, masterName);
 		ConfigSystem::checkDelimiterLine (configFile, "END_SCRIPTS");
 		deviceOutputInfo info;
+		timer.tick("Getting Int Agilent...");
 		ConfigSystem::stdGetFromConfig (configFile, intensityAgilent.getCore (), info, Version ("4.0"));
+		timer.tick("Setting Agilent Stuff");
 		intensityAgilent.setOutputSettings (info);
 		intensityAgilent.updateSettingsDisplay (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		try{
+			timer.tick("Opening Niawg Script");
 			openNiawgScript (niawgName);
 		}
 		catch (ChimeraError& err){
@@ -349,6 +357,7 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 			}
 		}
 		try{
+			timer.tick("Opening Master Script");
 			openMasterScript (masterName);
 		}
 		catch (ChimeraError& err){
@@ -359,8 +368,10 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 			}
 		}
 		considerScriptLocations ();
+		timer.tick("Niawg Open Config");
 		niawg.handleOpenConfig (configFile);
 		niawg.updateWindowEnabled ();
+		//errBox(timer.getTimingMessage());
 	}
 	catch (ChimeraError& err)	{
 		reportErr ("Scripting Window failed to read parameters from the configuration file.\n\n" + err.qtrace ());

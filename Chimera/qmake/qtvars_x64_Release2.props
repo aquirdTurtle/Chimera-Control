@@ -1,0 +1,57 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+<Qt_DEFINES_>WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;NDEBUG;QT_NO_DEBUG;QT_UITOOLS_LIB;QT_CHARTS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB</Qt_DEFINES_>
+<Qt_INCLUDEPATH_>C:\ProgramData\Qt\5.15.0\msvc2019_64\include;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtUiTools;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtCharts;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtPrintSupport;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtWidgets;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtGui;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtANGLE;C:\ProgramData\Qt\5.15.0\msvc2019_64\include\QtCore;/include;C:\ProgramData\Qt\5.15.0\msvc2019_64\mkspecs\win32-msvc</Qt_INCLUDEPATH_>
+<Qt_LIBS_>C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5UiTools.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Charts.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5PrintSupport.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Widgets.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Gui.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\Qt5Core.lib;C:\ProgramData\Qt\5.15.0\msvc2019_64\lib\qtmain.lib;shell32.lib</Qt_LIBS_>
+<Qt_LIBPATH_>C:\openssl\lib;C:\Utils\my_sql\mysql-5.7.25-winx64\lib;C:\Utils\postgresql\pgsql\lib</Qt_LIBPATH_>
+<QMake_QT_SYSROOT_></QMake_QT_SYSROOT_>
+<QMake_QT_INSTALL_PREFIX_>C:/ProgramData/Qt/5.15.0/msvc2019_64</QMake_QT_INSTALL_PREFIX_>
+<QMake_QT_INSTALL_ARCHDATA_>C:/ProgramData/Qt/5.15.0/msvc2019_64</QMake_QT_INSTALL_ARCHDATA_>
+<QMake_QT_INSTALL_DATA_>C:/ProgramData/Qt/5.15.0/msvc2019_64</QMake_QT_INSTALL_DATA_>
+<QMake_QT_INSTALL_DOCS_>C:/ProgramData/Qt/Docs/Qt-5.15.0</QMake_QT_INSTALL_DOCS_>
+<QMake_QT_INSTALL_HEADERS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/include</QMake_QT_INSTALL_HEADERS_>
+<QMake_QT_INSTALL_LIBS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/lib</QMake_QT_INSTALL_LIBS_>
+<QMake_QT_INSTALL_LIBEXECS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/bin</QMake_QT_INSTALL_LIBEXECS_>
+<QMake_QT_INSTALL_BINS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/bin</QMake_QT_INSTALL_BINS_>
+<QMake_QT_INSTALL_TESTS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/tests</QMake_QT_INSTALL_TESTS_>
+<QMake_QT_INSTALL_PLUGINS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/plugins</QMake_QT_INSTALL_PLUGINS_>
+<QMake_QT_INSTALL_IMPORTS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/imports</QMake_QT_INSTALL_IMPORTS_>
+<QMake_QT_INSTALL_QML_>C:/ProgramData/Qt/5.15.0/msvc2019_64/qml</QMake_QT_INSTALL_QML_>
+<QMake_QT_INSTALL_TRANSLATIONS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/translations</QMake_QT_INSTALL_TRANSLATIONS_>
+<QMake_QT_INSTALL_CONFIGURATION_></QMake_QT_INSTALL_CONFIGURATION_>
+<QMake_QT_INSTALL_EXAMPLES_>C:/ProgramData/Qt/Examples/Qt-5.15.0</QMake_QT_INSTALL_EXAMPLES_>
+<QMake_QT_INSTALL_DEMOS_>C:/ProgramData/Qt/Examples/Qt-5.15.0</QMake_QT_INSTALL_DEMOS_>
+<QMake_QT_HOST_PREFIX_>C:/ProgramData/Qt/5.15.0/msvc2019_64</QMake_QT_HOST_PREFIX_>
+<QMake_QT_HOST_DATA_>C:/ProgramData/Qt/5.15.0/msvc2019_64</QMake_QT_HOST_DATA_>
+<QMake_QT_HOST_BINS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/bin</QMake_QT_HOST_BINS_>
+<QMake_QT_HOST_LIBS_>C:/ProgramData/Qt/5.15.0/msvc2019_64/lib</QMake_QT_HOST_LIBS_>
+<QMake_QMAKE_SPEC_>win32-msvc</QMake_QMAKE_SPEC_>
+<QMake_QMAKE_XSPEC_>win32-msvc</QMake_QMAKE_XSPEC_>
+<QMake_QMAKE_VERSION_>3.1</QMake_QMAKE_VERSION_>
+<QMake_QT_VERSION_>5.15.0</QMake_QT_VERSION_>
+<Qt_INCLUDEPATH_
+      >$(Qt_INCLUDEPATH_);x64\Release2\moc;x64\Release2\uic</Qt_INCLUDEPATH_>
+    <QtBkup_QtInstall
+      >msvc2019_64</QtBkup_QtInstall>
+    <QtBkup_QtModules
+      >core;gui;uitools;widgets;charts;printsupport</QtBkup_QtModules>
+    <QtBkup_QtPathBinaries
+      >bin</QtBkup_QtPathBinaries>
+    <QtBkup_QtPathLibraryExecutables
+      >bin</QtBkup_QtPathLibraryExecutables>
+    <QtBkup_QtHeaderSearchPath
+      ></QtBkup_QtHeaderSearchPath>
+    <QtBkup_QtLibrarySearchPath
+      ></QtBkup_QtLibrarySearchPath>
+    <QtBkup_QtVars
+      >DEFINES=/-D([^\s=]+(=(\x22(\\\\|\\\x22|[^\x22])*\x22|\S+))?)/$1/;INCLUDEPATH=INCPATH/-I(\x22[^\x22]+\x22|[^\s]+)/$1/;LIBS=/(?:\/LIBPATH:(?:\x22[^\x22]+\x22|[^\s]+))|(\x22[^\x22]+\x22|[^\s]+)/$1/;LIBPATH=LIBS/\/LIBPATH:(\x22[^\x22]+\x22|[^\s]+)/$1/</QtBkup_QtVars>
+    <QtBkup_QMakeCodeLines
+      ></QtBkup_QMakeCodeLines>
+    <QtBkup_QtBuildConfig
+      >release</QtBkup_QtBuildConfig>
+    <QtVersion>5.15.0</QtVersion>
+    <QtVersionMajor>5</QtVersionMajor>
+    <QtVersionMinor>15</QtVersionMinor>
+    <QtVersionPatch>0</QtVersionPatch>
+  </PropertyGroup>
+</Project>

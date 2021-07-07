@@ -55,8 +55,12 @@ class DdsCore : public IDeviceCore {
 		void normalFinish () {};
 		void errorFinish () {};
 		static std::string systemScope;
+		std::pair<DoRows::which, unsigned> getResetLine();
+		std::pair<DoRows::which, unsigned> getStepLine();
 
 	private:
+		const std::pair<DoRows::which, unsigned> stepTriggerLine = { DoRows::which::D, 9 };
+		const std::pair<DoRows::which, unsigned> resetTriggerLine = { DoRows::which::D, 8 };
 		std::vector<ddsIndvRampListInfo> expRampList;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
 		ddsConnectionType::type connType;

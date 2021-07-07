@@ -35,7 +35,7 @@ class AndorCameraCore : public IDeviceCore{
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
-		void armCamera( double& minKineticCycleTime );
+		void armCamera( double& minKineticCycleTime, ExpThreadWorker* threadworker=nullptr);
 		std::vector<Matrix<long>> acquireImageData();
 		void preparationChecks ();
 		void setTemperature();
@@ -50,7 +50,7 @@ class AndorCameraCore : public IDeviceCore{
 		bool isRunning();
 		void setIsRunningState( bool state );
 		void updatePictureNumber( unsigned __int64 newNumber );
-		void setGainMode();
+		void setGainMode(ExpThreadWorker* threadworker);
 		void changeTemperatureSetting(bool temperatureControlOff);
 
 		//static unsigned __stdcall cameraThread( void* voidPtr );		

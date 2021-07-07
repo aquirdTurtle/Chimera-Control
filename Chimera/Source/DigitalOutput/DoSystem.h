@@ -72,6 +72,6 @@ class DoSystem : public IChimeraSystem {
 		allDigitalOutputs outputs;
 
 		// tells whether the hold button is down or not.
-		bool holdStatus; 
+		// bool holdStatus; 
 };
 

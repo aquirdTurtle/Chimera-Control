@@ -9,7 +9,7 @@ def pushout():
   t += 0.01
   off: a15
   var pushouttime 0.5
-  dac: probePower { 1 probe } % pushout_probe__sv
+  dac: probePower { 0.5 probe } % pushout_probe__sv
   t += (-8)
   on: probeshutter
   t += 8

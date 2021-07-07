@@ -4,6 +4,7 @@ t = 0.1
 off: axialRamanShutter
 on: tweezerRf %tweezers on 
 on: shutter795
+on: andorShutter
 pulseon: dds_reset 0.1
 %dac: piezomirror piezoval
 t += 1

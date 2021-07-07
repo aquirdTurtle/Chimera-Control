@@ -14,6 +14,13 @@ DdsCore::~DdsCore ( ){
 	disconnect ( );
 }
 
+std::pair<DoRows::which, unsigned> DdsCore::getResetLine() {
+	return resetTriggerLine;
+}
+
+std::pair<DoRows::which, unsigned> DdsCore::getStepLine() {
+	return stepTriggerLine;
+}
 
 void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params ){
 	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );

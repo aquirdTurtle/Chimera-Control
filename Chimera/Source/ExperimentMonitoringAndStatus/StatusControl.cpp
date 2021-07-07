@@ -4,8 +4,8 @@
 #include <PrimaryWindows/IChimeraQtWindow.h>
 #include "StatusOptionsWindow.h"
 
-void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size,
-	std::string headerText, std::vector<std::string> textColors) {
+void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size, std::string headerText, 
+	std::vector<std::string> textColors) {
 	// fixed size que.
 	int& px = loc.rx (), & py = loc.ry ();
 	if (textColors.size () == 0) {
@@ -74,7 +74,13 @@ void StatusControl::addStatusText(statusMsg msg) {
 }
 
 void StatusControl::addPlainStatusTextInner(statusMsg msg) {
-	if (opts.debugLvl >= msg.baseLevel) {
+	indvOption indvOpt;
+	for (auto keyv : opts.indvOptions.keys()) {
+		if (msg.systemDelim == keyv) {
+			indvOpt = opts.indvOptions.value(keyv);
+		}
+	}
+	if (opts.debugLvl >= msg.baseLevel + indvOpt.debugLvlOffset && indvOpt.show) {
 		std::string finText = str(msg.msg);
 		if (opts.showOrigin) {
 			finText = "[" + str(msg.systemDelim) + "]: " + finText;
@@ -91,7 +97,13 @@ void StatusControl::addHtmlStatusTextInner(statusMsg msg) {
 	if (colors.size() == 0) {
 		return;
 	}
-	if (opts.debugLvl >= msg.baseLevel) {
+	indvOption indvOpt;
+	for (auto keyv : opts.indvOptions.keys()) {
+		if (msg.systemDelim == keyv) {
+			indvOpt = opts.indvOptions.value(keyv);
+		}
+	}
+	if (opts.debugLvl >= msg.baseLevel + indvOpt.debugLvlOffset && indvOpt.show) {
 		std::string finText = str(msg.msg);
 		if (opts.showOrigin) {
 			finText = "[" + str(msg.systemDelim) + "]: " + finText;
@@ -111,7 +123,7 @@ void StatusControl::addHtmlStatusText(std::string text, std::string color){
 	QString htmlTxt = ("<font color = \"" + color + "\">" + text + "</font>").c_str();
 	//e.g. <font color = "red">This is some text!< / font>
 	htmlTxt.replace ("\r", "");
-	htmlTxt.replace ("\n", "<br/>");
+ 	htmlTxt.replace ("\n", "<br/>");
 	// html is weird and doesn't have proper tab support. 
 	htmlTxt.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 	// de-emphasize the location information.

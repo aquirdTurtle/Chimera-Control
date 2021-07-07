@@ -22,6 +22,6 @@ class LongQSlider{
 		QLabel* header = nullptr;
 	private:
 		double currentValue;
-		const double maxVal = 1000;
-		const double minVal = 0;
+		double maxVal = 1000;
+		double minVal = 0;
 };

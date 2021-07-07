@@ -1,0 +1,70 @@
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var ldumpBias 0.79
+var ddumpBias 0.02  
+var main_v_f 81 
+var dumpf 117 
+var stdHBias 0.64
+var_v 2 linR [ lin lin ]
+var_v 2 tanhR [ tanh tanh ] 
+var_v 2 freqs [ 75 87 ] 
+var csOffset 1
+var_v 2 csFreqs [ (75+csOffset) (87+csOffset) ] 
+%var_v 2 csFreqs [ 76 88 ] 
+
+%var_v 2 bias [ loadHBias (1-loadHBias) ] 
+%var_v 2 loadB [ loadHBias (1-loadHBias) ] 
+var_v 2 loadHBias [ 1 0 ]
+var_v 2 hBias [ stdHBias (1-stdHBias) ] 
+
+var_v 2 zPhases [ 0 0 ]   
+
+var_v 2 vFreqs [ main_v_f dumpf ]
+var_v 2 vLoadB [ (1-loadBias) loadBias ] 
+var_v 2 vStdB [ (1-ldumpBias) ldumpBias ] 
+var_v 2 dumpB [ ddumpBias (1-ddumpbias) ]
+var loadBias 0.91 % 0.833
+
+var dumpBias 0.06 % 0.06 % 0.01
+var_v 2 finVBias [ dumpBias (1-dumpBias) ]
+
+
+repeatTilTrig 
+gen2const_v Horizontal freqs loadHBias zPhases #  
+gen2const_v Vertical vFreqs vLoadB zPhases #
+0.01 0 endRepeat
+
+gen2ampRamp_v Horizontal freqs linR loadHBias hBias zPhases #  
+gen2ampRamp_v Vertical vFreqs linr vLoadB vStdB zPhases #
+0.01 0 
+
+repeatTilTrig 
+gen2const_v Horizontal freqs hBias zPhases #  
+gen2const_v Vertical vFreqs vStdB zPhases #
+0.01 0 endRepeat
+
+gen2const_v Horizontal
+freqs hBias zphases # 
+gen2ampramp_v Vertical
+vfreqs	tanhR vStdB finVBias	zphases #
+1 0
+
+repeatTilTrig
+gen2const_v Horizontal
+freqs hBias zphases # 
+gen2const_v Vertical
+Vfreqs finVBias zphases #
+0.01 0
+endRepeat
+
+% sudden frequency change! no ramp!
+
+repeatTilTrig
+gen2const_v Horizontal
+csFreqs hBias zphases # 
+gen2const_v Vertical
+Vfreqs finVBias zphases #
+0.01 0
+endRepeat
+
+% New dumping freq: 111 Mhz

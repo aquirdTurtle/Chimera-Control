@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <GeneralFlumes/QtSerialFlume.h>
+
 /*
 QtSerialFlume::QtSerialFlume (bool safemode_option, std::string portAddress_) : safemode(safemode_option){
 	portAddress = portAddress_;

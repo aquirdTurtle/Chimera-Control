@@ -28,15 +28,21 @@ void CalibrationThreadWorker::runAll () {
 		try {
 			calibrate (cal, count);
 		}
-		catch (ChimeraError & e) {
-			emit error (qstr (e.trace ()));
+		catch (ChimeraError & err) {
+			emit error (qstr (err.trace ()));
 			// but continue to try the other ones. 
 		}
 		Sleep (200);
 		count++;
 	}
-	input.ttls->zeroBoard ();
-	input.ao->zeroDacs (input.ttls->getCore (), { 0, input.ttls->getCurrentStatus () });
+	try	{
+		input.ttls->zeroBoard();
+		input.ao->zeroDacs(input.ttls->getCore(), { 0, input.ttls->getCurrentStatus() });
+	}
+	catch (ChimeraError & err) {
+		emit error(qstr(err.trace()));
+		// but continue to try the other ones. 
+	}
 }
 
 void CalibrationThreadWorker::calibrate (calSettings& cal, unsigned which) {

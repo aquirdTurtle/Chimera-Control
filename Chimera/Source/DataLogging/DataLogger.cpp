@@ -146,14 +146,14 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 	/// check that temperature data is being recorded.
 	//FILE *temperatureFile;
 	//fopen_s ( &temperatureFile, temperatureDataLocation.c_str(), "r" );
-	if ( !QFileInfo::exists(qstr(temperatureDataLocation)))	{
-		thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
-				  + temperatureDataLocation + ". Please make sure that the temperature logger is working correctly "
-				  "before starting an experiment." );
-	}
-	else{
-		//fclose ( temperatureFile );
-	}
+	//if ( !QFileInfo::exists(qstr(temperatureDataLocation)))	{
+	//	thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
+	//			  + temperatureDataLocation + ". Please make sure that the temperature logger is working correctly "
+	//			  "before starting an experiment." );
+	//}
+	//else{
+	//	//fclose ( temperatureFile );
+	//}
 	/// check that the mot calibration files have been recorded.
 	if ( checkForCalibrationFiles )	{
 		assertCalibrationFilesExist ();

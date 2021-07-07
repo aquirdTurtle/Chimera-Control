@@ -3,6 +3,7 @@ t = 0.1
 on: tweezerrf 
 off: axialRamanShutter  
 on: shutter795 
+on: andorShutter
 off: probeShutter 
 pulseon: dds_reset 1.1
 pulseon: windfreakTrig 0.05

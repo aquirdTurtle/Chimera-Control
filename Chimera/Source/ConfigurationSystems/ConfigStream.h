@@ -20,8 +20,9 @@ class ConfigStream : public ScriptStream{
 		std::string getline (char delim);
 		static std::string emptyStringTxt;
 		Version ver;
-private:
 		std::string streamText;
+private:
+
 };
 
 template<typename type>
