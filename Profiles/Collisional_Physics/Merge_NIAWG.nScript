@@ -1,0 +1,68 @@
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+%%-----------------------------------------------------------%%
+
+% pws5 0.09243256966580327
+%var_v 7 freqs [ 39 51 63 75 87 99 111 ] 
+var_v 7 pows [ 0.15438086125923162   0.16304936802477857   0.12201356232137629   0.15390372855021173   0.09243256966580327 0.168725046042693   0.14549486413590532   ] 
+var_v 7 phases [ 1.325630117 0.000000000 1.311884828 3.348335934 6.051353821 5.179345038 0.000000000 ] 
+
+var sp 12
+var fsp 4 
+var cf 75
+
+var_v 7 init_freqs [ (cf-3*sp) (cf-2*sp) (cf-sp) (cf) (cf+sp) (cf+2*sp) (cf+3*sp) ]
+var_v 7 fin_freqs [ (cf-3*fsp) (cf-2*fsp) (cf-fsp) (cf) (cf+fsp) (cf+2*fsp) (cf+3*fsp) ]
+var_v 7 ramps [ lin lin lin nr lin lin lin ]
+var_v 7 single_pow [ 0 0 0 1 0 0 0 ]
+var_v 7 new_phase [ -1 -1 -1 -1 -1 -1 -1 ]
+
+var_v 7 ampramp1 [ lin nr nr nr nr nr lin ]
+var_V 7 evenramp [ nr nr lin nr lin nr nr ]
+var_v 7 pows1 [ 0   0.16304936802477857   pws3   0.15390372855021173 pws5   0.168725046042693   0   ] 
+var_v 7 closepows [ 0.15438086125923162   0.16304936802477857   pws3   0.15390372855021173 pws5 0.168725046042693   0.14549486413590532   ]
+var_v 7 ampramp2 [ nr lin nr nr nr lin nr ]
+var_v 7 pows2 [ 0   0   pws3   0.15390372855021173 pws5   0 0   ] 
+var_v 7 ampramp3 [ nr nr lin lin lin nr nr ]
+
+
+repeatTilTrig
+gen7const_v Horizontal
+init_freqs pows phases # 
+gen1const Vertical
+75	1	0 #
+0.01 0
+endRepeat
+
+gen7freq&ampramp_v Horizontal
+ramps init_freqs fin_freqs evenramp pows closepows phases #
+gen1const Vertical
+75	1	0 #
+5 0
+
+gen7ampramp_v Horizontal
+fin_freqs ampramp1 closepows pows1 new_phase #
+gen1const Vertical
+75	1	0 #
+ramptime 0
+
+gen7ampramp_v Horizontal
+fin_freqs ampramp2 pows1 pows2 new_phase #
+gen1const Vertical
+75	1	0 #
+ramptime 0
+
+gen7ampramp_v Horizontal
+fin_freqs ampramp3 pows2 single_pow new_phase #
+gen1const Vertical
+75	1	0 #
+ramptime 0
+
+repeatTilTrig
+gen7const_v Horizontal
+fin_freqs single_pow new_phase # 
+gen1const Vertical
+75	1	0 #
+1 0
+endRepeat
+
+

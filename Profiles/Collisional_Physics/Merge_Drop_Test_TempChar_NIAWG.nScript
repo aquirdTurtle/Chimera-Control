@@ -1,0 +1,89 @@
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+%%-----------------------------------------------------------%%
+
+%var_v 7 freqs [ 39 51 63 75 87 99 111 ] 
+
+var_v 3 pows [ 0.12201356232137629 0.15390372855021173  0.1175 ] 
+var_v 3 phases [ 1.311884828 3.348335934 6.051353821 ] 
+
+var sp 12
+var fsp 2 
+var cf 75
+var dumpf 111
+
+var dumpBias 0.8
+var loadBias 0.001
+
+var_v 3 init_freqs [ (cf-sp) (cf) (cf+sp) ]
+var_v 3 fin_freqs [ (cf-fsp) (cf) (cf+fsp) ]
+var_v 3 ramps [ lin nr lin ]
+var_v 3 single_pow [ 0 1 0 ]
+var_v 3 new_phase [ -1 -1 -1 ]
+
+var_v 3 ampramp3 [ lin lin lin ]
+
+
+var_v 2 vFreqs [ cf dumpf ]
+var_v 2 linR [ lin lin ] 
+var_v 2 vLoadB [ (1-loadBias) loadBias ] 
+var_v 2 vDumpB [ (1-dumpBias) dumpBias ]
+var_v 2 vPhases [ 0 0 ]
+
+
+repeatTilTrig
+gen3const_v Horizontal
+init_freqs pows phases # 
+gen2const_v Vertical
+vFreqs vLoadB vPhases #
+0.01 0
+endRepeat
+
+gen3freqramp_v Horizontal
+ramps init_freqs fin_freqs pows phases #
+gen2const_v Vertical
+vFreqs vLoadB vPhases #
+5 0
+
+gen3ampramp_v Horizontal
+fin_freqs ampramp3 pows single_pow new_phase #
+gen2const_v Vertical
+vFreqs vLoadB vPhases #
+5 0
+
+repeatTilTrig
+gen3const_v Horizontal
+fin_freqs single_pow new_phase # 
+gen2const_v Vertical
+vFreqs vLoadB vPhases #
+0.01 0
+endRepeat
+
+gen3const_v Horizontal 
+fin_freqs single_pow new_phase #
+gen2ampRamp_v Vertical 
+vFreqs linR vLoadB vDumpB vPhases #
+1 0
+
+repeatTilTrig
+gen3const_v Horizontal 
+fin_freqs single_pow new_phase #
+gen2const_v Vertical 
+vFreqs vDumpB vPhases #
+0.01 0
+endRepeat
+
+gen3const_v Horizontal 
+fin_freqs single_pow new_phase #
+gen2ampRamp_v Vertical 
+vFreqs linR vDumpB vLoadB vPhases #
+1 0
+
+repeatTilTrig
+gen3const_v Horizontal
+fin_freqs single_pow new_phase # 
+gen2const_v Vertical
+vFreqs	vLoadB vPhases #
+0.01 0
+endRepeat
+
+

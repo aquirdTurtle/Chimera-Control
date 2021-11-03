@@ -1,19 +1,11 @@
 % Master-Script See the "?" for info on commands.
 
 def BotRamanPulse(pulseTime):
-
   on: botRamanrf
-
   on: eoramanrf
-
   call send_uw_to_raman_eom()
-
   t += pulseTime
-
   off: botRamanRf
-
   off: eoramanRF
-
   off: eoswitch
-
   off: eoswitch2

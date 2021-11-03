@@ -69,5 +69,10 @@ const std::vector<autoCalConfigInfo> AUTO_CAL_LIST {
 		/*prof*/ { "Lifetime_Measurement", "Atoms", PROFILES_PATH + "Standard_Calibrations\\Atoms" },
 		/*filename*/ "LIFETIME_MEASUREMENT",
 		/*infostr*/ "Running Lifetime Measurement...\r\n"
+	},
+	{
+		/*prof*/ { "StandardTunneling", "Atoms", PROFILES_PATH + "Standard_Calibrations\\Atoms" },
+		/*filename*/ "StandardTunneling",
+		/*infostr*/ "Running Tunneling bias scan...\r\n"
 	}
 };

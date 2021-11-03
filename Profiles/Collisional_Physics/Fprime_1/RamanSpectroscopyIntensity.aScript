@@ -1,0 +1,17 @@
+var loadingDepth 13.4 
+var imagingDepth 9 % 12.7 
+var intraplgmdepth 20.4 
+var ramanDepth 19 
+var dropDepth 3.2
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp lin intrapLGMDepth dropDepth 1 onceWaitTrig #
+ramp lin dropDepth imagingDepth 1 onceWaitTrig #
+ramp lin imagingDepth loadingDepth 1 once #   
+ 
+  
+  
+ 
+ 
+	

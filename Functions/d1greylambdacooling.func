@@ -1,46 +1,46 @@
-% free space grey molasses cooling
-
-def D1greyLambdaCooling():
-  var D1twoToTwopPower -2
-  var cooling_time 3
-  var rspow -5 % 2
-  % init systema
-  var rsfreq -0.2
-  %rsg: (6.834682 + rsfreq*0.001) rspow
-  off: diagMotRf
-  off: sideMotRf
-  off: repumpRf
-  dac: diagMotPower 0
-  dac: sideMotPower 0
-  dac: RepumpPower 0
-  dac: motGradientCurrent 0
-  var side_795_power 0.04
-  var diag_795_power 0.3
-  call send_Uw_To_795_Eom()
-  call zeroFields()
-  on: a15
-  % dealing with servo lag, this ends up turning things on initially during the 
-  % zero fields delay
-  t += -1
-  var delay2 -0.4 
-  t += delay2
-  dac: side795Pow side_795_power
-  dac: Diag795Pow diag_795_power
-  dac: power795 -2
-  on: rf795
-  t += cooling_time 
-  off: rf795
-  off: a15
-  dac: side795Pow 0
-  dac: Diag795Pow 0
-  dac: power795 1
-  on: C3
-  t += 1.2
-  off: C3
-  off: rf795
-
-
-
-
-
-
+% free space grey molasses cooling
+
+def D1greyLambdaCooling():
+  var D1twoToTwopPower -2
+  var cooling_time 3
+  var rspow -5 % 2
+  % init systema
+  var rsfreq -0.2
+  %rsg: (6.834682 + rsfreq*0.001) rspow
+  off: diagMotRf
+  off: sideMotRf
+  off: repumpRf
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  dac: RepumpPower 0
+  dac: motGradientCurrent 0
+  var side_795_power 0.04
+  var diag_795_power 0.3
+  call send_Uw_To_795_Eom()
+  call zeroFields()
+  on: a15
+  % dealing with servo lag, this ends up turning things on initially during the 
+  % zero fields delay
+  t += -1
+  var delay2 -0.4 
+  t += delay2
+  dac: side795Pow side_795_power
+  dac: Diag795Pow diag_795_power
+  dac: power795 -2
+  on: rf795
+  t += cooling_time 
+  off: rf795
+  off: a15
+  dac: side795Pow 0
+  dac: Diag795Pow 0
+  dac: power795 1
+  on: C3
+  t += 1.2
+  off: C3
+  off: rf795
+
+
+
+
+
+

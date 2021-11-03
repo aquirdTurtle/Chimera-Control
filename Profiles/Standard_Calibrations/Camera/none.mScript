@@ -1,0 +1,7 @@
+t = 0.1
+call openAndorShutter()
+dac: dac15 0
+on: andorTrig
+t += andorImageTime
+off: andorTrig
+t += 10

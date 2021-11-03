@@ -1,0 +1,51 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+off: axialRamanShutter
+call openAndorShutter()
+on: tweezerRf %tweezers on 
+on: shutter795
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
+call D1GreyLambdaLoading()
+pulseon: dds_step 0.1
+t += 2
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+call triggerwindfreak()
+t += 2
+call stdPgcImage()
+t += 10
+%call intrappgc()
+call inTrapGreyMolasses() % Cooling stage
+call triggerwindfreak()
+pulseon: dds_step 0.1
+pulseon: tweezerIntensityTrig 0.1 % to moving depth
+t += 1
+pulseon: niawgTrig 0.1 % Begin merge: freq ramp then amp ramp
+t += 5
+pulseon: tweezerIntensityTrig 0.1 % to single depth
+t += 1
+%call intrappgc()
+t += 2
+pulseon: tweezerIntensityTrig 0.1 %To collision depth
+t += 1
+%call gmcollisions()
+%t += waittimeforhotatoms
+pulseon: niawgTrig 0.1 % amp ramp to dump tweezer power
+pulseon: tweezerIntensityTrig 0.1 % to dump depth
+t += 5
+pulseon: tweezerIntensityTrig 0.1 % To singleimg depth
+pulseon: niawgTrig 0.1 % Back to load bias
+t += 1
+call triggerwindfreak()
+call stdpgcimage()
+pulseon: tweezerIntensityTrig 0.1 % to loading depth
+pulseon: niawgTrig 0.1
+t += 3
+
+  
+

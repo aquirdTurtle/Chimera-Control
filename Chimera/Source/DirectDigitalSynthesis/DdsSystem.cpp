@@ -165,6 +165,12 @@ DdsCore& DdsSystem::getCore ( ){
 	return core;
 }
 
+/*
+std::vector<int> stuff = {1};
+stuff.data()
+
+*/
+
 void DdsSystem::refreshCurrentRamps () {
 	currentRamps.resize (rampListview->rowCount ());
 	for (auto rowI : range(rampListview->rowCount ())) {

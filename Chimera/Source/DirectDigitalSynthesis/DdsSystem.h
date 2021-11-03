@@ -49,8 +49,6 @@ class DdsSystem : public IChimeraSystem{
 		bool controlActive = true;
 		std::vector<ddsIndvRampListInfo> currentRamps;
 
-
-
 		DdsCore core;
 };
 

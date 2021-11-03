@@ -3,8 +3,8 @@ def inTrapGreyMolasses():
   % settings
   var D1twoToTwopPower -1.8
   var cooling_time 20
-  var D1SidemotPow 0.75
-  var diagmotD1Pow 0.24
+  var D1SidemotPow 1.0
+  var diagmotD1Pow 0.19
   % init system
   off: diagMotRf
   off: sideMotRf
@@ -29,8 +29,6 @@ def inTrapGreyMolasses():
   dac: diag795pow 0
   dac: side795pow 0
   dac: power795 0.1
-
-  pulseon: rsTrig 0.1
   pulseon: a15 0.1 
   t += 1.1
 

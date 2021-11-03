@@ -1,4 +1,4 @@
-var loadingDepth 13.4 
+var loadingDepth 10.4 % 13.4
 var imagingDepth 9 % 12.7 
 var intraplgmdepth 20.4 
 var ramanDepth 19 
@@ -16,3 +16,4 @@ ramp lin imagingDepth loadingDepth 1 once #
   
  
  
+	

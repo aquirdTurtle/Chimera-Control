@@ -78,6 +78,9 @@ void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterTyp
 
 void DdsCore::writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex ){
 	unsigned short reps = getRepsFromTime ( boxRamp.rampTime );
+	if (reps == 0) {
+		thrower("Zero time dds ramp detected?!");
+	}
 	writeRampReps ( rampIndex, reps );
 	for ( auto boardNum : range ( boxRamp.rampParams.numBoards ( ) ) ){
 		for ( auto channelNum : range ( boxRamp.rampParams.numChannels ( ) ) ){

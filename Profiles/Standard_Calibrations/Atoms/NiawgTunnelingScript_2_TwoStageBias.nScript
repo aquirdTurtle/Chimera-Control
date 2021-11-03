@@ -1,0 +1,92 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var tunnelbias 0.58 
+var ldumpBias 0.79
+var tundumpBias 0.03   
+var ddumpBias 0.02  
+var main_v_f 81 
+var dumpf 117 
+var spacing 5
+
+var_v 2 linR [ lin lin ]
+var_v 2 tanhR [ tanh tanh ] 
+var_v 2 adRampThere [ expDecay_Niawg expDecay_Niawg ]
+var_v 2 adRampBack [ expRise_Niawg expRise_Niawg ]
+var_v 2 freqs [ 75 87 ] 
+var_v 2 finFreqs [ (81-spacing/2) (81+spacing/2) ] 
+var_v 2 bias [ 0.64 0.36 ] 
+var_v 2 loadB [ 0.601 0.399 ] 
+var_v 2 finB [ tunbias1 (1-tunBias1) ]  
+var_v 2 petB [ perturbBias (1-perturbBias) ]
+var_v 2 zPhases [ 0 0 ]  
+var_v 2 cphases [ -1 -1 ]  
+
+var_v 2 vFreqs [ main_v_f dumpf ]
+var_v 2 vLoadB [ (1-loadBias) loadBias ] 
+var_v 2 vStdB [ (1-ldumpBias) ldumpBias ] 
+var_v 2 dumpB [ ddumpBias (1-ddumpbias) ]
+var_v 2 tunB [ tundumpBias (1-tundumpBias) ]
+var loadBias 0.85
+
+repeatTilTrig 
+gen2const_v Horizontal freqs loadB zPhases #  
+gen2const_v Vertical vFreqs vLoadB zPhases #
+0.01 0 endRepeat
+
+gen2ampRamp_v Horizontal freqs linr loadB bias zPhases #  
+gen2ampRamp_v Vertical vFreqs linr vLoadB vStdB zPhases #
+0.01 0 
+
+repeatTilTrig 
+gen2const_v Horizontal freqs bias zPhases #  
+gen2const_v Vertical vFreqs vStdB zPhases #
+0.01 0 endRepeat
+
+gen2const_v Horizontal freqs bias zPhases #  
+gen2ampRamp_v Vertical vFreqs tanhR vStdB dumpB zPhases # 
+1 0
+
+repeatTilTrig 
+gen2const_v Horizontal freqs bias zPhases #  
+gen2const_v Vertical vFreqs dumpB zPhases #
+0.01 0 endRepeat
+% back to normal dump ratio
+gen2Const_v Horizontal freqs bias zPhases #  
+gen2ampRamp_v Vertical vFreqs tanhR dumpB vStdB zPhases #
+1 0
+% FREQ RAMP
+gen2Freq&AmpRamp_v Horizontal linR freqs finFreqs 
+							  linR bias finB zPhases # 
+gen2const_v Vertical vFreqs vStdB zPhases #
+1 0
+% from here on cphases
+% DUMP BIAS RAMP (helps with intensity init)
+gen2const_v Horizontal finFreqs finB cphases #   
+gen2AmpRamp_v Vertical vFreqs linR vStdB tunB 
+                       zPhases #
+0.4 0
+
+% Tunneling settings
+repeatTilTrig
+gen2const_v Horizontal finFreqs finB cphases #   
+gen2const_v Vertical vFreqs tunB zPhases #
+0.01 0 endRepeat
+
+gen2const_v Horizontal finFreqs finB cphases #   
+gen2AmpRamp_v Vertical vFreqs linR tunB vStdB zPhases #
+0.4 0
+
+gen2Freq&AmpRamp_v Horizontal linR finFreqs freqs 
+linR finB bias cphases #   
+gen2const_v Vertical vFreqs vStdB zPhases #
+1 0
+
+repeatTilTrig
+gen2const_v Horizontal freqs bias cphases #   
+gen2const_v Vertical vFreqs vStdB zPhases #
+0.01 0
+endRepeat
+
+

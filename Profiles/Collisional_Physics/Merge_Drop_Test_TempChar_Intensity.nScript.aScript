@@ -1,0 +1,17 @@
+var loadingdepth 13.4
+var imagingDepth 12.7
+var movingDepth 2
+var singleDepth 1.8
+var singleTweezerImgDepth 5.5
+var collisionDepth 8
+var dumpDepth 2
+var intFctr 0.428
+
+hold (loadingDepth*intFctr) 1 onceWaitTrig #  
+ramp lin (loadingDepth*intFctr) (imagingDepth*intFctr) 1 onceWaitTrig #  
+ramp lin (imagingDepth*intFctr) (movingDepth*intFctr) 1 onceWaitTrig #
+ramp lin (movingDepth*intFctr) (singleDepth*intFctr) 1 onceWaitTrig #  
+ramp lin (singleDepth*intFctr) (collisionDepth*intFctr) 1 onceWaitTrig #
+ramp lin (collisionDepth*intFctr) (dumpDepth*intFctr) 1 onceWaitTrig #
+ramp lin (dumpDepth*intFctr) (singleTweezerImgDepth*intFctr) 1 onceWaitTrig #
+ramp lin (singleTweezerImgDepth*intFctr) (loadingDepth*intFctr) 1 once #

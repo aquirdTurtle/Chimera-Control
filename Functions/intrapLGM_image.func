@@ -1,0 +1,37 @@
+% free space grey molasses
+def inTrapLGM_image():
+  % settings
+  var D1twoToTwopPower -1.8
+  var exposure_time 15
+  var D1SidemotPow 0.9
+  var diagmotD1Pow 0.22
+  % init system
+  off: diagMotRf
+  off: sideMotRf
+  off: repumpRf 
+  var diagmotD1Dac 0.3
+  dac: power795 D1twoToTwopPower
+  dac: side795pow { D1SidemotPow sidemot_d1 }
+  dac: diag795pow { diagmotD1Pow diagmot_d1 }
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  
+  call d1greyInTrapPgcFields()
+
+  call send_uw_to_795_eom()
+  %on: tweezerflashrf
+  on: andorTrig
+  on: rf795
+  t += exposure_time 
+  off: rf795
+  off: repumpRf
+  %off: tweezerflashrf
+  dac: diag795pow 0
+  dac: side795pow 0
+  dac: power795 0.1
+  off: andorTrig
+  pulseon: a15 0.1 
+  t += 1.1
+
+
+

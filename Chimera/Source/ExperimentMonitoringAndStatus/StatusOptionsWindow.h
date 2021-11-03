@@ -1,4 +1,5 @@
 #pragma once
+
 #include <qdialog.h>
 #include "ui_StatusControlOptionDlg.h"
 #include "StatusControlOptions.h"

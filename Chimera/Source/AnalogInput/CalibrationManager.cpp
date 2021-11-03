@@ -529,8 +529,13 @@ void CalibrationManager::standardStartThread (std::vector<std::reference_wrapper
 			//*chartData << pt;
 		});
 	connect (threadWorker, &CalibrationThreadWorker::finishedCalibration, this, [this](calSettings cal) {
-			updateCalibrationView (cal);
-			refreshListview ();
+		try {
+			updateCalibrationView(cal);
+			refreshListview();
+			}
+		catch (ChimeraError & err) {
+			this->parentWin->reportErr(err.qtrace());
+		}
 		});
 
 	connect (thread, &QThread::started, threadWorker, &CalibrationThreadWorker::runAll);

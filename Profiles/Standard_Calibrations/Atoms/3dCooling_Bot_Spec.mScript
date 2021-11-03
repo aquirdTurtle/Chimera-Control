@@ -7,12 +7,14 @@ on: totalRamanRf
 on: shutter795
 pulseon: dds_reset 0.1
 pulseon: windfreakTrig 0.05
+call openAndorShutter()
 t += 1
 call turnonmot()
 t += loadMotTime
 call triggerScout()
 call D1GreyLambdaLoading()
-pulseon: windfreakTrig 0.05 
+call triggerWindfreak()
+ 
 t += 20
 pulseon: tweezerIntensityTrig 0.1
 pulseon: dds_step 5
@@ -25,21 +27,31 @@ t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
 call intrapgreymolasses()
-pulseon: windfreakTrig 0.05 
+call triggerWindfreak()
 off: shutter795
 pulseon: tweezerIntensityTrig 0.1
 call send_uw_to_raman_eom()
 t += 1
 call pump2stretch()
 call gsbc()
-pulseon: windfreakTrig 0.05
+call triggerWindfreak()
+
+% var specPulseTime 0.08
+%dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
+%pulseon: topPulseTrig 0.01
+%call topRamanPulse(specPulseTime)
+
+%dac: topPulseLev 0
+%dac: eoPulseLev 0
+%off: axialRamanShutter  
+%off: axialRamanShutter2  
+
+
+%pulseon: windfreakTrig 0.05
 t += 1
-on: a15
 pulseon: axialMicroPulseTrig 0.01
 dac: eoPulseLev { 0.255 eo_raman } % eo_raman__sv
 call botRamanPulse(tbsbcpulselen)
-off: a15
-dac: topPulseLev 0
 dac: eoPulseLev 0
 off: axialRamanShutter  
 off: axialRamanShutter2  
@@ -54,5 +66,4 @@ call stdPgcImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 off: tweezerRf
-off: windfreakTrig
 t += 0.2

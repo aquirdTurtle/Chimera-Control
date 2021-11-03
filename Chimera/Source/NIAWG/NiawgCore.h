@@ -151,7 +151,7 @@ class NiawgCore : public IDeviceCore {
 		/// a couple points taken on Friday, Sep 11th 2020, fairly low power coming from the Ti-Saph at the moment.
 		/// 1.64: ~71 mW
 		/// 0.82: ~9 mW
-		/// 0.123 ~31 mW
+		/// 0.123 ~31 mW // probably actually 1.23 here
 		/// ORIGINAL NIAWG GAIN: 1.64
 		//const float NIAWG_GAIN = 1.64f;
 		// new setting after removing power limiting circuit

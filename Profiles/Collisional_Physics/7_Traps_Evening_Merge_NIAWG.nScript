@@ -1,0 +1,53 @@
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+%%-----------------------------------------------------------%%
+
+var_v 7 freqs [ 39 51 63 75 87 99 111 ] 
+var_v 7 pows [  0.14448622169821781 0.1566915867822716 0.11784606941129058 0.1537130565372696 0.09393199606076719 0.17485390935871412 0.15847716015146918 ]
+var_v 7 phases [ 1.325630117 0.000000000 1.311884828 3.348335934 6.051353821 5.179345038 0.000000000 ] 
+
+var sp 12
+var fsp 8
+var cf 75
+
+var_v 7 fin_freqs [ (cf-3*fsp) (cf-2*fsp) (cf-fsp) (cf) (cf+fsp) (cf+2*fsp) (cf+3*fsp) ]
+var_v 7 closerpows [ 0.17844692477708707   0.09060199915263807   0.1511928403704999   0.15433763945144116   0.10398890822460527   0.10063503127617064   0.22079665674755788  ]
+var_v 7 ramps [ lin lin lin nr lin lin lin ]
+var_v 7 powramps [ lin lin lin lin lin lin lin ]
+var_v 7 new_phase [ -1 -1 -1 -1 -1 -1 -1 ]
+
+repeatTilTrig
+gen7const_v Horizontal
+freqs pows phases # 
+gen1const Vertical
+75	1	0 #
+0.01 0
+endRepeat
+
+gen7freq&ampramp_v Horizontal
+ramps freqs fin_freqs powramps pows closerpows phases #
+gen1const Vertical
+75	1	0 #
+5 0
+
+repeatTilTrig
+gen7const_v Horizontal
+fin_freqs closerpows new_phase # 
+gen1const Vertical
+75	1	0 #
+0.01 0
+endRepeat
+
+gen7freq&ampramp_v Horizontal
+ramps fin_freqs freqs powramps closerpows pows new_phase #
+gen1const Vertical
+75	1   0 #
+5 0
+
+repeatTilTrig
+gen7const_v Horizontal
+freqs pows new_phase # 
+gen1const Vertical
+75	1	0 #
+0.01 0
+endRepeat
+

@@ -6,7 +6,9 @@ DoCore::DoCore (bool ftSafemode, bool serialSafemode) : ftFlume (ftSafemode),	wi
 														names(4, 16){
 	try	{
 		connectType = ftdiConnectionOption::Async;
-		ftdi_connectasync ("FT2E722BB");
+		ftdi_connectasync ("FT2E722BB"); // This is the address for the do system, hard-coded for the moment it looks 
+		// like. Not sure why this isn't a "normal" usb address, but I do remember this from before, and am almost sure 
+		// this is associated with the board itself and not the connection to the computer, like com-ports typically are.
 	}
 	catch (ChimeraError &){
 		throwNested ("Failed to initialize DO Core!?!");

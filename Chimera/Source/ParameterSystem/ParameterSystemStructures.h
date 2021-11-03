@@ -129,7 +129,7 @@ struct parameterType {
 	}
 	std::string name="x";
 	// whether this variable is constant or varies.
-	bool constant;
+	bool constant=false;
 	double constantValue = 0;
 	bool active = false;
 	bool overwritten = false;

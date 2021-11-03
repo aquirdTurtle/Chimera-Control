@@ -8,7 +8,7 @@ def lgmImage():
   call d1greyLoadFields()
   call send_uw_to_795_eom()
   t += 10
-  dac: power795 d1imagingpower
+  dac: power795 -1.8
   dac: side795pow 0.3
   dac: diag795pow 0.3
   dac: diagMotPower 0

@@ -2,6 +2,7 @@
 % Time starts at 1 ms.
 t = 0.1
 off: axialRamanShutter
+call openAndorShutter()
 on: tweezerRf %tweezers on
 on: shutter795
 pulseon: dds_reset 0.1

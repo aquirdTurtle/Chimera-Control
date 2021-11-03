@@ -11,8 +11,8 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 	// sample rate in hertz
 	1e6,
 	// Memory location, whether the device will save waveforms to 
-	// the internal 64MB Memory buffer or to an external USB drive, which
-	// can (obviously) have much more space.
+	// the internal 64MB Memory buffer (why so small T.T) or to an external USB drive, which
+	// can have much more space.
 	"INT",
 	// device name (just a convenience, so that the class instance knows 
 	// which device it is
@@ -21,7 +21,8 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 	// Configuration file delimiter, used for saving settings for this 
 	// agilent.
 	"MICROWAVE_AGILENT_AWG",
-	// Calibration coefficients (arb length)
+	// Calibration coefficients (arb length). If this list = coef, user gives Vi, and output is Vo, then
+	// Vo = coef[0] +coef[1]*Vi + coef[2]*Vi^2 + coef[3]*Vi^3 ...
 	{ },
 	{ "output1 off", "output2 off",
 	"Source1:burst:state off",  "Source2:burst:state off",
